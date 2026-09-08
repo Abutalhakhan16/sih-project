@@ -1,58 +1,1483 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { ArrowRight, BadgeCheck, Bell, CalendarDays, Check, ChevronRight, Clock3, CreditCard, Filter, Home, LogOut, MapPin, MessageCircle, Search, ShieldCheck, SlidersHorizontal, Sparkles, Star, TrendingUp, Users, Wallet, Wrench, X, Zap } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import {
+  ArrowRight,
+  BadgeCheck,
+  Bell,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  Clock3,
+  CreditCard,
+  Filter,
+  Home,
+  LogOut,
+  MapPin,
+  MessageCircle,
+  Navigation,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  TrendingUp,
+  Users,
+  Wallet,
+  Wrench,
+  X,
+  Zap,
+  Map as MapIcon,
+  LayoutGrid,
+  HeartPulse,
+  Award,
+  FileText,
+  BarChart3,
+} from 'lucide-react'
+import {
+  Role,
+  Status,
+  Worker,
+  Booking,
+  CustomerLocation,
+  RankedWorker,
+  CoopStats,
+  DemandForecast,
+  NotificationItem,
+} from '@/lib/types'
+import {
+  categories,
+  initialWorkers,
+  initialBookings,
+  initialCustomers,
+  initialCoopStats,
+  initialForecast,
+  initialNotifications,
+  demoWorkerWelfare,
+} from '@/lib/mock-data'
+import {
+  calculateHaversineDistance,
+  DEFAULT_CUSTOMER_LOCATION,
+  formatDistance,
+} from '@/lib/geo'
+import { LanguageProvider, useTranslation } from '@/lib/i18n/LanguageContext'
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
+import ClosestWorkerMapSection from '@/components/map/ClosestWorkerMapSection'
+import BookingTrackingModal from '@/components/tracking/BookingTrackingModal'
+import CoopInsightsView from '@/components/coop/CoopInsightsView'
+import NotificationDropdown from '@/components/ui/NotificationDropdown'
+import WorkerWelfareModal from '@/components/welfare/WorkerWelfareModal'
 
-type Role = 'customer' | 'worker'
-type Status = 'Pending' | 'Accepted' | 'In Progress' | 'Completed'
+function Brand() {
+  const { t } = useTranslation()
+  return (
+    <div className="brand">
+      <span className="brand-mark">
+        <Users size={17} />
+      </span>
+      <span>
+        Co-op<span className="brand-accent">Serve</span>
+      </span>
+    </div>
+  )
+}
 
-type Worker = { id:number; name:string; initials:string; service:string; rating:number; experience:number; distance:number; availability:'Available'|'Busy'|'Offline'; price:number; reviews:number; color:string; bio:string }
-type Booking = { id:number; service:string; worker:string; date:string; status:Status; amount:number }
+function Pill({
+  children,
+  tone = 'neutral',
+}: {
+  children: React.ReactNode
+  tone?: string
+}) {
+  return <span className={`pill pill-${tone}`}>{children}</span>
+}
 
-const categories = ['Electrician','Plumber','Carpenter','Painter','Cleaner','Gardener','Driver','Appliance Repair']
-const customers = ['Ananya Nair','Vikram Rao','Meera Shah','Kavya Menon','Rohan Das','Sana Khan','Arjun Iyer','Divya Patel','Nikhil Jain','Pooja Singh']
-const workers: Worker[] = [
-  {id:1,name:'Rajesh Kumar',initials:'RK',service:'Electrician',rating:4.8,experience:8,distance:1.2,availability:'Available',price:450,reviews:126,color:'peach',bio:'Residential wiring, lighting and safety checks. Known for clear quotes and careful work.'},
-  {id:2,name:'Imran Khan',initials:'IK',service:'Plumber',rating:4.7,experience:6,distance:2.1,availability:'Available',price:350,reviews:98,color:'blue',bio:'Fast leak fixes and bathroom repairs with a practical, no-surprise approach.'},
-  {id:3,name:'Sunil Verma',initials:'SV',service:'Carpenter',rating:4.6,experience:11,distance:3.4,availability:'Busy',price:600,reviews:84,color:'lilac',bio:'Custom furniture, repairs and installations. 11 years serving the neighborhood.'},
-  {id:4,name:'Priya Sharma',initials:'PS',service:'Cleaner',rating:4.9,experience:5,distance:0.8,availability:'Available',price:400,reviews:211,color:'mint',bio:'Detail-focused home cleaner who brings her own eco-friendly supplies.'},
-  {id:5,name:'Arjun Patel',initials:'AP',service:'Painter',rating:4.5,experience:7,distance:4.2,availability:'Available',price:700,reviews:73,color:'yellow',bio:'Interior touch-ups and full-room painting with neat, reliable finishes.'},
-  {id:6,name:'Mohan Yadav',initials:'MY',service:'Gardener',rating:4.7,experience:9,distance:1.9,availability:'Offline',price:500,reviews:65,color:'green',bio:'Garden care, pruning and balcony makeovers for busy households.'},
-  {id:7,name:'Ravi Singh',initials:'RS',service:'Driver',rating:4.6,experience:10,distance:2.7,availability:'Available',price:550,reviews:154,color:'blue',bio:'Verified local driver for errands, airport runs and family transport.'},
-  {id:8,name:'Neha Gupta',initials:'NG',service:'Appliance Repair',rating:4.8,experience:7,distance:1.5,availability:'Available',price:300,reviews:117,color:'peach',bio:'Washing machine, refrigerator and small appliance diagnostics.'},
-  {id:9,name:'Kiran Rao',initials:'KR',service:'Electrician',rating:4.4,experience:4,distance:5.1,availability:'Available',price:400,reviews:41,color:'lilac',bio:'Friendly electrical support for homes and small businesses.'},
-  {id:10,name:'Fatima Ali',initials:'FA',service:'Cleaner',rating:4.8,experience:8,distance:3.6,availability:'Busy',price:450,reviews:109,color:'yellow',bio:'Trusted weekly and move-out cleaning specialist.'},
-]
-const initialBookings: Booking[] = [
-  {id:1,service:'Deep home cleaning',worker:'Priya Sharma',date:'13 Mar 2025',status:'Accepted',amount:650},
-  {id:2,service:'Appliance repair',worker:'Neha Gupta',date:'28 Feb 2025',status:'Completed',amount:480},
-  {id:3,service:'Math tutoring',worker:'Arjun Das',date:'12 Feb 2025',status:'Completed',amount:550},
-  {id:4,service:'Electrical safety check',worker:'Rajesh Kumar',date:'18 Mar 2025',status:'Pending',amount:450},
-  {id:5,service:'Garden trimming',worker:'Mohan Yadav',date:'03 Feb 2025',status:'Completed',amount:700},
-]
+function StatusPill({ status }: { status: Status }) {
+  const { t } = useTranslation()
+  const tone =
+    status === 'Completed'
+      ? 'green'
+      : status === 'In Progress' || status === 'On the Way'
+      ? 'lilac'
+      : status === 'Accepted' || status === 'Assigned'
+      ? 'blue'
+      : status === 'Cancelled'
+      ? 'neutral'
+      : 'yellow'
+  return <Pill tone={tone}>{t(`status.${status}`) || status}</Pill>
+}
 
-function Brand(){return <div className="brand"><span className="brand-mark"><Users size={17}/></span><span>Co-op<span className="brand-accent">Serve</span></span></div>}
-function Pill({children,tone='neutral'}:{children:React.ReactNode,tone?:string}){return <span className={`pill pill-${tone}`}>{children}</span>}
-function StatusPill({status}:{status:Status}){const tone=status==='Completed'?'green':status==='In Progress'?'lilac':status==='Accepted'?'blue':'yellow';return <Pill tone={tone}>{status}</Pill>}
-function Avatar({initials,color='mint'}:{initials:string,color?:string}){return <span className={`person-avatar ${color}`}>{initials}</span>}
+function Avatar({
+  initials,
+  color = 'mint',
+}: {
+  initials: string
+  color?: string
+}) {
+  return <span className={`person-avatar ${color}`}>{initials}</span>
+}
 
-function Login({onEnter}:{onEnter:(role:Role)=>void}){const [role,setRole]=useState<Role>('customer');return <main className="auth-shell"><nav className="topbar"><Brand/><Pill tone="green"><span className="live-dot"/> Live demo</Pill></nav><section className="auth-grid"><div className="auth-copy"><Pill tone="green">A better way to get things done</Pill><h1>Services that put <em>people</em> first.</h1><p>Co-opServe connects households with trusted local workers through a transparent, worker-owned marketplace.</p><div className="proof-row"><div className="avatar-stack"><span>AN</span><span>RK</span><span>PS</span><span>+2k</span></div><span>2,400+ members building fairer work</span></div></div><div className="login-card"><div className="eyebrow">WELCOME TO THE CO-OP</div><h2>Choose your doorway</h2><p className="muted">Try both sides of the cooperative marketplace.</p><div className="role-switch"><button className={role==='customer'?'active':''} onClick={()=>setRole('customer')}><Home size={17}/>Customer</button><button className={role==='worker'?'active':''} onClick={()=>setRole('worker')}><Wrench size={17}/>Gig worker</button></div><div className="demo-account"><Avatar initials={role==='customer'?'AN':'RK'} color={role==='customer'?'peach':'green'}/><div><b>{role==='customer'?'Demo Customer':'Demo Gig Worker'}</b><small>{role==='customer'?'Find nearby help':'Manage your work and earnings'}</small></div><BadgeCheck size={17}/></div><button className="primary full" onClick={()=>onEnter(role)}>Enter {role==='customer'?'customer':'worker'} dashboard <ArrowRight size={16}/></button><p className="terms">No account needed · Demo data is reset on refresh</p></div></section><footer className="auth-footer"><span>Owned by the people who use it.</span><span>Transparent pricing · Fair allocation · Shared prosperity</span></footer></main>}
+function Login({ onEnter }: { onEnter: (role: Role) => void }) {
+  const { t, lang } = useTranslation()
+  const [role, setRole] = useState<Role>('customer')
 
-function SideNav({role,active,setActive,logout}:{role:Role,active:string,setActive:(s:string)=>void,logout:()=>void}){const links=role==='customer'?[['Overview',Home],['Find a service',Search],['My bookings',CalendarDays],['Payments',CreditCard],['Profile & settings',Users]]:[['Overview',Home],['Job requests',Bell],['My schedule',CalendarDays],['Earnings',Wallet],['My profile',Users]];return <aside className="sidebar"><Brand/><div className="workspace"><Avatar initials={role==='customer'?'AN':'RK'} color={role==='customer'?'peach':'green'}/><span>{role==='customer'?'Ananya Nair':'Ravi Kumar'}<small>{role==='customer'?'Customer · Member since 2024':'Gig worker · Verified'}</small></span><ChevronRight size={15}/></div><nav>{links.map(([label,Icon])=><button key={label as string} className={active===label?'nav-active':''} onClick={()=>setActive(label as string)}><Icon size={18}/>{label as string}</button>)}</nav><div className="sidebar-bottom"><div className="coop-note"><ShieldCheck size={17}/><span><b>Co-op protected</b><small>Fair work, fair pay.</small></span></div><button className="logout" onClick={logout}><LogOut size={17}/> Exit demo</button></div></aside>}
-function Header({role}:{role:Role}){return <header className="dash-header"><div className="mobile-brand"><Brand/></div><div className="crumb">Workspace <ChevronRight size={14}/><b>{role==='customer'?'Customer dashboard':'Worker dashboard'}</b></div><div className="header-actions"><button className="icon-button" aria-label="Notifications"><Bell size={18}/><span className="notification-dot"/></button><Avatar initials={role==='customer'?'AN':'RK'} color={role==='customer'?'peach':'green'}/></div></header>}
+  return (
+    <main className="auth-shell">
+      <nav className="topbar">
+        <Brand />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <LanguageSwitcher />
+          <Pill tone="green">
+            <span className="live-dot" /> {t('common.liveDemo')}
+          </Pill>
+        </div>
+      </nav>
+      <section className="auth-grid">
+        <div className="auth-copy">
+          <Pill tone="green">{t('roles.welcomeEyebrow')}</Pill>
+          <h1>
+            {lang === 'hi' ? (
+              <>सेवाएँ जो <em>लोगों</em> को प्राथमिकता देती हैं।</>
+            ) : (
+              <>Services that put <em>people</em> first.</>
+            )}
+          </h1>
+          <p>{t('common.brandSubtext')}</p>
+          <div className="proof-row">
+            <div className="avatar-stack">
+              <span>AN</span>
+              <span>RK</span>
+              <span>PS</span>
+              <span>+2k</span>
+            </div>
+            <span>2,400+ {t('roles.doorwaySubtext')}</span>
+          </div>
+        </div>
+        <div className="login-card">
+          <div className="eyebrow">{t('roles.welcomeEyebrow')}</div>
+          <h2>{t('roles.chooseDoorway')}</h2>
+          <p className="muted">{t('roles.doorwaySubtext')}</p>
+          <div className="role-switch">
+            <button
+              className={role === 'customer' ? 'active' : ''}
+              onClick={() => setRole('customer')}
+            >
+              <Home size={17} />
+              {t('common.customer')}
+            </button>
+            <button
+              className={role === 'worker' ? 'active' : ''}
+              onClick={() => setRole('worker')}
+            >
+              <Wrench size={17} />
+              {t('common.worker')}
+            </button>
+          </div>
+          <div className="demo-account">
+            <Avatar
+              initials={role === 'customer' ? 'AN' : 'RK'}
+              color={role === 'customer' ? 'peach' : 'green'}
+            />
+            <div>
+              <b>{role === 'customer' ? t('roles.demoCustomer') : t('roles.demoWorker')}</b>
+              <small>
+                {role === 'customer'
+                  ? t('roles.demoCustomerSub')
+                  : t('roles.demoWorkerSub')}
+              </small>
+            </div>
+            <BadgeCheck size={17} />
+          </div>
+          <button className="primary full" onClick={() => onEnter(role)}>
+            {role === 'customer' ? t('roles.enterCustomer') : t('roles.enterWorker')}{' '}
+            <ArrowRight size={16} />
+          </button>
+          <p className="terms">{t('common.demoNotice')}</p>
+        </div>
+      </section>
+      <footer className="auth-footer">
+        <span>{t('common.ownedByPeople')}</span>
+        <span>{t('common.transparentPricing')}</span>
+      </footer>
+    </main>
+  )
+}
 
-function WorkerCard({worker,onRequest,onView}:{worker:Worker,onRequest:()=>void,onView:()=>void}){return <article className="worker-card"><div className="worker-card-top"><Avatar initials={worker.initials} color={worker.color}/><div className="worker-main"><b>{worker.name}</b><span>{worker.service}</span><span className="rating"><Star size={13} fill="currentColor"/> {worker.rating} <small>({worker.reviews})</small></span></div><Pill tone={worker.availability==='Available'?'green':worker.availability==='Busy'?'yellow':'neutral'}><span className={`availability-dot ${worker.availability.toLowerCase()}`}/>{worker.availability}</Pill></div><div className="worker-details"><span><MapPin size={14}/>{worker.distance.toFixed(1)} km away</span><span><BadgeCheck size={14}/>{worker.experience} yrs exp.</span><b>From ₹{worker.price}</b></div><div className="worker-actions"><button className="outline-button" onClick={onView}>View profile</button><button className="primary" disabled={worker.availability==='Offline'} onClick={onRequest}>{worker.availability==='Busy'?'Request anyway':'Request worker'} <ArrowRight size={14}/></button></div></article>}
+function SideNav({
+  role,
+  active,
+  setActive,
+  logout,
+}: {
+  role: Role
+  active: string
+  setActive: (s: string) => void
+  logout: () => void
+}) {
+  const { t, lang } = useTranslation()
 
-function ClosestWorkerFeature({service,onRequest}:{service:string,onRequest:(w:Worker)=>void}){const customerLocations={Ananya:[12.9716,77.5946],Vikram:[12.9352,77.6245],Meera:[12.985,77.58]};const [customer,setCustomer]=useState<'Ananya'|'Vikram'|'Meera'>('Ananya');const origin=customerLocations[customer];const coords:Record<number,[number,number]>={1:[12.9795,77.601],2:[12.966,77.611],3:[12.95,77.62],4:[12.976,77.586],5:[12.945,77.57],6:[12.96,77.64],7:[12.98,77.63],8:[12.965,77.59],9:[12.99,77.65],10:[12.94,77.6]};const distance=(a:[number,number],b:[number,number])=>{const dLat=(a[0]-b[0])*111;const dLng=(a[1]-b[1])*103;return Math.sqrt(dLat*dLat+dLng*dLng)};const matches=workers.filter(w=>w.service===service).map(w=>({...w,distance:distance(origin,coords[w.id])}));const available=matches.filter(w=>w.availability==='Available').sort((a,b)=>a.distance-b.distance);const closest=available[0];return <section className="closest-feature"><div className="closest-heading"><div><div className="eyebrow">SMART MATCHING · SYNTHETIC DEMO</div><h3>Closest Available Worker for Your Requirement</h3><p className="muted">We match the exact skill, availability, and shortest route from your location.</p></div><div className="location-controls"><label htmlFor="demo-location">Customer location</label><select id="demo-location" value={customer} onChange={e=>setCustomer(e.target.value as 'Ananya'|'Vikram'|'Meera')}><option value="Ananya">Demo Location A · Ananya</option><option value="Vikram">Demo Location B · Vikram</option><option value="Meera">Demo Location C · Meera</option></select><Pill tone="blue"><MapPin size={13}/> Recalculated live</Pill></div></div>{closest?<><div className="closest-card"><div className="closest-badge"><MapPin size={16}/> Closest match to your requirement</div><div className="closest-main"><Avatar initials={closest.initials} color={closest.color}/><div><b>{closest.name}</b><span>{closest.service} · <Star size={12} fill="currentColor"/> {closest.rating} rating</span><small><MapPin size={13}/> {closest.distance.toFixed(1)} km from you · <span className="availability-dot available"/> Available</small></div><strong>From ₹{closest.price}</strong></div><div className="worker-actions"><button className="outline-button">View profile</button><button className="primary" onClick={()=>onRequest(closest)}>Request now <ArrowRight size={14}/></button></div></div><div className="nearby-list"><b>Other nearby {service}s</b>{matches.filter(w=>w.id!==closest.id).sort((a,b)=>a.distance-b.distance).slice(0,3).map(w=><span key={w.id}>{w.name} · {w.distance.toFixed(1)} km <em>{w.availability}</em></span>)}</div></>:<div className="empty-state"><p>No nearby worker is currently available for this requirement.</p><button className="outline-button">Show all workers</button></div>}</section>}
+  const links =
+    role === 'customer'
+      ? [
+          ['Overview', t('nav.overview'), Home],
+          ['Find a service', t('nav.findService'), Search],
+          ['My bookings', t('nav.myBookings'), CalendarDays],
+          ['Payments', t('nav.payments'), CreditCard],
+          ['Co-op Insights', t('nav.coopInsights'), BarChart3],
+          ['Profile & settings', t('nav.profileSettings'), Users],
+        ]
+      : [
+          ['Overview', t('nav.overview'), Home],
+          ['Job requests', t('nav.jobRequests'), Bell],
+          ['My schedule', t('nav.mySchedule'), CalendarDays],
+          ['Earnings', t('nav.earnings'), Wallet],
+          ['Co-op Insights', t('nav.coopInsights'), BarChart3],
+          ['My profile', t('nav.myProfile'), Users],
+        ]
 
-function CustomerDashboard({onLogout}:{onLogout:()=>void}){const [active,setActive]=useState('Overview');const [service,setService]=useState('Electrician');const [sort,setSort]=useState<'distance'|'rating'>('distance');const [query,setQuery]=useState('');const [bookings,setBookings]=useState(initialBookings);const [selected,setSelected]=useState<Worker|null>(null);const [notice,setNotice]=useState('');const filtered=useMemo(()=>workers.filter(w=>w.service===service && w.name.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>sort==='distance'?a.distance-b.distance:b.rating-a.rating),[service,query,sort]);const request=(w:Worker)=>{setBookings(b=>[{id:Date.now(),service:w.service,worker:w.name,date:'Today · ASAP',status:'Pending',amount:w.price},...b]);setNotice(`Request sent to ${w.name}. They will respond shortly.`);setActive('My bookings')};return <div className="dashboard"><SideNav role="customer" active={active} setActive={setActive} logout={onLogout}/><div className="dash-main"><Header role="customer"/><div className="dash-content">{active==='Overview'&&<ClosestWorkerFeature service={service} onRequest={request}/>} {active==='Overview'&&<><div className="welcome-line"><div><div className="eyebrow">TUESDAY, 12 MARCH 2025</div><h2>Good morning, Ananya.</h2><p className="muted">What would make today a little easier?</p></div><Pill tone="green"><span className="live-dot"/> Member benefits active</Pill></div><div className="hero-booking"><div><Pill tone="yellow">NEED HELP TODAY?</Pill><h3>Find the nearest trusted worker.</h3><p>Choose a service and see vetted local pros sorted by distance.</p><button className="dark-button" onClick={()=>setActive('Find a service')}>Find nearest worker <ArrowRight size={16}/></button></div><div className="hero-art"><span className="art-card art-one"><MapPin size={14}/> Within 5 km</span><span className="art-card art-two"><Star size={14} fill="currentColor"/> 4.9 avg. rating</span><div className="art-circle"><Users size={42}/></div></div></div><div className="section-heading"><div><h3>Popular services</h3><p className="muted">Vetted by your community</p></div><button className="text-button" onClick={()=>setActive('Find a service')}>View all <ArrowRight size={15}/></button></div><div className="service-grid">{categories.slice(0,4).map((name,i)=><button className="service-card" key={name} onClick={()=>{setService(name);setActive('Find a service')}}><span className={`service-icon ${['mint','blue','peach','lilac'][i]}`}><Wrench size={20}/></span><b>{name}</b><small>Nearby workers</small><ChevronRight className="service-arrow" size={16}/></button>)}</div><div className="lower-grid"><div className="panel booking-panel"><div className="panel-head"><div><h3>Upcoming booking</h3><p className="muted">Your next service</p></div><StatusPill status="Accepted"/></div><div className="booking-person"><Avatar initials="PS" color="mint"/><div><b>Deep home cleaning</b><span><CalendarDays size={14}/> Wed, 13 Mar · 10:00 AM</span><span><MapPin size={14}/> 14 Palm Grove, Indiranagar</span></div><button className="icon-button"><MessageCircle size={17}/></button></div><div className="booking-progress"><span className="done"><Check size={12}/></span><i className="filled"/><span className="done"><Check size={12}/></span><i/><span>3</span><i/><span>4</span></div><div className="progress-labels"><small>Requested</small><small>Matched</small><small>In progress</small><small>Complete</small></div></div><div className="panel impact-panel"><div className="panel-head"><div><h3>Your co-op impact</h3><p className="muted">This month</p></div><TrendingUp size={19} className="green-icon"/></div><div className="impact-number">₹1,280 <small>spent locally</small></div><div className="impact-bar"><span/></div><p className="muted">Your bookings helped create <b className="ink">6.4 hours</b> of fairly paid work.</p></div></div></>}{active==='Find a service'&&<><div className="welcome-line"><div><div className="eyebrow">CUSTOMER MARKETPLACE</div><h2>Find your nearest worker</h2><p className="muted">Mock location: Indiranagar, Bengaluru · {filtered.length} workers nearby</p></div><Pill tone="green"><MapPin size={12}/> Location enabled</Pill></div><div className="finder-toolbar"><div className="search-box"><Search size={17}/><input placeholder="Search worker by name" value={query} onChange={e=>setQuery(e.target.value)}/></div><button className="sort-button" onClick={()=>setSort(sort==='distance'?'rating':'distance')}><SlidersHorizontal size={16}/> Sort: {sort==='distance'?'Nearest':'Top rated'}</button></div><div className="category-chips">{categories.map(c=><button key={c} className={service===c?'chosen':''} onClick={()=>setService(c)}>{c}</button>)}</div>{notice&&<div className="notice"><Check size={16}/>{notice}<button onClick={()=>setNotice('')}><X size={15}/></button></div>}<div className="worker-grid customer-workers">{filtered.map(w=><WorkerCard key={w.id} worker={w} onRequest={()=>request(w)} onView={()=>setSelected(w)}/>)}</div>{filtered.length===0&&<div className="empty-state">No workers found for this search.</div>}</>}{active==='My bookings'&&<Bookings bookings={bookings} setBookings={setBookings}/>} {active==='Payments'&&<Payments/>}{active==='Profile & settings'&&<Profile role="customer"/>}</div></div>{selected&&<div className="modal-backdrop" onClick={()=>setSelected(null)}><div className="profile-modal" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={()=>setSelected(null)}><X size={18}/></button><Avatar initials={selected.initials} color={selected.color}/><Pill tone="green"><BadgeCheck size={12}/> Verified co-op worker</Pill><h2>{selected.name}</h2><p className="muted">{selected.service} · {selected.distance.toFixed(1)} km from you</p><div className="modal-stats"><span><Star size={15} fill="currentColor"/> {selected.rating}<small>{selected.reviews} reviews</small></span><span><Clock3 size={15}/>{selected.experience} years<small>experience</small></span><span><Wallet size={15}/>₹{selected.price}<small>starting price</small></span></div><p>{selected.bio}</p><button className="primary full" onClick={()=>{request(selected);setSelected(null)}}>Request worker <ArrowRight size={15}/></button></div></div>}</div>}
+  return (
+    <aside className="sidebar">
+      <Brand />
+      <div className="workspace">
+        <Avatar
+          initials={role === 'customer' ? 'AN' : 'RK'}
+          color={role === 'customer' ? 'peach' : 'green'}
+        />
+        <span>
+          {role === 'customer' ? 'Ananya Nair' : 'Ravi Kumar'}
+          <small>
+            {role === 'customer'
+              ? `${t('common.customer')} · 2024`
+              : `${t('common.worker')} · ${t('common.verified')}`}
+          </small>
+        </span>
+        <ChevronRight size={15} />
+      </div>
+      <nav>
+        {links.map(([key, label, Icon]) => (
+          <button
+            key={key as string}
+            className={active === key ? 'nav-active' : ''}
+            onClick={() => setActive(key as string)}
+          >
+            <Icon size={18} />
+            {label as string}
+          </button>
+        ))}
+      </nav>
+      <div className="sidebar-bottom">
+        <div className="coop-note">
+          <ShieldCheck size={17} />
+          <span>
+            <b>{t('nav.coopProtected')}</b>
+            <small>{t('nav.fairWorkFairPay')}</small>
+          </span>
+        </div>
+        <button className="logout" onClick={logout}>
+          <LogOut size={17} /> {t('common.exitDemo')}
+        </button>
+      </div>
+    </aside>
+  )
+}
 
-function Bookings({bookings,setBookings}:{bookings:Booking[],setBookings:React.Dispatch<React.SetStateAction<Booking[]>>}){const [rated,setRated]=useState<number|null>(null);return <><div className="welcome-line"><div><div className="eyebrow">YOUR ACTIVITY</div><h2>My bookings</h2><p className="muted">Track every service, fairly matched.</p></div><button className="primary">Book a service <ArrowRight size={15}/></button></div><div className="booking-summary"><span><b>{bookings.length}</b> total bookings</span><span><b>{bookings.filter(b=>b.status==='Completed').length}</b> completed</span><span><b>{bookings.filter(b=>b.status==='Pending').length}</b> awaiting response</span></div><div className="panel table-panel"><div className="table-row table-head"><span>Service</span><span>Worker</span><span>Date</span><span>Status</span><span>Amount</span><span>Action</span></div>{bookings.map(b=><div className="table-row" key={b.id}><span><b>{b.service}</b></span><span>{b.worker}</span><span>{b.date}</span><span><StatusPill status={b.status}/></span><span>₹{b.amount}</span><span>{b.status==='Completed'&&!rated?<button className="text-button" onClick={()=>setRated(b.id)}><Star size={14}/> Rate</button>:b.status==='Pending'?<button className="text-button danger" onClick={()=>setBookings(bs=>bs.filter(x=>x.id!==b.id))}>Cancel</button>:rated===b.id?<span className="rated"><Check size={13}/> Thanks</span>:<span className="muted">—</span>}</span></div>)}</div></>}
-function Payments(){return <><div className="welcome-line"><div><div className="eyebrow">TRANSPARENT PAYMENTS</div><h2>Payments</h2><p className="muted">See exactly where your money goes.</p></div></div><div className="payment-split"><div className="panel"><h3>March statement</h3><p className="muted">5 services · paid securely</p><div className="big-amount">₹1,680</div><div className="split-line"><span>Worker earnings <b>₹1,260</b></span><span>Co-op operations <b>₹336</b></span><span>Community fund <b>₹84</b></span></div></div><div className="panel fairness-card"><ShieldCheck size={26}/><h3>Fairness by default</h3><p>Every payment keeps at least 75% with the worker, with the rest sustaining the co-op and community fund.</p><Pill tone="green">100% transparent</Pill></div></div></>}
-function Profile({role}:{role:Role}){return <><div className="welcome-line"><div><div className="eyebrow">ACCOUNT SETTINGS</div><h2>{role==='customer'?'Ananya Nair':'Ravi Kumar'}</h2><p className="muted">Manage your profile and community preferences.</p></div><Pill tone="green"><BadgeCheck size={12}/> Verified member</Pill></div><div className="profile-grid"><div className="panel profile-card"><Avatar initials={role==='customer'?'AN':'RK'} color={role==='customer'?'peach':'green'}/><h3>{role==='customer'?'Customer account':'Worker profile'}</h3><p className="muted">{role==='customer'?'Indiranagar, Bengaluru':'Electrician · 8 years experience'}</p><button className="outline-button">Edit profile</button></div><div className="panel settings-list"><div><ShieldCheck size={18}/><span><b>Co-op protection</b><small>Community guidelines and support are active.</small></span><ChevronRight size={16}/></div><div><Bell size={18}/><span><b>Notifications</b><small>Booking updates and worker messages.</small></span><ChevronRight size={16}/></div><div><CreditCard size={18}/><span><b>Payment methods</b><small>Secure demo payment settings.</small></span><ChevronRight size={16}/></div></div></div></>}
+function Header({
+  role,
+  onOpenNotifications,
+  unreadCount,
+}: {
+  role: Role
+  onOpenNotifications: () => void
+  unreadCount: number
+}) {
+  const { t } = useTranslation()
+  return (
+    <header className="dash-header">
+      <div className="mobile-brand">
+        <Brand />
+      </div>
+      <div className="crumb">
+        {t('nav.workspace')} <ChevronRight size={14} />
+        <b>{role === 'customer' ? t('nav.customerDashboard') : t('nav.workerDashboard')}</b>
+      </div>
+      <div className="header-actions">
+        {/* Bilingual Language Switcher */}
+        <LanguageSwitcher />
 
-function WorkerDashboard({onLogout}:{onLogout:()=>void}){const [active,setActive]=useState('Overview');const [available,setAvailable]=useState(true);const [accepted,setAccepted]=useState(false);const [done,setDone]=useState(false);const [notice,setNotice]=useState('');const accept=()=>{setAccepted(true);setNotice('Request accepted. Customer details are now unlocked.')};return <div className="dashboard"><SideNav role="worker" active={active} setActive={setActive} logout={onLogout}/><div className="dash-main"><Header role="worker"/><div className="dash-content">{(active==='Overview'||active==='Job requests')&&<><div className="welcome-line"><div><div className="eyebrow">WORKER SPACE · TUESDAY, 12 MARCH</div><h2>Welcome back, Ravi.</h2><p className="muted">Your skills make the co-op stronger.</p></div><button className={`availability ${available?'is-on':''}`} onClick={()=>setAvailable(!available)}><span/>{available?'Available for work':'Offline'}</button></div><div className="worker-stats"><div className="stat-card"><span className="stat-icon green"><Wallet size={18}/></span><small>This month&apos;s earnings</small><strong>{done?'₹19,100':'₹18,450'}</strong><span className="stat-change">+18% vs last month</span></div><div className="stat-card"><span className="stat-icon blue"><Star size={18}/></span><small>Community rating</small><strong>4.9 <small>/ 5.0</small></strong><span className="stat-change">Top 8% of workers</span></div><div className="stat-card"><span className="stat-icon peach"><Clock3 size={18}/></span><small>Hours worked</small><strong>32.5 <small>hrs</small></strong><span className="stat-change">8 hrs available</span></div></div>{notice&&<div className="notice"><Check size={16}/>{notice}<button onClick={()=>setNotice('')}><X size={15}/></button></div>}<div className="worker-grid"><div className="panel request-panel"><div className="panel-head"><div><Pill tone="yellow"><span className="pulse-dot"/> NEW REQUEST</Pill><h3>Deep home cleaning</h3><p className="muted">Requested by Ananya Nair · 2 min ago</p></div><b className="request-price">₹650</b></div><div className="request-meta"><span><MapPin size={15}/>1.8 km away</span><span><Clock3 size={15}/>2.5 hours</span><span><CalendarDays size={15}/>Tomorrow, 10 AM</span></div><div className="fair-match"><div className="match-score">94<span>%</span></div><div><b>Fair match score</b><p className="muted">Matched for your skills, distance and fair workload.</p></div><button className="info-button">i</button></div>{accepted?<div className="accepted-state"><Check size={18}/><b>{done?'Job completed':'Job accepted'}</b><span>{done?'Earnings updated. Great work.':'Customer details are now unlocked.'}</span>{!done&&<button className="primary" onClick={()=>{setDone(true);setNotice('Job completed. ₹650 added to your earnings.')}}>Mark complete</button>}</div>:<div className="request-actions"><button className="outline-button" onClick={()=>setNotice('Request declined. We will look for a better match.')}>Decline</button><button className="primary" disabled={!available} onClick={accept}>Accept request <ArrowRight size={15}/></button></div>}</div><div className="panel forecast-panel"><div className="panel-head"><div><Pill tone="lilac"><Sparkles size={12}/> CO-OP AI INSIGHT</Pill><h3>Demand forecast</h3><p className="muted">Next 7 days in Bengaluru</p></div><TrendingUp size={18} className="green-icon"/></div><div className="forecast-chart"><div className="chart-bars">{[38,54,44,72,58,86,66].map((n,i)=><span style={{height:`${n}%`}} className={i===5?'today':''} key={i}/>)}</div><div className="chart-days"><small>Tue</small><small>Wed</small><small>Thu</small><small>Fri</small><small>Sat</small><small>Sun</small><small>Mon</small></div></div><p className="muted"><b className="ink">+24% demand</b> expected this weekend. Consider opening 4 more hours.</p></div></div><div className="panel welfare-strip"><ShieldCheck size={21}/><div><b>Your co-op benefits</b><p className="muted">₹2,400 contributed to your health & emergency fund this year.</p></div><button className="text-button">View benefits <ArrowRight size={15}/></button></div></>}{active==='My schedule'&&<WorkerSchedule/>}{active==='Earnings'&&<WorkerEarnings done={done}/>} {active==='My profile'&&<Profile role="worker"/>}</div></div></div>}
-function WorkerEarnings({done}:{done:boolean}){return <><div className="welcome-line"><div><div className="eyebrow">YOUR MONEY, YOUR DATA</div><h2>Earnings</h2><p className="muted">A clear view of your contribution.</p></div></div><div className="payment-split"><div className="panel"><h3>March earnings</h3><p className="muted">{done?13:12} completed jobs</p><div className="big-amount">{done?'₹19,100':'₹18,450'}</div><div className="split-line"><span>Service earnings <b>{done?'₹16,700':'₹16,050'}</b></span><span>Co-op dividend <b>₹1,200</b></span><span>Benefits fund <b>{done?'₹1,200':'₹1,200'}</b></span></div></div><div className="panel fairness-card"><Wallet size={26}/><h3>Fair pay, visible</h3><p>You keep 75%+ of every booking. Your co-op dividend grows with the value you create together.</p><Pill tone="green">Paid weekly</Pill></div></div></>}
-function WorkerSchedule(){return <><div className="welcome-line"><div><div className="eyebrow">YOUR WEEK</div><h2>My schedule</h2><p className="muted">You have 8 open hours this week.</p></div></div><div className="panel schedule-panel"><div className="schedule-day"><b>Tomorrow · Wed 13 Mar</b><Pill tone="blue">10:00 AM</Pill><span>Deep home cleaning · Ananya Nair · 2.5 hrs</span></div><div className="schedule-day"><b>Friday · 15 Mar</b><Pill tone="green">2:00 PM</Pill><span>Appliance repair · Vikram Rao · 1.5 hrs</span></div><div className="schedule-day open"><b>Saturday · 16 Mar</b><Pill tone="yellow">Open</Pill><span>Demand is high. Add availability to receive requests.</span></div></div></>}
+        {/* Notifications Bell */}
+        <button
+          className="icon-button"
+          aria-label={t('notifications.title')}
+          onClick={onOpenNotifications}
+        >
+          <Bell size={18} />
+          {unreadCount > 0 && <span className="notification-dot" />}
+        </button>
+        <Avatar
+          initials={role === 'customer' ? 'AN' : 'RK'}
+          color={role === 'customer' ? 'peach' : 'green'}
+        />
+      </div>
+    </header>
+  )
+}
 
-export default function Page(){const [role,setRole]=useState<Role|null>(null);return role==='customer'?<CustomerDashboard onLogout={()=>setRole(null)}/>:role==='worker'?<WorkerDashboard onLogout={()=>setRole(null)}/>:<Login onEnter={setRole}/>}
+function WorkerCard({
+  worker,
+  onRequest,
+  onView,
+}: {
+  worker: Worker
+  onRequest: () => void
+  onView: () => void
+}) {
+  const { t } = useTranslation()
+  const status = worker.currentStatus || worker.availability
+  const isAvailable = status === 'Available'
+
+  return (
+    <article className="worker-card">
+      <div className="worker-card-top">
+        <Avatar initials={worker.initials} color={worker.color} />
+        <div className="worker-main">
+          <b>{worker.name}</b>
+          <span>{t(`categories.${worker.service}`) || worker.service}</span>
+          <span className="rating">
+            <Star size={13} fill="currentColor" /> {worker.rating}{' '}
+            <small>({worker.reviews})</small>
+          </span>
+        </div>
+        <Pill
+          tone={
+            isAvailable
+              ? 'green'
+              : status === 'Busy' || status === 'On Job'
+              ? 'yellow'
+              : 'neutral'
+          }
+        >
+          <span
+            className={`availability-dot ${isAvailable ? 'available' : 'busy'}`}
+          />
+          {t(`status.${status}`) || status}
+        </Pill>
+      </div>
+      <div className="worker-details">
+        <span>
+          <MapPin size={14} />
+          {worker.distance ? `${worker.distance.toFixed(1)} km` : 'Nearby'}
+        </span>
+        <span>
+          <BadgeCheck size={14} />
+          {worker.experience} {t('map.yrs')}
+        </span>
+        <b>From ₹{worker.price}</b>
+      </div>
+      <div className="worker-actions">
+        <button type="button" className="outline-button" onClick={onView}>
+          {t('common.viewProfile')}
+        </button>
+        <button
+          type="button"
+          className="primary"
+          disabled={status === 'Offline' || status === 'On Leave'}
+          onClick={onRequest}
+        >
+          {status === 'Busy' || status === 'On Job'
+            ? t('common.requestAnyway')
+            : t('common.requestWorker')}{' '}
+          <ArrowRight size={14} />
+        </button>
+      </div>
+    </article>
+  )
+}
+
+function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
+  const { t, lang } = useTranslation()
+  const [active, setActive] = useState('Overview')
+  const [service, setService] = useState('Plumber')
+  const [sort, setSort] = useState<'distance' | 'rating'>('distance')
+  const [query, setQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
+
+  // Dynamic reactive workers and bookings state
+  const [workersList, setWorkersList] = useState<Worker[]>(initialWorkers)
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings)
+  const [coopStats, setCoopStats] = useState<CoopStats>(initialCoopStats)
+  const [forecast] = useState<DemandForecast[]>(initialForecast)
+  const [notifications] = useState<NotificationItem[]>(initialNotifications)
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  const [selected, setSelected] = useState<Worker | null>(null)
+  const [notice, setNotice] = useState('')
+
+  // Live tracking modal state
+  const [trackingBooking, setTrackingBooking] = useState<Booking | null>(null)
+
+  // Customer location reference for distance calculation in grid view
+  const defaultLoc = DEFAULT_CUSTOMER_LOCATION
+
+  // Filtered & sorted workers list for "Find a service"
+  const filtered = useMemo(() => {
+    return workersList
+      .filter((w) => {
+        const matchesService =
+          w.service.toLowerCase() === service.toLowerCase() ||
+          (w.primarySkill && w.primarySkill.toLowerCase() === service.toLowerCase()) ||
+          (w.secondarySkills && w.secondarySkills.some(s => s.toLowerCase().includes(service.toLowerCase())))
+        const matchesQuery = w.name.toLowerCase().includes(query.toLowerCase())
+        return matchesService && matchesQuery
+      })
+      .map((w) => {
+        const dist = calculateHaversineDistance(
+          defaultLoc.lat,
+          defaultLoc.lng,
+          w.lat,
+          w.lng
+        )
+        return { ...w, distance: dist }
+      })
+      .sort((a, b) => {
+        if (sort === 'distance') {
+          return (a.distance || 0) - (b.distance || 0)
+        }
+        return b.rating - a.rating
+      })
+  }, [workersList, service, query, sort, defaultLoc.lat, defaultLoc.lng])
+
+  // Booking action: switches worker status to Busy and updates dashboard stats
+  const handleBookWorker = (
+    w: Worker | RankedWorker,
+    location?: CustomerLocation
+  ) => {
+    const loc = location || defaultLoc
+    const bookingId = Date.now()
+
+    // 1. Change worker status to 'Busy'
+    setWorkersList((prev) =>
+      prev.map((item) =>
+        item.id === w.id
+          ? { ...item, availability: 'Busy' as const, currentStatus: 'Busy' as const }
+          : item
+      )
+    )
+
+    // 2. Create updated booking entry
+    const newBooking: Booking = {
+      id: bookingId,
+      service: w.service,
+      worker: w.name,
+      workerId: w.id,
+      customerName: 'Ananya Nair',
+      workerLat: w.lat,
+      workerLng: w.lng,
+      customerLat: loc.lat,
+      customerLng: loc.lng,
+      date: 'Today · ASAP',
+      status: 'Accepted',
+      amount: w.price,
+      etaMinutes: (w as any).etaMinutes || 12,
+      address: loc.label,
+      invoiceNumber: `INV-2025-${bookingId.toString().slice(-4)}`,
+      paymentMethod: 'Co-op Wallet Pay',
+      workerEarnings: Math.round(w.price * 0.75),
+      coopFee: Math.round(w.price * 0.20),
+      communityFund: Math.round(w.price * 0.05),
+    }
+
+    setBookings((prev) => [newBooking, ...prev])
+
+    // 3. Update dashboard aggregate counters dynamically
+    setCoopStats((prev) => ({
+      ...prev,
+      activeJobs: prev.activeJobs + 1,
+      totalRequests: prev.totalRequests + 1,
+      revenue: prev.revenue + w.price,
+      workerEarnings: prev.workerEarnings + Math.round(w.price * 0.75),
+    }))
+
+    // 4. Immediately display the worker on the customer's tracking screen
+    setTrackingBooking(newBooking)
+    setNotice(
+      lang === 'hi'
+        ? `${w.name} को अनुरोध भेजा गया! स्थिति 'व्यस्त' में अद्यतन और लाइव ट्रैकिंग सक्रिय।`
+        : `Dispatched request to ${w.name}! Status updated to Busy and live tracking is now active.`
+    )
+  }
+
+  const unreadCount = notifications.filter((n) => n.role === 'customer' && !n.read).length
+
+  return (
+    <div className="dashboard">
+      <SideNav
+        role="customer"
+        active={active}
+        setActive={setActive}
+        logout={onLogout}
+      />
+      <div className="dash-main">
+        <Header
+          role="customer"
+          onOpenNotifications={() => setShowNotifications(!showNotifications)}
+          unreadCount={unreadCount}
+        />
+        <div className="dash-content">
+          {/* OVERVIEW SCREEN */}
+          {active === 'Overview' && (
+            <>
+              {/* REAL INTERACTIVE MAP FEATURE */}
+              <ClosestWorkerMapSection
+                workers={workersList}
+                categories={categories}
+                currentService={service}
+                onServiceChange={setService}
+                onBookWorker={handleBookWorker}
+                onViewProfile={(w) => setSelected(w)}
+              />
+
+              <div className="welcome-line">
+                <div>
+                  <div className="eyebrow">{t('overview.todayIs')}</div>
+                  <h2>{t('overview.goodMorning')}</h2>
+                  <p className="muted">{t('overview.whatHelp')}</p>
+                </div>
+                <Pill tone="green">
+                  <span className="live-dot" /> {t('overview.memberBenefits')}
+                </Pill>
+              </div>
+
+              <div className="hero-booking">
+                <div>
+                  <Pill tone="yellow">{t('overview.needHelp')}</Pill>
+                  <h3>{t('overview.findNearestHero')}</h3>
+                  <p>{t('overview.heroSubtext')}</p>
+                  <button
+                    className="dark-button"
+                    onClick={() => {
+                      setActive('Find a service')
+                      setViewMode('map')
+                    }}
+                  >
+                    {t('overview.exploreOnMap')} <ArrowRight size={16} />
+                  </button>
+                </div>
+                <div className="hero-art">
+                  <span className="art-card art-one">
+                    <MapPin size={14} /> Within 5 km
+                  </span>
+                  <span className="art-card art-two">
+                    <Star size={14} fill="currentColor" /> 4.9 avg. rating
+                  </span>
+                  <div className="art-circle">
+                    <Users size={42} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="section-heading">
+                <div>
+                  <h3>{t('overview.popularServices')}</h3>
+                  <p className="muted">{t('overview.vettedByCommunity')}</p>
+                </div>
+                <button
+                  className="text-button"
+                  onClick={() => setActive('Find a service')}
+                >
+                  {t('overview.viewAll')} <ArrowRight size={15} />
+                </button>
+              </div>
+
+              <div className="service-grid">
+                {categories.slice(0, 4).map((name, i) => (
+                  <button
+                    className="service-card"
+                    key={name}
+                    onClick={() => {
+                      setService(name)
+                      setActive('Find a service')
+                    }}
+                  >
+                    <span
+                      className={`service-icon ${
+                        ['mint', 'blue', 'peach', 'lilac'][i]
+                      }`}
+                    >
+                      <Wrench size={20} />
+                    </span>
+                    <b>{t(`categories.${name}`) || name}</b>
+                    <small>{t('overview.nearbyWorkers')}</small>
+                    <ChevronRight className="service-arrow" size={16} />
+                  </button>
+                ))}
+              </div>
+
+              <div className="lower-grid">
+                <div className="panel booking-panel">
+                  <div className="panel-head">
+                    <div>
+                      <h3>{t('overview.upcomingBooking')}</h3>
+                      <p className="muted">{t('overview.yourNextService')}</p>
+                    </div>
+                    <StatusPill status={bookings[0]?.status || 'Accepted'} />
+                  </div>
+                  <div className="booking-person">
+                    <Avatar
+                      initials={
+                        bookings[0]?.worker
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('') || 'PS'
+                      }
+                      color="mint"
+                    />
+                    <div>
+                      <b>{t(`categories.${bookings[0]?.service}`) || bookings[0]?.service || 'Deep home cleaning'}</b>
+                      <span>
+                        <CalendarDays size={14} /> {bookings[0]?.date || 'Wed, 13 Mar · 10:00 AM'}
+                      </span>
+                      <span>
+                        <MapPin size={14} /> {bookings[0]?.address || '14 Palm Grove, Indiranagar'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="primary text-xs py-1 px-3"
+                      style={{ marginLeft: 'auto', fontSize: '11px', padding: '6px 12px' }}
+                      onClick={() => setTrackingBooking(bookings[0])}
+                    >
+                      <Navigation size={13} />
+                      {t('overview.trackBtn')}
+                    </button>
+                  </div>
+                  <div className="booking-progress">
+                    <span className="done">
+                      <Check size={12} />
+                    </span>
+                    <i className="filled" />
+                    <span className="done">
+                      <Check size={12} />
+                    </span>
+                    <i className="filled" />
+                    <span>3</span>
+                    <i />
+                    <span>4</span>
+                  </div>
+                  <div className="progress-labels">
+                    <small>{t('overview.stepRequested')}</small>
+                    <small>{t('overview.stepAssigned')}</small>
+                    <small>{t('overview.stepInProgress')}</small>
+                    <small>{t('overview.stepComplete')}</small>
+                  </div>
+                </div>
+
+                <div className="panel impact-panel">
+                  <div className="panel-head">
+                    <div>
+                      <h3>{t('overview.coopImpact')}</h3>
+                      <p className="muted">{t('overview.thisMonth')}</p>
+                    </div>
+                    <TrendingUp size={19} className="green-icon" />
+                  </div>
+                  <div className="impact-number">
+                    ₹1,280 <small>{t('overview.spentLocally')}</small>
+                  </div>
+                  <div className="impact-bar">
+                    <span />
+                  </div>
+                  <p className="muted">
+                    {t('overview.impactSubtext', { hours: '6.4' })}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* FIND A SERVICE SCREEN */}
+          {active === 'Find a service' && (
+            <>
+              <div className="welcome-line">
+                <div>
+                  <div className="eyebrow">{t('findService.marketplaceEyebrow')}</div>
+                  <h2>{t('findService.title')}</h2>
+                  <p className="muted">
+                    {t('findService.workersNearby', {
+                      count: filtered.length,
+                      service: t(`categories.${service}`) || service,
+                    })}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className={`map-pill-btn ${viewMode === 'grid' ? 'active-pill' : ''}`}
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <LayoutGrid size={14} /> {t('findService.gridView')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`map-pill-btn ${viewMode === 'map' ? 'active-pill' : ''}`}
+                    onClick={() => setViewMode('map')}
+                  >
+                    <MapIcon size={14} /> {t('findService.mapView')}
+                  </button>
+                </div>
+              </div>
+
+              {/* MAP VIEW */}
+              {viewMode === 'map' && (
+                <ClosestWorkerMapSection
+                  workers={workersList}
+                  categories={categories}
+                  currentService={service}
+                  onServiceChange={setService}
+                  onBookWorker={handleBookWorker}
+                  onViewProfile={(w) => setSelected(w)}
+                />
+              )}
+
+              {/* GRID VIEW */}
+              {viewMode === 'grid' && (
+                <>
+                  <div className="finder-toolbar">
+                    <div className="search-box">
+                      <Search size={17} />
+                      <input
+                        placeholder={t('findService.searchPlaceholder')}
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      className="sort-button"
+                      onClick={() =>
+                        setSort(sort === 'distance' ? 'rating' : 'distance')
+                      }
+                    >
+                      <SlidersHorizontal size={16} />{' '}
+                      {t('findService.sortBy', {
+                        sort: sort === 'distance' ? t('findService.nearest') : t('findService.topRated'),
+                      })}
+                    </button>
+                  </div>
+
+                  <div className="category-chips">
+                    {categories.map((c) => (
+                      <button
+                        key={c}
+                        className={service === c ? 'chosen' : ''}
+                        onClick={() => setService(c)}
+                      >
+                        {t(`categories.${c}`) || c}
+                      </button>
+                    ))}
+                  </div>
+
+                  {notice && (
+                    <div className="notice">
+                      <Check size={16} />
+                      {notice}
+                      <button onClick={() => setNotice('')}>
+                        <X size={15} />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="worker-grid customer-workers">
+                    {filtered.map((w) => (
+                      <WorkerCard
+                        key={w.id}
+                        worker={w}
+                        onRequest={() => handleBookWorker(w)}
+                        onView={() => setSelected(w)}
+                      />
+                    ))}
+                  </div>
+
+                  {filtered.length === 0 && (
+                    <div className="empty-state">
+                      {t('findService.noResults')}
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          {/* MY BOOKINGS SCREEN */}
+          {active === 'My bookings' && (
+            <Bookings
+              bookings={bookings}
+              setBookings={setBookings}
+              onTrack={(b) => setTrackingBooking(b)}
+            />
+          )}
+
+          {/* PAYMENTS SCREEN */}
+          {active === 'Payments' && <Payments />}
+
+          {/* CO-OP INSIGHTS (SIH Cooperative Dashboard & AI Predictions) */}
+          {active === 'Co-op Insights' && (
+            <CoopInsightsView stats={coopStats} forecast={forecast} />
+          )}
+
+          {/* PROFILE & SETTINGS */}
+          {active === 'Profile & settings' && <Profile role="customer" />}
+        </div>
+      </div>
+
+      {/* PROFILE DETAIL MODAL */}
+      {selected && (
+        <div className="modal-backdrop" onClick={() => setSelected(null)}>
+          <div
+            className="profile-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={() => setSelected(null)}
+            >
+              <X size={18} />
+            </button>
+            <Avatar initials={selected.initials} color={selected.color} />
+            <Pill tone="green">
+              <BadgeCheck size={12} /> {t('common.verified')} {t('common.worker')}
+            </Pill>
+            <h2>{selected.name}</h2>
+            <p className="muted">
+              {t(`categories.${selected.service}`) || selected.service} ·{' '}
+              {selected.distance ? `${selected.distance.toFixed(1)} km ${t('map.away')}` : 'Nearby'}
+            </p>
+            <div className="modal-stats">
+              <span>
+                <Star size={15} fill="currentColor" /> {selected.rating}
+                <small>{selected.reviews} {lang === 'hi' ? 'समीक्षाएं' : 'reviews'}</small>
+              </span>
+              <span>
+                <Clock3 size={15} />
+                {selected.experience} {t('map.yrs')}
+                <small>{t('map.experience')}</small>
+              </span>
+              <span>
+                <Wallet size={15} />₹{selected.price}
+                <small>{t('map.startingPrice')}</small>
+              </span>
+            </div>
+            <p>{selected.bio}</p>
+
+            {/* Certifications & Languages */}
+            {selected.certifications && (
+              <div style={{ margin: '14px 0', fontSize: '11px', color: 'var(--muted-foreground)' }}>
+                <b style={{ color: 'var(--foreground)' }}>Certifications: </b>
+                {selected.certifications.join(' · ')}
+              </div>
+            )}
+
+            <button
+              className="primary full"
+              disabled={selected.availability === 'Offline' || selected.availability === 'On Leave'}
+              onClick={() => {
+                handleBookWorker(selected)
+                setSelected(null)
+              }}
+            >
+              {selected.availability === 'Busy' || selected.availability === 'On Job'
+                ? t('common.requestAnyway')
+                : t('common.requestWorker')}{' '}
+              <ArrowRight size={15} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* LIVE BOOKING TRACKING MODAL */}
+      {trackingBooking && (
+        <BookingTrackingModal
+          booking={trackingBooking}
+          worker={workersList.find((w) => w.id === trackingBooking.workerId)}
+          onClose={() => setTrackingBooking(null)}
+        />
+      )}
+
+      {/* NOTIFICATIONS DROPDOWN */}
+      {showNotifications && (
+        <NotificationDropdown
+          notifications={notifications}
+          role="customer"
+          onClose={() => setShowNotifications(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function Bookings({
+  bookings,
+  setBookings,
+  onTrack,
+}: {
+  bookings: Booking[]
+  setBookings: React.Dispatch<React.SetStateAction<Booking[]>>
+  onTrack?: (b: Booking) => void
+}) {
+  const { t } = useTranslation()
+  const [rated, setRated] = useState<number | null>(null)
+
+  return (
+    <>
+      <div className="welcome-line">
+        <div>
+          <div className="eyebrow">{t('bookings.eyebrow')}</div>
+          <h2>{t('bookings.title')}</h2>
+          <p className="muted">{t('bookings.subtitle')}</p>
+        </div>
+        <button className="primary">
+          {t('bookings.bookServiceBtn')} <ArrowRight size={15} />
+        </button>
+      </div>
+      <div className="booking-summary">
+        <span>
+          <b>{bookings.length}</b> {t('bookings.totalBookings', { count: '' })}
+        </span>
+        <span>
+          <b>{bookings.filter((b) => b.status === 'Completed').length}</b> {t('bookings.completedCount', { count: '' })}
+        </span>
+        <span>
+          <b>
+            {
+              bookings.filter(
+                (b) =>
+                  b.status === 'Pending' ||
+                  b.status === 'Accepted' ||
+                  b.status === 'In Progress' ||
+                  b.status === 'On the Way'
+              ).length
+            }
+          </b>{' '}
+          {t('bookings.activeCount', { count: '' })}
+        </span>
+      </div>
+      <div className="panel table-panel">
+        <div className="table-row table-head">
+          <span>{t('bookings.serviceHead')}</span>
+          <span>{t('bookings.workerHead')}</span>
+          <span>{t('bookings.dateHead')}</span>
+          <span>{t('bookings.statusHead')}</span>
+          <span>{t('bookings.amountHead')}</span>
+          <span>{t('bookings.actionHead')}</span>
+        </div>
+        {bookings.map((b) => (
+          <div className="table-row" key={b.id}>
+            <span>
+              <b>{t(`categories.${b.service}`) || b.service}</b>
+            </span>
+            <span>{b.worker}</span>
+            <span>{b.date}</span>
+            <span>
+              <StatusPill status={b.status} />
+            </span>
+            <span>₹{b.amount}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {(b.status === 'Accepted' ||
+                b.status === 'In Progress' ||
+                b.status === 'On the Way' ||
+                b.status === 'Pending') &&
+                onTrack && (
+                  <button
+                    type="button"
+                    className="text-button"
+                    style={{ fontWeight: 700 }}
+                    onClick={() => onTrack(b)}
+                  >
+                    <Navigation size={13} /> {t('common.trackWorker')}
+                  </button>
+                )}
+              {b.status === 'Completed' && !rated ? (
+                <button
+                  className="text-button"
+                  onClick={() => setRated(b.id)}
+                >
+                  <Star size={14} /> {t('bookings.rateBtn')}
+                </button>
+              ) : b.status === 'Pending' ? (
+                <button
+                  className="text-button danger"
+                  onClick={() =>
+                    setBookings((bs) => bs.filter((x) => x.id !== b.id))
+                  }
+                >
+                  {t('bookings.cancelBtn')}
+                </button>
+              ) : rated === b.id ? (
+                <span className="rated">
+                  <Check size={13} /> {t('bookings.ratedThanks')}
+                </span>
+              ) : (
+                <span className="muted">—</span>
+              )}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
+
+function Payments() {
+  const { t } = useTranslation()
+  return (
+    <>
+      <div className="welcome-line">
+        <div>
+          <div className="eyebrow">{t('payments.eyebrow')}</div>
+          <h2>{t('payments.title')}</h2>
+          <p className="muted">{t('payments.subtitle')}</p>
+        </div>
+      </div>
+      <div className="payment-split">
+        <div className="panel">
+          <h3>{t('payments.statementTitle')}</h3>
+          <p className="muted">{t('payments.statementSubtitle', { count: 5 })}</p>
+          <div className="big-amount">₹1,680</div>
+          <div className="split-line">
+            <span>
+              {t('payments.workerEarningsLabel')} <b>₹1,260 (75%)</b>
+            </span>
+            <span>
+              {t('payments.coopOpsLabel')} <b>₹336 (20%)</b>
+            </span>
+            <span>
+              {t('payments.communityFundLabel')} <b>₹84 (5%)</b>
+            </span>
+          </div>
+        </div>
+        <div className="panel fairness-card">
+          <ShieldCheck size={26} />
+          <h3>{t('payments.fairnessTitle')}</h3>
+          <p>{t('payments.fairnessDesc')}</p>
+          <Pill tone="green">{t('payments.transparentTag')}</Pill>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function Profile({ role }: { role: Role }) {
+  const { t } = useTranslation()
+  return (
+    <>
+      <div className="welcome-line">
+        <div>
+          <div className="eyebrow">ACCOUNT SETTINGS</div>
+          <h2>{role === 'customer' ? 'Ananya Nair' : 'Ravi Kumar'}</h2>
+          <p className="muted">Manage your profile and community preferences.</p>
+        </div>
+        <Pill tone="green">
+          <BadgeCheck size={12} /> {t('common.verified')} member
+        </Pill>
+      </div>
+      <div className="profile-grid">
+        <div className="panel profile-card">
+          <Avatar
+            initials={role === 'customer' ? 'AN' : 'RK'}
+            color={role === 'customer' ? 'peach' : 'green'}
+          />
+          <h3>{role === 'customer' ? t('roles.demoCustomer') : t('roles.demoWorker')}</h3>
+          <p className="muted">
+            {role === 'customer'
+              ? 'Indiranagar, Bengaluru'
+              : 'Electrician · 8 years experience'}
+          </p>
+          <button className="outline-button">{t('common.edit')} profile</button>
+        </div>
+        <div className="panel settings-list">
+          <div>
+            <ShieldCheck size={18} />
+            <span>
+              <b>{t('nav.coopProtected')}</b>
+              <small>Community guidelines and social protection are active.</small>
+            </span>
+            <ChevronRight size={16} />
+          </div>
+          <div>
+            <Bell size={18} />
+            <span>
+              <b>{t('notifications.title')}</b>
+              <small>Booking dispatch updates and direct messages.</small>
+            </span>
+            <ChevronRight size={16} />
+          </div>
+          <div>
+            <CreditCard size={18} />
+            <span>
+              <b>{t('common.payment')} methods</b>
+              <small>UPI, Co-op Fair Wallet & NetBanking enabled.</small>
+            </span>
+            <ChevronRight size={16} />
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
+  const { t, lang } = useTranslation()
+  const [active, setActive] = useState('Overview')
+  const [available, setAvailable] = useState(true)
+  const [accepted, setAccepted] = useState(false)
+  const [done, setDone] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [showWelfare, setShowWelfare] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
+
+  const [coopStats] = useState<CoopStats>(initialCoopStats)
+  const [forecast] = useState<DemandForecast[]>(initialForecast)
+  const [notifications] = useState<NotificationItem[]>(initialNotifications)
+
+  const accept = () => {
+    setAccepted(true)
+    setNotice(
+      lang === 'hi'
+        ? 'अनुरोध स्वीकार किया गया। ग्राहक विवरण अब अनलॉक हो गए हैं।'
+        : 'Request accepted. Customer details are now unlocked.'
+    )
+  }
+
+  const unreadCount = notifications.filter((n) => n.role === 'worker' && !n.read).length
+
+  return (
+    <div className="dashboard">
+      <SideNav
+        role="worker"
+        active={active}
+        setActive={setActive}
+        logout={onLogout}
+      />
+      <div className="dash-main">
+        <Header
+          role="worker"
+          onOpenNotifications={() => setShowNotifications(!showNotifications)}
+          unreadCount={unreadCount}
+        />
+        <div className="dash-content">
+          {(active === 'Overview' || active === 'Job requests') && (
+            <>
+              <div className="welcome-line">
+                <div>
+                  <div className="eyebrow">{t('workerDash.spaceEyebrow')}</div>
+                  <h2>{t('workerDash.welcomeBack')}</h2>
+                  <p className="muted">{t('workerDash.skillsMakeStronger')}</p>
+                </div>
+                <button
+                  className={`availability ${available ? 'is-on' : ''}`}
+                  onClick={() => setAvailable(!available)}
+                >
+                  <span />
+                  {available ? t('workerDash.availableForWork') : t('workerDash.offlineStatus')}
+                </button>
+              </div>
+
+              <div className="worker-stats">
+                <div className="stat-card">
+                  <span className="stat-icon green">
+                    <Wallet size={18} />
+                  </span>
+                  <small>{t('workerDash.monthEarnings')}</small>
+                  <strong>{done ? '₹19,100' : '₹18,450'}</strong>
+                  <span className="stat-change">+18% vs last month</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-icon blue">
+                    <Star size={18} />
+                  </span>
+                  <small>{t('workerDash.communityRating')}</small>
+                  <strong>
+                    4.9 <small>/ 5.0</small>
+                  </strong>
+                  <span className="stat-change">Top 8% of workers</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-icon peach">
+                    <Clock3 size={18} />
+                  </span>
+                  <small>{t('workerDash.hoursWorked')}</small>
+                  <strong>
+                    32.5 <small>hrs</small>
+                  </strong>
+                  <span className="stat-change">8 hrs open</span>
+                </div>
+              </div>
+
+              {notice && (
+                <div className="notice">
+                  <Check size={16} />
+                  {notice}
+                  <button onClick={() => setNotice('')}>
+                    <X size={15} />
+                  </button>
+                </div>
+              )}
+
+              <div className="worker-grid">
+                <div className="panel request-panel">
+                  <div className="panel-head">
+                    <div>
+                      <Pill tone="yellow">
+                        <span className="pulse-dot" /> {t('workerDash.newRequest')}
+                      </Pill>
+                      <h3>Deep Home Cleaning</h3>
+                      <p className="muted">Requested by Ananya Nair · 2 min ago</p>
+                    </div>
+                    <b className="request-price">₹650</b>
+                  </div>
+                  <div className="request-meta">
+                    <span>
+                      <MapPin size={15} />
+                      1.8 km {t('map.away')}
+                    </span>
+                    <span>
+                      <Clock3 size={15} />
+                      2.5 hours
+                    </span>
+                    <span>
+                      <CalendarDays size={15} />
+                      Tomorrow, 10 AM
+                    </span>
+                  </div>
+                  <div className="fair-match">
+                    <div className="match-score">
+                      94<span>%</span>
+                    </div>
+                    <div>
+                      <b>{t('workerDash.fairMatchScore')}</b>
+                      <p className="muted">{t('workerDash.fairMatchDesc')}</p>
+                    </div>
+                    <button className="info-button">i</button>
+                  </div>
+                  {accepted ? (
+                    <div className="accepted-state">
+                      <Check size={18} />
+                      <b>{done ? t('workerDash.jobCompleted') : t('workerDash.jobAccepted')}</b>
+                      <span>
+                        {done
+                          ? 'Earnings updated. Great work.'
+                          : t('workerDash.customerUnlocked')}
+                      </span>
+                      {!done && (
+                        <button
+                          className="primary"
+                          onClick={() => {
+                            setDone(true)
+                            setNotice(
+                              lang === 'hi'
+                                ? 'कार्य पूर्ण हुआ। ₹650 आपकी कमाई में जोड़े गए।'
+                                : 'Job completed. ₹650 added to your earnings.'
+                            )
+                          }}
+                        >
+                          {t('workerDash.markComplete')}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="request-actions">
+                      <button
+                        className="outline-button"
+                        onClick={() =>
+                          setNotice(
+                            lang === 'hi'
+                              ? 'अनुरोध अस्वीकार किया गया।'
+                              : 'Request declined.'
+                          )
+                        }
+                      >
+                        {t('workerDash.declineRequest')}
+                      </button>
+                      <button
+                        className="primary"
+                        disabled={!available}
+                        onClick={accept}
+                      >
+                        {t('workerDash.acceptRequest')} <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="panel forecast-panel">
+                  <div className="panel-head">
+                    <div>
+                      <Pill tone="lilac">
+                        <Sparkles size={12} /> {t('workerDash.aiInsight')}
+                      </Pill>
+                      <h3>{t('workerDash.demandForecast')}</h3>
+                      <p className="muted">{t('workerDash.forecastSubtext')}</p>
+                    </div>
+                    <TrendingUp size={18} className="green-icon" />
+                  </div>
+                  <div className="forecast-chart">
+                    <div className="chart-bars">
+                      {[38, 54, 44, 72, 58, 86, 66].map((n, i) => (
+                        <span
+                          style={{ height: `${n}%` }}
+                          className={i === 5 ? 'today' : ''}
+                          key={i}
+                        />
+                      ))}
+                    </div>
+                    <div className="chart-days">
+                      <small>Tue</small>
+                      <small>Wed</small>
+                      <small>Thu</small>
+                      <small>Fri</small>
+                      <small>Sat</small>
+                      <small>Sun</small>
+                      <small>Mon</small>
+                    </div>
+                  </div>
+                  <p className="muted">
+                    <b className="ink">+24% demand</b> expected this weekend.
+                    Consider opening 4 more hours.
+                  </p>
+                </div>
+              </div>
+
+              {/* Welfare Strip with Modal Opener */}
+              <div className="panel welfare-strip">
+                <ShieldCheck size={21} />
+                <div>
+                  <b>{t('workerDash.welfareTitle')}</b>
+                  <p className="muted">{t('workerDash.welfareSubtext')}</p>
+                </div>
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => setShowWelfare(true)}
+                >
+                  {t('workerDash.viewBenefits')} <ArrowRight size={15} />
+                </button>
+              </div>
+            </>
+          )}
+
+          {active === 'My schedule' && <WorkerSchedule />}
+          {active === 'Earnings' && <WorkerEarnings done={done} />}
+          {active === 'Co-op Insights' && (
+            <CoopInsightsView stats={coopStats} forecast={forecast} />
+          )}
+          {active === 'My profile' && <Profile role="worker" />}
+        </div>
+      </div>
+
+      {/* WORKER WELFARE MODAL */}
+      {showWelfare && (
+        <WorkerWelfareModal
+          welfare={demoWorkerWelfare}
+          workerName="Ravi Kumar"
+          onClose={() => setShowWelfare(false)}
+        />
+      )}
+
+      {/* NOTIFICATIONS DROPDOWN */}
+      {showNotifications && (
+        <NotificationDropdown
+          notifications={notifications}
+          role="worker"
+          onClose={() => setShowNotifications(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function WorkerEarnings({ done }: { done: boolean }) {
+  const { t } = useTranslation()
+  return (
+    <>
+      <div className="welcome-line">
+        <div>
+          <div className="eyebrow">YOUR MONEY, YOUR DATA</div>
+          <h2>{t('nav.earnings')}</h2>
+          <p className="muted">A clear view of your contribution.</p>
+        </div>
+      </div>
+      <div className="payment-split">
+        <div className="panel">
+          <h3>March earnings</h3>
+          <p className="muted">{done ? 13 : 12} completed jobs</p>
+          <div className="big-amount">{done ? '₹19,100' : '₹18,450'}</div>
+          <div className="split-line">
+            <span>
+              Service earnings <b>{done ? '₹16,700' : '₹16,050'} (75%)</b>
+            </span>
+            <span>
+              Co-op dividend <b>₹1,200 (15%)</b>
+            </span>
+            <span>
+              Benefits & insurance fund <b>₹1,200 (10%)</b>
+            </span>
+          </div>
+        </div>
+        <div className="panel fairness-card">
+          <Wallet size={26} />
+          <h3>Fair pay, visible</h3>
+          <p>
+            You keep 75%+ of every booking. Your co-op dividend grows with the
+            value you create together.
+          </p>
+          <Pill tone="green">Paid weekly</Pill>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function WorkerSchedule() {
+  const { t } = useTranslation()
+  return (
+    <>
+      <div className="welcome-line">
+        <div>
+          <div className="eyebrow">YOUR WEEK</div>
+          <h2>{t('workerDash.scheduleTitle')}</h2>
+          <p className="muted">{t('workerDash.openHoursThisWeek', { count: 8 })}</p>
+        </div>
+      </div>
+      <div className="panel schedule-panel">
+        <div className="schedule-day">
+          <b>Tomorrow · Wed 13 Mar</b>
+          <Pill tone="blue">10:00 AM</Pill>
+          <span>Deep home cleaning · Ananya Nair · 2.5 hrs</span>
+        </div>
+        <div className="schedule-day">
+          <b>Friday · 15 Mar</b>
+          <Pill tone="green">2:00 PM</Pill>
+          <span>Appliance repair · Vikram Rao · 1.5 hrs</span>
+        </div>
+        <div className="schedule-day open">
+          <b>Saturday · 16 Mar</b>
+          <Pill tone="yellow">Open</Pill>
+          <span>{t('workerDash.openSlot')}</span>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default function Page() {
+  const [role, setRole] = useState<Role | null>(null)
+
+  return (
+    <LanguageProvider>
+      {role === 'customer' ? (
+        <CustomerDashboard onLogout={() => setRole(null)} />
+      ) : role === 'worker' ? (
+        <WorkerDashboard onLogout={() => setRole(null)} />
+      ) : (
+        <Login onEnter={setRole} />
+      )}
+    </LanguageProvider>
+  )
+}
