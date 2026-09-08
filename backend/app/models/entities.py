@@ -22,6 +22,7 @@ class User(Base):
     customer_profile = relationship("Customer", back_populates="user", uselist=False, cascade="all, delete-orphan")
     worker_profile = relationship("Worker", back_populates="user", uselist=False, cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
+    chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
 
 
 class Cooperative(Base):
@@ -252,3 +253,30 @@ class Welfare(Base):
     leave_balance = Column(Integer, default=14)
 
     worker = relationship("Worker", back_populates="welfare")
+
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    role = Column(String(50), default="customer")
+    context_data = Column(Text, nullable=True)  # JSON-encoded conversation session state
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="chat_sessions")
+    messages = relationship("ChatMessage", back_populates="session", cascade="all, delete-orphan", order_by="ChatMessage.timestamp.asc()")
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    session_id = Column(Integer, ForeignKey("chat_sessions.id", ondelete="CASCADE"), nullable=False)
+    sender = Column(String(50), nullable=False)  # 'user', 'assistant', 'system'
+    message = Column(Text, nullable=False)
+    metadata_json = Column(Text, nullable=True)  # JSON-encoded metadata (cards, actions, badges)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    session = relationship("ChatSession", back_populates="messages")

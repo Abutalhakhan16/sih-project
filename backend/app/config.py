@@ -1,6 +1,6 @@
 import os
-from typing import List
-from pydantic_settings import BaseSettings
+from typing import List, Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 class Settings(BaseSettings):
@@ -38,9 +38,16 @@ class Settings(BaseSettings):
     DEMO_WORKER_PASSWORD: str = "demo123"
     DEMO_ADMIN_PASSWORD: str = "admin123"
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    # AI Chatbot Provider & Models
+    AI_PROVIDER: str = "local"  # 'local', 'gemini', 'openai'
+    AI_API_KEY: Optional[str] = None
+    AI_MODEL: str = "coopserve-assistant-v1"
+    CHAT_SESSION_EXPIRY_HOURS: int = 24
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
 settings = Settings()

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   BadgeCheck,
@@ -67,6 +67,19 @@ import BookingTrackingModal from '@/components/tracking/BookingTrackingModal'
 import CoopInsightsView from '@/components/coop/CoopInsightsView'
 import NotificationDropdown from '@/components/ui/NotificationDropdown'
 import WorkerWelfareModal from '@/components/welfare/WorkerWelfareModal'
+import AdminDashboard from '@/components/admin/AdminDashboard'
+import Chatbot from '@/components/chat/Chatbot'
+import { coopserveApi } from '@/lib/api/client'
+import {
+  authApi,
+  workersApi,
+  servicesApi,
+  bookingsApi,
+  paymentsApi,
+  ratingsApi,
+  notificationsApi,
+  adminApi,
+} from '@/lib/api'
 
 function Brand() {
   const { t } = useTranslation()
@@ -117,9 +130,23 @@ function Avatar({
   return <span className={`person-avatar ${color}`}>{initials}</span>
 }
 
-function Login({ onEnter }: { onEnter: (role: Role) => void }) {
+function Login({ onEnter }: { onEnter: (role: Role) => Promise<void> }) {
   const { t, lang } = useTranslation()
   const [role, setRole] = useState<Role>('customer')
+  const [loginError, setLoginError] = useState('')
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+
+  const enterDemo = async () => {
+    setLoginError('')
+    setIsLoggingIn(true)
+    try {
+      await onEnter(role)
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Unable to start the demo. Is the API running?')
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
 
   return (
     <main className="auth-shell">
@@ -157,41 +184,61 @@ function Login({ onEnter }: { onEnter: (role: Role) => void }) {
           <div className="eyebrow">{t('roles.welcomeEyebrow')}</div>
           <h2>{t('roles.chooseDoorway')}</h2>
           <p className="muted">{t('roles.doorwaySubtext')}</p>
-          <div className="role-switch">
+          <div className="role-switch" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
             <button
               className={role === 'customer' ? 'active' : ''}
               onClick={() => setRole('customer')}
             >
-              <Home size={17} />
+              <Home size={16} />
               {t('common.customer')}
             </button>
             <button
               className={role === 'worker' ? 'active' : ''}
               onClick={() => setRole('worker')}
             >
-              <Wrench size={17} />
+              <Wrench size={16} />
               {t('common.worker')}
+            </button>
+            <button
+              className={role === 'admin' ? 'active' : ''}
+              onClick={() => setRole('admin')}
+            >
+              <ShieldCheck size={16} />
+              {lang === 'hi' ? 'प्रबंधक' : 'Co-op Admin'}
             </button>
           </div>
           <div className="demo-account">
             <Avatar
-              initials={role === 'customer' ? 'AN' : 'RK'}
-              color={role === 'customer' ? 'peach' : 'green'}
+              initials={role === 'customer' ? 'AN' : role === 'worker' ? 'RK' : 'AD'}
+              color={role === 'customer' ? 'peach' : role === 'worker' ? 'green' : 'blue'}
             />
             <div>
-              <b>{role === 'customer' ? t('roles.demoCustomer') : t('roles.demoWorker')}</b>
+              <b>
+                {role === 'customer'
+                  ? t('roles.demoCustomer')
+                  : role === 'worker'
+                  ? t('roles.demoWorker')
+                  : 'Cooperative Admin'}
+              </b>
               <small>
                 {role === 'customer'
                   ? t('roles.demoCustomerSub')
-                  : t('roles.demoWorkerSub')}
+                  : role === 'worker'
+                  ? t('roles.demoWorkerSub')
+                  : 'Governance, verifications & AI forecasting'}
               </small>
             </div>
             <BadgeCheck size={17} />
           </div>
-          <button className="primary full" onClick={() => onEnter(role)}>
-            {role === 'customer' ? t('roles.enterCustomer') : t('roles.enterWorker')}{' '}
+          <button className="primary full" onClick={enterDemo} disabled={isLoggingIn}>
+            {role === 'customer'
+              ? t('roles.enterCustomer')
+              : role === 'worker'
+              ? t('roles.enterWorker')
+              : 'Enter as Cooperative Admin'}{' '}
             <ArrowRight size={16} />
           </button>
+          {loginError && <p className="notice" role="alert">{loginError}</p>}
           <p className="terms">{t('common.demoNotice')}</p>
         </div>
       </section>
@@ -406,7 +453,7 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings)
   const [coopStats, setCoopStats] = useState<CoopStats>(initialCoopStats)
   const [forecast] = useState<DemandForecast[]>(initialForecast)
-  const [notifications] = useState<NotificationItem[]>(initialNotifications)
+  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
   const [showNotifications, setShowNotifications] = useState(false)
 
   const [selected, setSelected] = useState<Worker | null>(null)
@@ -417,6 +464,16 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
 
   // Customer location reference for distance calculation in grid view
   const defaultLoc = DEFAULT_CUSTOMER_LOCATION
+
+  useEffect(() => {
+    Promise.all([coopserveApi.workers(), coopserveApi.bookings(), coopserveApi.notifications()])
+      .then(([apiWorkers, apiBookings, apiNotifications]) => {
+        setWorkersList(apiWorkers as Worker[])
+        setBookings(apiBookings as Booking[])
+        setNotifications(apiNotifications as NotificationItem[])
+      })
+      .catch(() => setNotice(lang === 'hi' ? 'डेमो डेटा दिखाया जा रहा है; API से कनेक्ट नहीं हो सका।' : 'Showing demo data while the API is unavailable.'))
+  }, [lang])
 
   // Filtered & sorted workers list for "Find a service"
   const filtered = useMemo(() => {
@@ -446,49 +503,28 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
       })
   }, [workersList, service, query, sort, defaultLoc.lat, defaultLoc.lng])
 
-  // Booking action: switches worker status to Busy and updates dashboard stats
-  const handleBookWorker = (
+  // Persist the request first; UI state follows the API response.
+  const handleBookWorker = async (
     w: Worker | RankedWorker,
     location?: CustomerLocation
   ) => {
     const loc = location || defaultLoc
-    const bookingId = Date.now()
-
-    // 1. Change worker status to 'Busy'
-    setWorkersList((prev) =>
-      prev.map((item) =>
-        item.id === w.id
-          ? { ...item, availability: 'Busy' as const, currentStatus: 'Busy' as const }
-          : item
-      )
-    )
-
-    // 2. Create updated booking entry
-    const newBooking: Booking = {
-      id: bookingId,
-      service: w.service,
-      worker: w.name,
-      workerId: w.id,
-      customerName: 'Ananya Nair',
-      workerLat: w.lat,
-      workerLng: w.lng,
-      customerLat: loc.lat,
-      customerLng: loc.lng,
-      date: 'Today · ASAP',
-      status: 'Accepted',
-      amount: w.price,
-      etaMinutes: (w as any).etaMinutes || 12,
-      address: loc.label,
-      invoiceNumber: `INV-2025-${bookingId.toString().slice(-4)}`,
-      paymentMethod: 'Co-op Wallet Pay',
-      workerEarnings: Math.round(w.price * 0.75),
-      coopFee: Math.round(w.price * 0.20),
-      communityFund: Math.round(w.price * 0.05),
+    let newBooking: Booking
+    try {
+      const created: any = await coopserveApi.createBooking({
+        worker_id: w.id, service: w.service, customer_lat: loc.lat,
+        customer_lng: loc.lng, address: loc.label, amount: w.price,
+        eta_minutes: (w as RankedWorker).etaMinutes || 12,
+      })
+      newBooking = { ...created, status: created.status === 'MATCHED' ? 'Matching' : created.status as Booking['status'] }
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Booking could not be created.')
+      return
     }
 
     setBookings((prev) => [newBooking, ...prev])
 
-    // 3. Update dashboard aggregate counters dynamically
+    // Update dashboard aggregate counters dynamically.
     setCoopStats((prev) => ({
       ...prev,
       activeJobs: prev.activeJobs + 1,
@@ -497,12 +533,12 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
       workerEarnings: prev.workerEarnings + Math.round(w.price * 0.75),
     }))
 
-    // 4. Immediately display the worker on the customer's tracking screen
+    // Immediately display the matched booking in tracking.
     setTrackingBooking(newBooking)
     setNotice(
       lang === 'hi'
-        ? `${w.name} को अनुरोध भेजा गया! स्थिति 'व्यस्त' में अद्यतन और लाइव ट्रैकिंग सक्रिय।`
-        : `Dispatched request to ${w.name}! Status updated to Busy and live tracking is now active.`
+        ? `${w.name} को अनुरोध भेजा गया! लाइव ट्रैकिंग सक्रिय है।`
+        : `Request sent to ${w.name}. Live tracking is now active.`
     )
   }
 
@@ -815,7 +851,7 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
           )}
 
           {/* PAYMENTS SCREEN */}
-          {active === 'Payments' && <Payments />}
+          {active === 'Payments' && <Payments bookings={bookings} />}
 
           {/* CO-OP INSIGHTS (SIH Cooperative Dashboard & AI Predictions) */}
           {active === 'Co-op Insights' && (
@@ -897,6 +933,10 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
           booking={trackingBooking}
           worker={workersList.find((w) => w.id === trackingBooking.workerId)}
           onClose={() => setTrackingBooking(null)}
+          onBookingUpdated={(updated) => {
+            setBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)))
+            setTrackingBooking(updated)
+          }}
         />
       )}
 
@@ -908,6 +948,33 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
           onClose={() => setShowNotifications(false)}
         />
       )}
+
+      {/* CO-OPSERVE AI CHATBOT ASSISTANT */}
+      <Chatbot
+        userRole="customer"
+        userLocation={{ lat: defaultLoc.lat, lng: defaultLoc.lng, label: defaultLoc.label }}
+        onTrackBooking={async (bookingId) => {
+          let target = bookings.find((b) => b.id === bookingId)
+          if (!target) {
+            try {
+              target = await bookingsApi.getBooking(bookingId)
+            } catch (e) {
+              // ignore
+            }
+          }
+          if (target) {
+            setTrackingBooking(target)
+          }
+        }}
+        onViewWorkerProfile={(workerId) => {
+          const target = workersList.find((w) => w.id === workerId)
+          if (target) setSelected(target)
+        }}
+        onBookWorker={(workerId) => {
+          const target = workersList.find((w) => w.id === workerId)
+          if (target) handleBookWorker(target)
+        }}
+      />
     </div>
   )
 }
@@ -921,7 +988,7 @@ function Bookings({
   setBookings: React.Dispatch<React.SetStateAction<Booking[]>>
   onTrack?: (b: Booking) => void
 }) {
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
   const [rated, setRated] = useState<number | null>(null)
 
   return (
@@ -993,26 +1060,42 @@ function Bookings({
                     <Navigation size={13} /> {t('common.trackWorker')}
                   </button>
                 )}
-              {b.status === 'Completed' && !rated ? (
+              {b.status === 'Completed' ? (
                 <button
+                  type="button"
                   className="text-button"
-                  onClick={() => setRated(b.id)}
+                  style={{ color: '#176b4d', fontWeight: 700 }}
+                  onClick={() => onTrack && onTrack(b)}
                 >
-                  <Star size={14} /> {t('bookings.rateBtn')}
+                  <CreditCard size={13} /> {lang === 'hi' ? 'भुगतान करें' : `Pay ₹${b.amount}`}
                 </button>
-              ) : b.status === 'Pending' ? (
+              ) : b.status === 'Paid' ? (
                 <button
-                  className="text-button danger"
-                  onClick={() =>
-                    setBookings((bs) => bs.filter((x) => x.id !== b.id))
-                  }
+                  type="button"
+                  className="text-button"
+                  style={{ color: '#d97706', fontWeight: 600 }}
+                  onClick={() => onTrack && onTrack(b)}
                 >
-                  {t('bookings.cancelBtn')}
+                  <Star size={13} /> {t('bookings.rateBtn')}
                 </button>
-              ) : rated === b.id ? (
+              ) : b.status === 'Rated' || rated === b.id ? (
                 <span className="rated">
                   <Check size={13} /> {t('bookings.ratedThanks')}
                 </span>
+              ) : (b.status === 'Pending' || b.status === 'Requested' || b.status === 'Matching') ? (
+                <button
+                  className="text-button danger"
+                  onClick={async () => {
+                    try {
+                      await bookingsApi.cancelBooking(b.id)
+                      setBookings((bs) => bs.map((x) => (x.id === b.id ? { ...x, status: 'Cancelled' } : x)))
+                    } catch {
+                      setBookings((bs) => bs.filter((x) => x.id !== b.id))
+                    }
+                  }}
+                >
+                  {t('bookings.cancelBtn')}
+                </button>
               ) : (
                 <span className="muted">—</span>
               )}
@@ -1024,8 +1107,15 @@ function Bookings({
   )
 }
 
-function Payments() {
+function Payments({ bookings = [] }: { bookings?: Booking[] }) {
   const { t } = useTranslation()
+  const paidBookings = bookings.filter((b) => ['Paid', 'Rated', 'Completed'].includes(b.status))
+  const totalAmount = paidBookings.reduce((sum, b) => sum + (b.amount || 0), 0) || 1680
+  const count = paidBookings.length || 5
+  const workerShare = Math.round(totalAmount * 0.75)
+  const coopShare = Math.round(totalAmount * 0.20)
+  const fundShare = Math.round(totalAmount * 0.05)
+
   return (
     <>
       <div className="welcome-line">
@@ -1038,17 +1128,17 @@ function Payments() {
       <div className="payment-split">
         <div className="panel">
           <h3>{t('payments.statementTitle')}</h3>
-          <p className="muted">{t('payments.statementSubtitle', { count: 5 })}</p>
-          <div className="big-amount">₹1,680</div>
+          <p className="muted">{t('payments.statementSubtitle', { count })}</p>
+          <div className="big-amount">₹{totalAmount.toLocaleString('en-IN')}</div>
           <div className="split-line">
             <span>
-              {t('payments.workerEarningsLabel')} <b>₹1,260 (75%)</b>
+              {t('payments.workerEarningsLabel')} <b>₹{workerShare.toLocaleString('en-IN')} (75%)</b>
             </span>
             <span>
-              {t('payments.coopOpsLabel')} <b>₹336 (20%)</b>
+              {t('payments.coopOpsLabel')} <b>₹{coopShare.toLocaleString('en-IN')} (20%)</b>
             </span>
             <span>
-              {t('payments.communityFundLabel')} <b>₹84 (5%)</b>
+              {t('payments.communityFundLabel')} <b>₹{fundShare.toLocaleString('en-IN')} (5%)</b>
             </span>
           </div>
         </div>
@@ -1126,24 +1216,86 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
   const { t, lang } = useTranslation()
   const [active, setActive] = useState('Overview')
   const [available, setAvailable] = useState(true)
-  const [accepted, setAccepted] = useState(false)
-  const [done, setDone] = useState(false)
+  const [workerBookings, setWorkerBookings] = useState<Booking[]>(initialBookings)
+  const [currentJob, setCurrentJob] = useState<Booking | null>(null)
+  const [workerProfile, setWorkerProfile] = useState<Worker | null>(null)
   const [notice, setNotice] = useState('')
   const [showWelfare, setShowWelfare] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
 
   const [coopStats] = useState<CoopStats>(initialCoopStats)
   const [forecast] = useState<DemandForecast[]>(initialForecast)
-  const [notifications] = useState<NotificationItem[]>(initialNotifications)
+  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
 
-  const accept = () => {
-    setAccepted(true)
-    setNotice(
-      lang === 'hi'
-        ? 'अनुरोध स्वीकार किया गया। ग्राहक विवरण अब अनलॉक हो गए हैं।'
-        : 'Request accepted. Customer details are now unlocked.'
-    )
+  useEffect(() => {
+    Promise.all([
+      bookingsApi.getBookings().catch(() => []),
+      notificationsApi.getNotifications().catch(() => []),
+      workersApi.getWorkers().catch(() => []),
+    ]).then(([bookingsData, notifData, workersData]) => {
+      if (bookingsData && bookingsData.length > 0) {
+        setWorkerBookings(bookingsData)
+        const activeJob =
+          bookingsData.find((b) =>
+            ['Requested', 'Matching', 'Accepted', 'On the Way', 'Arrived', 'In Progress'].includes(b.status)
+          ) || bookingsData[0]
+        setCurrentJob(activeJob || null)
+      }
+      if (notifData && notifData.length > 0) {
+        setNotifications(notifData)
+      }
+      if (workersData && workersData.length > 0) {
+        setWorkerProfile(workersData[0])
+        setAvailable(workersData[0].availability === 'Available')
+      }
+    })
+  }, [])
+
+  const toggleAvailability = async () => {
+    const next = !available
+    setAvailable(next)
+    if (workerProfile) {
+      try {
+        await workersApi.updateWorkerAvailability(
+          workerProfile.id,
+          next ? 'AVAILABLE' : 'OFFLINE'
+        )
+        setNotice(
+          next
+            ? (lang === 'hi' ? 'आप अब काम के लिए उपलब्ध हैं।' : 'You are now marked Available for work.')
+            : (lang === 'hi' ? 'आपकी स्थिति ऑफ़लाइन कर दी गई है।' : 'Your status is now Offline.')
+        )
+      } catch (err: any) {
+        setNotice(err.message || 'Could not update availability')
+      }
+    }
   }
+
+  const handleTransition = async (nextStatus: string) => {
+    if (!currentJob) return
+    try {
+      const updated = await bookingsApi.updateBookingStatus(currentJob.id, nextStatus)
+      setCurrentJob(updated)
+      setWorkerBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)))
+      if (['Completed', 'Paid', 'Rated'].includes(updated.status)) {
+        setAvailable(true)
+      }
+      setNotice(
+        lang === 'hi'
+          ? `कार्य स्थिति: ${t(`status.${updated.status}`) || updated.status}`
+          : `Job status transitioned to ${updated.status}.`
+      )
+    } catch (err: any) {
+      setNotice(err.message || 'Status transition failed.')
+    }
+  }
+
+  const completedJobsList = workerBookings.filter((b) =>
+    ['Completed', 'Paid', 'Rated'].includes(b.status)
+  )
+  const done = currentJob ? ['Completed', 'Paid', 'Rated'].includes(currentJob.status) : false
+  const totalEarnings =
+    completedJobsList.reduce((acc, b) => acc + Math.round(b.amount * 0.75), 0) || 18450
 
   const unreadCount = notifications.filter((n) => n.role === 'worker' && !n.read).length
 
@@ -1172,7 +1324,7 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
                 <button
                   className={`availability ${available ? 'is-on' : ''}`}
-                  onClick={() => setAvailable(!available)}
+                  onClick={toggleAvailability}
                 >
                   <span />
                   {available ? t('workerDash.availableForWork') : t('workerDash.offlineStatus')}
@@ -1185,8 +1337,8 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                     <Wallet size={18} />
                   </span>
                   <small>{t('workerDash.monthEarnings')}</small>
-                  <strong>{done ? '₹19,100' : '₹18,450'}</strong>
-                  <span className="stat-change">+18% vs last month</span>
+                  <strong>₹{totalEarnings.toLocaleString('en-IN')}</strong>
+                  <span className="stat-change">+{completedJobsList.length} completed jobs</span>
                 </div>
                 <div className="stat-card">
                   <span className="stat-icon blue">
@@ -1225,12 +1377,14 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                   <div className="panel-head">
                     <div>
                       <Pill tone="yellow">
-                        <span className="pulse-dot" /> {t('workerDash.newRequest')}
+                        <span className="pulse-dot" /> {currentJob?.status || t('workerDash.newRequest')}
                       </Pill>
-                      <h3>Deep Home Cleaning</h3>
-                      <p className="muted">Requested by Ananya Nair · 2 min ago</p>
+                      <h3>{currentJob ? (t(`categories.${currentJob.service}`) || currentJob.service) : 'Deep Home Cleaning'}</h3>
+                      <p className="muted">
+                        Requested by {currentJob?.customerName || 'Ananya Nair'} · {currentJob?.address || 'Indiranagar'}
+                      </p>
                     </div>
-                    <b className="request-price">₹650</b>
+                    <b className="request-price">₹{currentJob?.amount || 650}</b>
                   </div>
                   <div className="request-meta">
                     <span>
@@ -1243,7 +1397,7 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                     </span>
                     <span>
                       <CalendarDays size={15} />
-                      Tomorrow, 10 AM
+                      {currentJob?.date ? new Date(currentJob.date).toLocaleDateString() : 'Today'}
                     </span>
                   </div>
                   <div className="fair-match">
@@ -1256,49 +1410,74 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                     </div>
                     <button className="info-button">i</button>
                   </div>
-                  {accepted ? (
+
+                  {/* Lifecycle Controls */}
+                  {currentJob && ['Completed', 'Paid', 'Rated'].includes(currentJob.status) ? (
                     <div className="accepted-state">
                       <Check size={18} />
-                      <b>{done ? t('workerDash.jobCompleted') : t('workerDash.jobAccepted')}</b>
-                      <span>
-                        {done
-                          ? 'Earnings updated. Great work.'
-                          : t('workerDash.customerUnlocked')}
-                      </span>
-                      {!done && (
-                        <button
-                          className="primary"
-                          onClick={() => {
-                            setDone(true)
-                            setNotice(
-                              lang === 'hi'
-                                ? 'कार्य पूर्ण हुआ। ₹650 आपकी कमाई में जोड़े गए।'
-                                : 'Job completed. ₹650 added to your earnings.'
-                            )
-                          }}
-                        >
-                          {t('workerDash.markComplete')}
-                        </button>
-                      )}
+                      <b>{t('workerDash.jobCompleted')}</b>
+                      <span>Earnings updated: ₹{Math.round(currentJob.amount * 0.75)} credited to your Co-op wallet.</span>
+                    </div>
+                  ) : currentJob && currentJob.status === 'In Progress' ? (
+                    <div className="accepted-state">
+                      <Clock3 size={18} />
+                      <b>Service in progress</b>
+                      <span>Perform work according to cooperative quality guidelines.</span>
+                      <button
+                        className="primary"
+                        onClick={() => handleTransition('COMPLETED')}
+                      >
+                        {t('workerDash.markComplete')}
+                      </button>
+                    </div>
+                  ) : currentJob && currentJob.status === 'Arrived' ? (
+                    <div className="accepted-state">
+                      <MapPin size={18} />
+                      <b>Arrived at customer address</b>
+                      <span>Greet customer and initiate service verification.</span>
+                      <button
+                        className="primary"
+                        onClick={() => handleTransition('IN_PROGRESS')}
+                      >
+                        Begin Service
+                      </button>
+                    </div>
+                  ) : currentJob && currentJob.status === 'On the Way' ? (
+                    <div className="accepted-state">
+                      <Navigation size={18} />
+                      <b>En route to customer</b>
+                      <span>Follow GPS navigation route safely.</span>
+                      <button
+                        className="primary"
+                        onClick={() => handleTransition('ARRIVED')}
+                      >
+                        Mark Arrived
+                      </button>
+                    </div>
+                  ) : currentJob && currentJob.status === 'Accepted' ? (
+                    <div className="accepted-state">
+                      <Check size={18} />
+                      <b>{t('workerDash.jobAccepted')}</b>
+                      <span>{t('workerDash.customerUnlocked')}</span>
+                      <button
+                        className="primary"
+                        onClick={() => handleTransition('ON_THE_WAY')}
+                      >
+                        Start Transit (On the Way)
+                      </button>
                     </div>
                   ) : (
                     <div className="request-actions">
                       <button
                         className="outline-button"
-                        onClick={() =>
-                          setNotice(
-                            lang === 'hi'
-                              ? 'अनुरोध अस्वीकार किया गया।'
-                              : 'Request declined.'
-                          )
-                        }
+                        onClick={() => setNotice(lang === 'hi' ? 'अनुरोध अस्वीकार किया गया।' : 'Request declined.')}
                       >
                         {t('workerDash.declineRequest')}
                       </button>
                       <button
                         className="primary"
                         disabled={!available}
-                        onClick={accept}
+                        onClick={() => handleTransition('ACCEPTED')}
                       >
                         {t('workerDash.acceptRequest')} <ArrowRight size={15} />
                       </button>
@@ -1388,6 +1567,9 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
           onClose={() => setShowNotifications(false)}
         />
       )}
+
+      {/* CO-OPSERVE WORKER AI ASSISTANT */}
+      <Chatbot userRole="worker" />
     </div>
   )
 }
@@ -1469,14 +1651,33 @@ function WorkerSchedule() {
 export default function Page() {
   const [role, setRole] = useState<Role | null>(null)
 
+  const enterDemo = async (selectedRole: Role) => {
+    const email =
+      selectedRole === 'customer'
+        ? 'customer@coopserve.demo'
+        : selectedRole === 'worker'
+        ? 'worker1@coopserve.demo'
+        : 'admin@coopserve.demo'
+    const password = selectedRole === 'admin' ? 'admin123' : 'demo123'
+    const result = await authApi.login(email, password)
+    setRole(result.user.role as Role)
+  }
+
+  const logout = () => {
+    authApi.logout()
+    setRole(null)
+  }
+
   return (
     <LanguageProvider>
       {role === 'customer' ? (
-        <CustomerDashboard onLogout={() => setRole(null)} />
+        <CustomerDashboard onLogout={logout} />
       ) : role === 'worker' ? (
-        <WorkerDashboard onLogout={() => setRole(null)} />
+        <WorkerDashboard onLogout={logout} />
+      ) : role === 'admin' ? (
+        <AdminDashboard onLogout={logout} />
       ) : (
-        <Login onEnter={setRole} />
+        <Login onEnter={enterDemo} />
       )}
     </LanguageProvider>
   )

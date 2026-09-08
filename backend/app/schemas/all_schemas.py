@@ -1,11 +1,11 @@
 from typing import List, Optional, Any, Dict
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 # --- AUTH SCHEMAS ---
 class RegisterRequest(BaseModel):
     name: str
-    email: EmailStr
+    email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
     password: str
     phone: Optional[str] = None
     role: str = "customer"  # 'customer', 'worker', 'admin'
@@ -18,7 +18,7 @@ class RegisterRequest(BaseModel):
     longitude: Optional[float] = 77.5946
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
     password: str
 
 class TokenResponse(BaseModel):
@@ -35,8 +35,7 @@ class UserOut(BaseModel):
     language: str
     created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
@@ -51,8 +50,7 @@ class CertificationOut(BaseModel):
     issue_date: Optional[str] = None
     verification_status: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SkillOut(BaseModel):
     name: str
@@ -93,11 +91,14 @@ class WorkerOut(BaseModel):
     isEligible: Optional[bool] = None
     disqualificationReason: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class WorkerAvailabilityUpdate(BaseModel):
     availability: str  # AVAILABLE, BUSY, ON_JOB, OFFLINE, ON_LEAVE
+
+class WorkerVerificationUpdate(BaseModel):
+    verification_status: str  # VERIFIED, REJECTED, PENDING
+    notes: Optional[str] = None
 
 class WorkerLocationUpdate(BaseModel):
     latitude: float
@@ -128,8 +129,7 @@ class ServiceOut(BaseModel):
     required_skill: Optional[str] = None
     is_active: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ServiceCreate(BaseModel):
     category: str
@@ -179,8 +179,7 @@ class InvoiceOut(BaseModel):
     community_fund: float
     issued_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PaymentOut(BaseModel):
     id: int
@@ -191,8 +190,7 @@ class PaymentOut(BaseModel):
     status: str
     paid_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class BookingOut(BaseModel):
     id: int
@@ -222,8 +220,7 @@ class BookingOut(BaseModel):
     invoice: Optional[InvoiceOut] = None
     payment: Optional[PaymentOut] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- PAYMENT SCHEMAS ---
 class PaymentCreateRequest(BaseModel):
@@ -250,8 +247,7 @@ class RatingOut(BaseModel):
     review: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # --- NOTIFICATION SCHEMAS ---
 class NotificationOut(BaseModel):
@@ -309,3 +305,31 @@ class WorkforceRecommendationOut(BaseModel):
     gap: int
     recommendation: str
     priority: str
+
+# --- CHAT SCHEMAS ---
+class ChatMessageRequest(BaseModel):
+    message: str
+    language: Optional[str] = "en"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    address: Optional[str] = None
+    service: Optional[str] = None
+    context: Optional[Dict[str, Any]] = None
+
+class ChatActionPayload(BaseModel):
+    action_type: str  # 'worker_recommendation', 'booking_status', 'emergency_alert', 'worker_stats', 'admin_analytics', 'booking_confirmed', 'services_list'
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+class ChatMessageOut(BaseModel):
+    id: Optional[int] = None
+    sender: str  # 'user', 'assistant', 'system'
+    message: str
+    timestamp: Optional[datetime] = None
+    intent: Optional[str] = None
+    language: Optional[str] = "en"
+    action: Optional[ChatActionPayload] = None
+    suggested_actions: List[str] = []
+
+class ChatHistoryOut(BaseModel):
+    session_id: int
+    messages: List[ChatMessageOut] = []

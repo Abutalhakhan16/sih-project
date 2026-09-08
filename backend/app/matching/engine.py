@@ -37,7 +37,16 @@ def evaluate_worker_match(
     req_svc = requested_service.strip().lower()
     secondary_skills = [s.lower() for s in (worker.get("secondarySkills") or worker.get("secondary_skills") or [])]
 
-    skill_matches = (w_service == req_svc) or any(req_svc in s for s in secondary_skills)
+    # Fuzzy and stemmed skill matching (e.g. Plumbing <-> Plumber, Electrical <-> Electrician)
+    stem_w = w_service[:5] if len(w_service) >= 5 else w_service
+    stem_r = req_svc[:5] if len(req_svc) >= 5 else req_svc
+    skill_matches = (
+        (w_service == req_svc)
+        or (req_svc in w_service)
+        or (w_service in req_svc)
+        or (stem_w == stem_r and len(stem_w) >= 4)
+        or any((req_svc in s or s in req_svc or s[:5] == stem_r) for s in secondary_skills)
+    )
 
     verif_status = worker.get("verificationStatus") or worker.get("verification_status") or "VERIFIED"
     is_verified = (verif_status.upper() == "VERIFIED")

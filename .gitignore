@@ -8,6 +8,9 @@ __v0_jsx-dev-runtime.ts
 
 # Environment variables
 .env*.local
+.env
+backend/coopserve.db
+tsconfig.tsbuildinfo
 
 # Common ignores
 node_modules

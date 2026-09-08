@@ -1,4 +1,4 @@
-export type Role = 'customer' | 'worker'
+export type Role = 'customer' | 'worker' | 'admin'
 
 export type Language = 'en' | 'hi'
 
@@ -8,9 +8,13 @@ export type Status =
   | 'Assigned'
   | 'Accepted'
   | 'On the Way'
+  | 'Arrived'
   | 'In Progress'
   | 'Completed'
+  | 'Paid'
+  | 'Rated'
   | 'Cancelled'
+  | 'Rejected'
   | 'Pending' // backwards-compatibility
 
 export type WorkerAvailability =
@@ -49,6 +53,7 @@ export interface Worker {
   workload: number // active ongoing jobs / capacity indicator
   insuranceStatus: string
   address?: string
+  distance?: number
 }
 
 export interface CustomerLocation {
@@ -104,6 +109,17 @@ export interface Booking {
   workerEarnings?: number
   coopFee?: number
   communityFund?: number
+  invoice?: {
+    id: number
+    invoice_number: string
+    subtotal: number
+    tax: number
+    total: number
+    worker_earnings: number
+    coop_fee: number
+    community_fund: number
+    issued_at?: string
+  }
 }
 
 export interface RankedWorker extends Worker {

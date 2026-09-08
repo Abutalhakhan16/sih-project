@@ -1,0 +1,1 @@
+"""Co-opServe application package."""
