@@ -8,8 +8,11 @@ import {
   CalendarDays,
   Check,
   ChevronRight,
+  Clock,
   Clock3,
   CreditCard,
+  Eye,
+  EyeOff,
   Filter,
   Home,
   LogOut,
@@ -80,6 +83,8 @@ import {
   notificationsApi,
   adminApi,
 } from '@/lib/api'
+import { AuthProvider, useAuth } from '@/lib/auth/AuthContext'
+import { UserProfile } from '@/lib/api/auth'
 
 function Brand() {
   const { t } = useTranslation()
@@ -130,21 +135,124 @@ function Avatar({
   return <span className={`person-avatar ${color}`}>{initials}</span>
 }
 
-function Login({ onEnter }: { onEnter: (role: Role) => Promise<void> }) {
+function Login() {
   const { t, lang } = useTranslation()
+  const { login, demoLogin, register } = useAuth()
   const [role, setRole] = useState<Role>('customer')
-  const [loginError, setLoginError] = useState('')
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [mode, setMode] = useState<'login' | 'register'>('login')
 
-  const enterDemo = async () => {
-    setLoginError('')
-    setIsLoggingIn(true)
+  // Login form states
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
+
+  // Registration form states
+  const [name, setName] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regPhone, setRegPhone] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showRegPassword, setShowRegPassword] = useState(false)
+  const [prefLanguage, setPrefLanguage] = useState<'en' | 'hi'>('en')
+
+  // Worker-specific registration fields
+  const [skill, setSkill] = useState('Plumber')
+  const [experience, setExperience] = useState(2)
+  const [cooperative, setCooperative] = useState('Bengaluru Service Cooperative')
+  const [serviceArea, setServiceArea] = useState('Bengaluru Central')
+
+  // Feedback and UI state
+  const [loading, setLoading] = useState(false)
+  const [demoLoadingRole, setDemoLoadingRole] = useState<Role | null>(null)
+  const [errorMsg, setErrorMsg] = useState('')
+  const [successMsg, setSuccessMsg] = useState('')
+  const [showForgotNotice, setShowForgotNotice] = useState(false)
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMsg('')
+    setSuccessMsg('')
+    if (!identifier.trim()) {
+      setErrorMsg(lang === 'hi' ? 'कृपया अपना ईमेल या मोबाइल नंबर दर्ज करें।' : 'Please enter your email or mobile number.')
+      return
+    }
+    if (!password) {
+      setErrorMsg(lang === 'hi' ? 'कृपया पासवर्ड दर्ज करें।' : 'Please enter your password.')
+      return
+    }
+
+    setLoading(true)
     try {
-      await onEnter(role)
-    } catch (error) {
-      setLoginError(error instanceof Error ? error.message : 'Unable to start the demo. Is the API running?')
+      await login(identifier.trim(), password, rememberMe)
+    } catch (err: any) {
+      setErrorMsg(err?.message || (lang === 'hi' ? 'अमान्य ईमेल या पासवर्ड।' : 'Invalid email or password.'))
     } finally {
-      setIsLoggingIn(false)
+      setLoading(false)
+    }
+  }
+
+  const handleDemoLoginClick = async (demoRole: Role) => {
+    setErrorMsg('')
+    setSuccessMsg('')
+    setDemoLoadingRole(demoRole)
+    try {
+      await demoLogin(demoRole, true)
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Unable to authenticate demo account. Please verify backend is running.')
+    } finally {
+      setDemoLoadingRole(null)
+    }
+  }
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMsg('')
+    setSuccessMsg('')
+    if (!name.trim()) {
+      setErrorMsg(lang === 'hi' ? 'कृपया अपना पूरा नाम दर्ज करें।' : 'Please enter your full name.')
+      return
+    }
+    if (!regEmail.trim()) {
+      setErrorMsg(lang === 'hi' ? 'कृपया एक वैध ईमेल पता दर्ज करें।' : 'Please enter a valid email address.')
+      return
+    }
+    if (!regPassword || regPassword.length < 6) {
+      setErrorMsg(lang === 'hi' ? 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।' : 'Password must be at least 6 characters long.')
+      return
+    }
+    if (regPassword !== confirmPassword) {
+      setErrorMsg(lang === 'hi' ? 'पासवर्ड मेल नहीं खाते हैं।' : 'Passwords do not match.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await register({
+        name: name.trim(),
+        email: regEmail.trim(),
+        phone: regPhone.trim() || undefined,
+        password: regPassword,
+        confirm_password: confirmPassword,
+        role: role as 'customer' | 'worker',
+        language: prefLanguage,
+        service: role === 'worker' ? skill : undefined,
+        skills: role === 'worker' ? [skill] : undefined,
+        experience_years: role === 'worker' ? Number(experience) : undefined,
+        cooperative: role === 'worker' ? cooperative : undefined,
+        service_area: role === 'worker' ? serviceArea : undefined,
+      })
+      if (role === 'worker') {
+        setSuccessMsg(
+          lang === 'hi'
+            ? 'पंजीकरण सफल! आपका सेवा कर्मी खाता व्यवस्थापक सत्यापन के लिए लंबित है।'
+            : 'Registration successful! Your worker profile has been submitted and is pending Admin verification.'
+        )
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Registration failed. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -159,6 +267,7 @@ function Login({ onEnter }: { onEnter: (role: Role) => Promise<void> }) {
           </Pill>
         </div>
       </nav>
+
       <section className="auth-grid">
         <div className="auth-copy">
           <Pill tone="green">{t('roles.welcomeEyebrow')}</Pill>
@@ -180,68 +289,437 @@ function Login({ onEnter }: { onEnter: (role: Role) => Promise<void> }) {
             <span>2,400+ {t('roles.doorwaySubtext')}</span>
           </div>
         </div>
+
         <div className="login-card">
-          <div className="eyebrow">{t('roles.welcomeEyebrow')}</div>
-          <h2>{t('roles.chooseDoorway')}</h2>
-          <p className="muted">{t('roles.doorwaySubtext')}</p>
-          <div className="role-switch" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+          <div className="eyebrow">{mode === 'login' ? 'SECURE ACCESS' : 'CREATE ACCOUNT'}</div>
+          <h2>{mode === 'login' ? t('roles.chooseDoorway') : (role === 'customer' ? 'Customer Registration' : 'Gig Worker Registration')}</h2>
+          <p className="muted">
+            {mode === 'login'
+              ? 'Select your role and authenticate with credentials or use one-click demo login.'
+              : 'Join the transparent, worker-owned cooperative network today.'}
+          </p>
+
+          {/* Role Selector Tabs */}
+          <div className="role-switch" style={{ display: 'grid', gridTemplateColumns: mode === 'register' ? '1fr 1fr' : '1fr 1fr 1fr', gap: '4px' }}>
             <button
+              type="button"
               className={role === 'customer' ? 'active' : ''}
-              onClick={() => setRole('customer')}
+              onClick={() => { setRole('customer'); setErrorMsg(''); }}
             >
-              <Home size={16} />
-              {t('common.customer')}
+              <Home size={15} />
+              <span>{lang === 'hi' ? 'ग्राहक' : 'Customer'}</span>
             </button>
             <button
+              type="button"
               className={role === 'worker' ? 'active' : ''}
-              onClick={() => setRole('worker')}
+              onClick={() => { setRole('worker'); setErrorMsg(''); }}
             >
-              <Wrench size={16} />
-              {t('common.worker')}
+              <Wrench size={15} />
+              <span>{lang === 'hi' ? 'सेवा कर्मी' : 'Gig Worker'}</span>
             </button>
-            <button
-              className={role === 'admin' ? 'active' : ''}
-              onClick={() => setRole('admin')}
-            >
-              <ShieldCheck size={16} />
-              {lang === 'hi' ? 'प्रबंधक' : 'Co-op Admin'}
-            </button>
+            {mode === 'login' && (
+              <button
+                type="button"
+                className={role === 'admin' ? 'active' : ''}
+                onClick={() => { setRole('admin'); setErrorMsg(''); }}
+              >
+                <ShieldCheck size={15} />
+                <span>{lang === 'hi' ? 'प्रबंधक' : 'Co-op Admin'}</span>
+              </button>
+            )}
           </div>
-          <div className="demo-account">
-            <Avatar
-              initials={role === 'customer' ? 'AN' : role === 'worker' ? 'RK' : 'AD'}
-              color={role === 'customer' ? 'peach' : role === 'worker' ? 'green' : 'blue'}
-            />
-            <div>
-              <b>
-                {role === 'customer'
-                  ? t('roles.demoCustomer')
-                  : role === 'worker'
-                  ? t('roles.demoWorker')
-                  : 'Cooperative Admin'}
-              </b>
-              <small>
-                {role === 'customer'
-                  ? t('roles.demoCustomerSub')
-                  : role === 'worker'
-                  ? t('roles.demoWorkerSub')
-                  : 'Governance, verifications & AI forecasting'}
-              </small>
+
+          {/* Status Notices */}
+          {errorMsg && (
+            <div className="notice" role="alert" style={{ marginBottom: '12px' }}>
+              {errorMsg}
             </div>
-            <BadgeCheck size={17} />
+          )}
+          {successMsg && (
+            <div className="notice" style={{ background: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534', marginBottom: '12px' }}>
+              {successMsg}
+            </div>
+          )}
+          {showForgotNotice && (
+            <div className="notice" style={{ background: '#f8fafc', borderColor: '#cbd5e1', color: '#334155', marginBottom: '14px', position: 'relative' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <b>Password Reset Assistance:</b>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px' }}>
+                    Demo accounts use the shared password <code>demo123</code>. For real accounts, password reset instructions are coordinated with your cooperative admin at <code>admin@coopserve.local</code>.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotNotice(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* LOGIN FORM */}
+          {mode === 'login' ? (
+            <form onSubmit={handleLoginSubmit} style={{ marginTop: '10px' }}>
+              <label>
+                <span>{lang === 'hi' ? 'ईमेल या मोबाइल नंबर' : 'Email / Mobile Number'}</span>
+                <input
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder={
+                    role === 'customer'
+                      ? 'demo.customer@coopserve.test or 9000000001'
+                      : role === 'worker'
+                      ? 'demo.worker@coopserve.test or 9000000003'
+                      : 'demo.admin@coopserve.test or 9000000002'
+                  }
+                  required
+                />
+              </label>
+
+              <label>
+                <span>{lang === 'hi' ? 'पासवर्ड' : 'Password'}</span>
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    style={{ width: '100%', paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--muted-foreground)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </label>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '10px 0 16px', fontSize: '12px' }}>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', margin: 0, fontWeight: 500, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    style={{ height: '14px', width: '14px', margin: 0 }}
+                  />
+                  {lang === 'hi' ? 'मुझे याद रखें' : 'Remember Me'}
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setShowForgotNotice(true)}
+                  style={{ background: 'none', border: 'none', color: 'var(--green)', cursor: 'pointer', fontWeight: 600, padding: 0, fontSize: '12px' }}
+                >
+                  {lang === 'hi' ? 'पासवर्ड भूल गए?' : 'Forgot Password?'}
+                </button>
+              </div>
+
+              <button type="submit" className="primary full" disabled={loading}>
+                {loading ? 'Authenticating...' : (
+                  role === 'customer'
+                    ? (lang === 'hi' ? 'ग्राहक के रूप में लॉगिन करें' : 'Login as Customer')
+                    : role === 'worker'
+                    ? (lang === 'hi' ? 'सेवा कर्मी के रूप में लॉगिन करें' : 'Login as Gig Worker')
+                    : (lang === 'hi' ? 'प्रबंधक के रूप में लॉगिन करें' : 'Login as Admin')
+                )}{' '}
+                <ArrowRight size={16} />
+              </button>
+
+              {role !== 'admin' ? (
+                <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setMode('register'); setErrorMsg(''); setSuccessMsg(''); }}
+                    style={{ background: 'none', border: 'none', color: 'var(--green)', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                  >
+                    Register as {role === 'customer' ? 'Customer' : 'Gig Worker'}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '11px', color: 'var(--muted-foreground)' }}>
+                  Cooperative Administrator credentials are authorized by governance council.
+                </div>
+              )}
+            </form>
+          ) : (
+            /* REGISTRATION FORM */
+            <form onSubmit={handleRegisterSubmit} style={{ marginTop: '10px' }}>
+              <label>
+                <span>{lang === 'hi' ? 'पूरा नाम' : 'Full Name'}</span>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={role === 'customer' ? 'e.g. Ananya Nair' : 'e.g. Ramesh Kumar'}
+                  required
+                />
+              </label>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <label>
+                  <span>{lang === 'hi' ? 'ईमेल' : 'Email'}</span>
+                  <input
+                    type="email"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    placeholder="user@example.com"
+                    required
+                  />
+                </label>
+                <label>
+                  <span>{lang === 'hi' ? 'मोबाइल नंबर' : 'Mobile Number'}</span>
+                  <input
+                    type="tel"
+                    value={regPhone}
+                    onChange={(e) => setRegPhone(e.target.value)}
+                    placeholder="9876543210"
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <label>
+                  <span>{lang === 'hi' ? 'पासवर्ड' : 'Password'}</span>
+                  <input
+                    type={showRegPassword ? 'text' : 'password'}
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    placeholder="Min. 6 chars"
+                    required
+                  />
+                </label>
+                <label>
+                  <span>{lang === 'hi' ? 'पासवर्ड की पुष्टि करें' : 'Confirm Password'}</span>
+                  <input
+                    type={showRegPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter password"
+                    required
+                  />
+                </label>
+              </div>
+
+              {/* Worker-Specific Registration Fields */}
+              {role === 'worker' && (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <label>
+                      <span>Primary Skill</span>
+                      <select
+                        value={skill}
+                        onChange={(e) => setSkill(e.target.value)}
+                        style={{ height: '42px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', background: '#fff' }}
+                      >
+                        <option value="Plumber">Plumber</option>
+                        <option value="Electrician">Electrician</option>
+                        <option value="Home cleaning">Home cleaning</option>
+                        <option value="Appliance repair">Appliance repair</option>
+                        <option value="Carpenter">Carpenter</option>
+                        <option value="Painter">Painter</option>
+                        <option value="AC service">AC service</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>Experience (Years)</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="40"
+                        value={experience}
+                        onChange={(e) => setExperience(Number(e.target.value))}
+                        required
+                      />
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <label>
+                      <span>Cooperative Affiliation</span>
+                      <input
+                        type="text"
+                        value={cooperative}
+                        onChange={(e) => setCooperative(e.target.value)}
+                        placeholder="Bengaluru Service Cooperative"
+                      />
+                    </label>
+                    <label>
+                      <span>Service Area</span>
+                      <input
+                        type="text"
+                        value={serviceArea}
+                        onChange={(e) => setServiceArea(e.target.value)}
+                        placeholder="Bengaluru Central"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="notice" style={{ background: '#fef3c7', borderColor: '#fcd34d', color: '#92400e', margin: '8px 0', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Clock size={14} />
+                    <span><strong>Worker Verification Notice:</strong> New worker accounts are created with <em>Verification Status = Pending</em> until approved by a Cooperative Administrator.</span>
+                  </div>
+                </>
+              )}
+
+              <label>
+                <span>Preferred Language</span>
+                <select
+                  value={prefLanguage}
+                  onChange={(e) => setPrefLanguage(e.target.value as 'en' | 'hi')}
+                  style={{ height: '42px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 12px', background: '#fff' }}
+                >
+                  <option value="en">English</option>
+                  <option value="hi">हिंदी (Hindi)</option>
+                </select>
+              </label>
+
+              <button type="submit" className="primary full" disabled={loading} style={{ marginTop: '12px' }}>
+                {loading ? 'Submitting Registration...' : (role === 'customer' ? 'Create Customer Account' : 'Submit Worker Application')}{' '}
+                <ArrowRight size={16} />
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '14px', fontSize: '12px', color: 'var(--muted-foreground)' }}>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => { setMode('login'); setErrorMsg(''); setSuccessMsg(''); }}
+                  style={{ background: 'none', border: 'none', color: 'var(--green)', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                >
+                  Login here
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* ONE-CLICK DEMO LOGIN SECTION */}
+          <div
+            className="demo-login-section"
+            style={{
+              marginTop: '22px',
+              paddingTop: '18px',
+              borderTop: '1px solid var(--border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <div>
+                <div className="eyebrow" style={{ color: 'var(--green)', fontSize: '10px', letterSpacing: '1.2px' }}>TRY DEMO</div>
+                <div style={{ fontWeight: 800, fontSize: '14px', color: 'var(--ink)' }}>Explore Co-opServe instantly</div>
+              </div>
+              <Pill tone="green">
+                <span className="live-dot" /> 1-Click
+              </Pill>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginTop: '10px' }}>
+              <button
+                type="button"
+                className="outline-button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  background: '#fcfcfc',
+                  border: '1px solid var(--border)',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+                disabled={demoLoadingRole !== null || loading}
+                onClick={() => handleDemoLoginClick('customer')}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Avatar initials="AN" color="peach" />
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--ink)' }}>Login as Demo Customer</div>
+                    <small className="muted" style={{ fontSize: '11px' }}>demo.customer@coopserve.test · Bookings & map</small>
+                  </div>
+                </div>
+                {demoLoadingRole === 'customer' ? <span style={{ fontSize: '12px' }}>...</span> : <ArrowRight size={15} />}
+              </button>
+
+              <button
+                type="button"
+                className="outline-button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  background: '#fcfcfc',
+                  border: '1px solid var(--border)',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+                disabled={demoLoadingRole !== null || loading}
+                onClick={() => handleDemoLoginClick('worker')}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Avatar initials="RK" color="green" />
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--ink)' }}>Login as Demo Worker</div>
+                    <small className="muted" style={{ fontSize: '11px' }}>demo.worker@coopserve.test · Verified master plumber</small>
+                  </div>
+                </div>
+                {demoLoadingRole === 'worker' ? <span style={{ fontSize: '12px' }}>...</span> : <ArrowRight size={15} />}
+              </button>
+
+              <button
+                type="button"
+                className="outline-button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  background: '#fcfcfc',
+                  border: '1px solid var(--border)',
+                  cursor: 'pointer',
+                  width: '100%',
+                }}
+                disabled={demoLoadingRole !== null || loading}
+                onClick={() => handleDemoLoginClick('admin')}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Avatar initials="AD" color="blue" />
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--ink)' }}>Login as Demo Admin</div>
+                    <small className="muted" style={{ fontSize: '11px' }}>demo.admin@coopserve.test · Verifications & AI forecast</small>
+                  </div>
+                </div>
+                {demoLoadingRole === 'admin' ? <span style={{ fontSize: '12px' }}>...</span> : <ArrowRight size={15} />}
+              </button>
+            </div>
+
+            <p className="terms" style={{ marginTop: '10px', fontSize: '11px', textAlign: 'center', color: '#64748b' }}>
+              Demo accounts use preloaded sample data for presentation and testing.
+            </p>
           </div>
-          <button className="primary full" onClick={enterDemo} disabled={isLoggingIn}>
-            {role === 'customer'
-              ? t('roles.enterCustomer')
-              : role === 'worker'
-              ? t('roles.enterWorker')
-              : 'Enter as Cooperative Admin'}{' '}
-            <ArrowRight size={16} />
-          </button>
-          {loginError && <p className="notice" role="alert">{loginError}</p>}
-          <p className="terms">{t('common.demoNotice')}</p>
         </div>
       </section>
+
       <footer className="auth-footer">
         <span>{t('common.ownedByPeople')}</span>
         <span>{t('common.transparentPricing')}</span>
@@ -282,20 +760,31 @@ function SideNav({
           ['My profile', t('nav.myProfile'), Users],
         ]
 
+  const { user } = useAuth()
+  const name = user?.name || (role === 'customer' ? 'Ananya Nair' : 'Ravi Kumar')
+  const initials = name
+    .replace('[DEMO] ', '')
+    .split(' ')
+    .filter(Boolean)
+    .map((n: string) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || (role === 'customer' ? 'AN' : 'RK')
+
   return (
     <aside className="sidebar">
       <Brand />
       <div className="workspace">
         <Avatar
-          initials={role === 'customer' ? 'AN' : 'RK'}
+          initials={initials}
           color={role === 'customer' ? 'peach' : 'green'}
         />
         <span>
-          {role === 'customer' ? 'Ananya Nair' : 'Ravi Kumar'}
+          {name}
           <small>
             {role === 'customer'
-              ? `${t('common.customer')} · 2024`
-              : `${t('common.worker')} · ${t('common.verified')}`}
+              ? `${t('common.customer')} · Co-op Member`
+              : `${t('common.worker')} · ${user?.verification_status === 'PENDING' ? 'Pending Verification' : t('common.verified')}`}
           </small>
         </span>
         <ChevronRight size={15} />
@@ -332,12 +821,25 @@ function Header({
   role,
   onOpenNotifications,
   unreadCount,
+  onLogout,
 }: {
   role: Role
   onOpenNotifications: () => void
   unreadCount: number
+  onLogout?: () => void
 }) {
   const { t } = useTranslation()
+  const { user } = useAuth()
+  const name = user?.name || (role === 'customer' ? 'Ananya Nair' : 'Ravi Kumar')
+  const initials = name
+    .replace('[DEMO] ', '')
+    .split(' ')
+    .filter(Boolean)
+    .map((n: string) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || (role === 'customer' ? 'AN' : 'RK')
+
   return (
     <header className="dash-header">
       <div className="mobile-brand">
@@ -361,9 +863,20 @@ function Header({
           {unreadCount > 0 && <span className="notification-dot" />}
         </button>
         <Avatar
-          initials={role === 'customer' ? 'AN' : 'RK'}
+          initials={initials}
           color={role === 'customer' ? 'peach' : 'green'}
         />
+        {onLogout && (
+          <button
+            className="icon-button"
+            title="Logout"
+            aria-label="Logout"
+            onClick={onLogout}
+            style={{ color: '#ef4444' }}
+          >
+            <LogOut size={17} />
+          </button>
+        )}
       </div>
     </header>
   )
@@ -557,6 +1070,7 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
           role="customer"
           onOpenNotifications={() => setShowNotifications(!showNotifications)}
           unreadCount={unreadCount}
+          onLogout={onLogout}
         />
         <div className="dash-content">
           {/* OVERVIEW SCREEN */}
@@ -1231,8 +1745,9 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
     Promise.all([
       bookingsApi.getBookings().catch(() => []),
       notificationsApi.getNotifications().catch(() => []),
+      authApi.getWorkerMe().catch(() => null),
       workersApi.getWorkers().catch(() => []),
-    ]).then(([bookingsData, notifData, workersData]) => {
+    ]).then(([bookingsData, notifData, myWorker, workersData]) => {
       if (bookingsData && bookingsData.length > 0) {
         setWorkerBookings(bookingsData)
         const activeJob =
@@ -1244,9 +1759,10 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
       if (notifData && notifData.length > 0) {
         setNotifications(notifData)
       }
-      if (workersData && workersData.length > 0) {
-        setWorkerProfile(workersData[0])
-        setAvailable(workersData[0].availability === 'Available')
+      const profileToUse = myWorker || (workersData && workersData.length > 0 ? workersData[0] : null)
+      if (profileToUse) {
+        setWorkerProfile(profileToUse)
+        setAvailable(profileToUse.availability === 'Available' || profileToUse.currentStatus === 'Available')
       }
     })
   }, [])
@@ -1298,6 +1814,7 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
     completedJobsList.reduce((acc, b) => acc + Math.round(b.amount * 0.75), 0) || 18450
 
   const unreadCount = notifications.filter((n) => n.role === 'worker' && !n.read).length
+  const isPendingVerification = workerProfile && (!workerProfile.verified || workerProfile.verificationStatus?.toLowerCase() === 'pending')
 
   return (
     <div className="dashboard">
@@ -1312,8 +1829,15 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
           role="worker"
           onOpenNotifications={() => setShowNotifications(!showNotifications)}
           unreadCount={unreadCount}
+          onLogout={onLogout}
         />
         <div className="dash-content">
+          {isPendingVerification && (
+            <div className="notice" style={{ background: '#fef3c7', borderColor: '#fcd34d', color: '#92400e', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock size={16} />
+              <span><strong>Account Verification Pending:</strong> Your worker profile is awaiting cooperative administrator verification. Once verified, dispatch will begin.</span>
+            </div>
+          )}
           {(active === 'Overview' || active === 'Job requests') && (
             <>
               <div className="welcome-line">
@@ -1648,28 +2172,26 @@ function WorkerSchedule() {
   )
 }
 
-export default function Page() {
-  const [role, setRole] = useState<Role | null>(null)
+function MainContent() {
+  const { role, isLoading, logout } = useAuth()
 
-  const enterDemo = async (selectedRole: Role) => {
-    const email =
-      selectedRole === 'customer'
-        ? 'customer@coopserve.demo'
-        : selectedRole === 'worker'
-        ? 'worker1@coopserve.demo'
-        : 'admin@coopserve.demo'
-    const password = selectedRole === 'admin' ? 'admin123' : 'demo123'
-    const result = await authApi.login(email, password)
-    setRole(result.user.role as Role)
-  }
-
-  const logout = () => {
-    authApi.logout()
-    setRole(null)
+  if (isLoading) {
+    return (
+      <main className="auth-shell" style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <Brand />
+          <div style={{ marginTop: '16px' }}>
+            <Pill tone="green">
+              <span className="live-dot" /> Restoring session...
+            </Pill>
+          </div>
+        </div>
+      </main>
+    )
   }
 
   return (
-    <LanguageProvider>
+    <>
       {role === 'customer' ? (
         <CustomerDashboard onLogout={logout} />
       ) : role === 'worker' ? (
@@ -1677,8 +2199,18 @@ export default function Page() {
       ) : role === 'admin' ? (
         <AdminDashboard onLogout={logout} />
       ) : (
-        <Login onEnter={enterDemo} />
+        <Login />
       )}
+    </>
+  )
+}
+
+export default function Page() {
+  return (
+    <LanguageProvider>
+      <AuthProvider>
+        <MainContent />
+      </AuthProvider>
     </LanguageProvider>
   )
 }

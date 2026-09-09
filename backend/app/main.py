@@ -9,9 +9,9 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.config import settings
 from backend.app.database import Base, engine, async_session_factory
-from backend.app.dependencies import get_db, get_current_user, require_role
-from backend.app.models.entities import (User, Customer, Worker, Service, ServiceRequest, Booking, Payment, Invoice, Rating, Notification, Skill, WorkerSkill)
-from backend.app.schemas.all_schemas import (RegisterRequest, LoginRequest, UserUpdate, WorkerAvailabilityUpdate, WorkerLocationUpdate, WorkerVerificationUpdate, ServiceCreate, ServiceRequestCreate, BookingCreate, BookingStatusUpdate, PaymentCreateRequest, PaymentVerifyRequest, RatingCreateRequest, ChatMessageRequest, ChatMessageOut, ChatHistoryOut)
+from backend.app.dependencies import get_db, get_current_user, get_optional_user, require_role
+from backend.app.models.entities import (User, Customer, Worker, Service, ServiceRequest, Booking, Payment, Invoice, Rating, Notification, Skill, WorkerSkill, Cooperative, Welfare)
+from backend.app.schemas.all_schemas import (RegisterRequest, LoginRequest, DemoLoginRequest, UserUpdate, WorkerAvailabilityUpdate, WorkerLocationUpdate, WorkerVerificationUpdate, ServiceCreate, ServiceRequestCreate, BookingCreate, BookingStatusUpdate, PaymentCreateRequest, PaymentVerifyRequest, RatingCreateRequest, ChatMessageRequest, ChatMessageOut, ChatHistoryOut)
 from backend.app.services.auth_service import create_access_token, get_password_hash, verify_password
 from backend.app.services.seed import seed_demo_data
 from backend.app.services.booking_service import notify, transition_booking
@@ -34,8 +34,33 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Co-opServe API", version="1.0.0", description="Cooperative service marketplace API", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=settings.CORS_ORIGINS, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-def user_out(user: User):
-    return {"id": user.id, "name": user.name, "email": user.email, "phone": user.phone, "role": user.role, "language": user.language, "created_at": user.created_at}
+def user_out(user: User, worker: Optional[Worker] = None, customer: Optional[Customer] = None):
+    data = {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "phone": user.phone or "",
+        "role": user.role,
+        "language": user.language or "en",
+        "created_at": user.created_at.isoformat() if user.created_at else None
+    }
+    if worker:
+        data["worker_id"] = worker.id
+        data["verification_status"] = worker.verification_status
+        data["availability_status"] = worker.availability_status
+        data["primary_skill"] = worker.primary_skill
+    if customer:
+        data["customer_id"] = customer.id
+    return data
+
+async def enrich_user_out(user: User, db: AsyncSession):
+    worker = None
+    customer = None
+    if user.role == "worker":
+        worker = (await db.execute(select(Worker).where(Worker.user_id == user.id))).scalar_one_or_none()
+    elif user.role == "customer":
+        customer = (await db.execute(select(Customer).where(Customer.user_id == user.id))).scalar_one_or_none()
+    return user_out(user, worker, customer)
 
 def worker_out(worker: Worker, distance: Optional[float] = None):
     name = worker.user.name; skills = [item.skill.name for item in worker.skills if item.skill]
@@ -62,28 +87,197 @@ async def health(): return {"status": "ok", "service": settings.APP_NAME}
 
 @app.post("/api/auth/register", status_code=201, tags=["Authentication"])
 async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    if payload.role not in {"customer", "worker"}: raise HTTPException(422, "Only customer or worker self-registration is allowed")
-    if (await db.execute(select(User).where(User.email == payload.email))).scalar_one_or_none(): raise HTTPException(409, "Email is already registered")
-    user = User(name=payload.name, email=payload.email, phone=payload.phone, password_hash=get_password_hash(payload.password), role=payload.role, language=payload.language)
-    db.add(user); await db.flush()
-    if payload.role == "customer": db.add(Customer(user_id=user.id, preferred_language=payload.language))
-    else: db.add(Worker(user_id=user.id, latitude=payload.latitude or 12.9716, longitude=payload.longitude or 77.5946, primary_skill=payload.service, experience_years=payload.experience_years or 1, hourly_rate=payload.hourly_rate or 350, verification_status="PENDING"))
-    await db.flush(); return {"access_token": create_access_token({"sub": str(user.id), "role": user.role}), "token_type": "bearer", "user": user_out(user)}
+    role = payload.role.lower().strip()
+    if role not in {"customer", "worker"}:
+        raise HTTPException(status_code=422, detail="Only customer or worker self-registration is allowed")
+    
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=422, detail="Password must be at least 6 characters long")
+    
+    if payload.confirm_password and payload.confirm_password != payload.password:
+        raise HTTPException(status_code=422, detail="Passwords do not match")
+    
+    # Check duplicate email
+    if (await db.execute(select(User.id).where(User.email.ilike(payload.email.strip())))).scalar_one_or_none():
+        raise HTTPException(status_code=409, detail="Email is already registered")
+    
+    phone = payload.phone.strip() if payload.phone else None
+    if phone:
+        if (await db.execute(select(User.id).where(User.phone == phone))).scalar_one_or_none():
+            raise HTTPException(status_code=409, detail="Mobile number is already registered")
+
+    user = User(
+        name=payload.name.strip(),
+        email=payload.email.strip().lower(),
+        phone=phone,
+        password_hash=get_password_hash(payload.password),
+        role=role,
+        language=payload.language or "en"
+    )
+    db.add(user)
+    await db.flush()
+
+    if role == "customer":
+        customer = Customer(user_id=user.id, preferred_language=payload.language or "en")
+        db.add(customer)
+        await db.flush()
+        db.add(Notification(
+            user_id=user.id,
+            title="Welcome to Co-opServe",
+            message=f"Welcome, {user.name}! Your customer account is ready.",
+            type="system"
+        ))
+    else:  # worker
+        coop_id = payload.cooperative_id
+        if not coop_id and payload.cooperative:
+            coop = (await db.execute(select(Cooperative).where(Cooperative.name.ilike(f"%{payload.cooperative}%")))).scalar_one_or_none()
+            if coop:
+                coop_id = coop.id
+        if not coop_id:
+            coop_id = (await db.execute(select(Cooperative.id).limit(1))).scalar_one_or_none()
+
+        primary_skill = payload.service or (payload.skills[0] if payload.skills else "Plumber")
+        worker = Worker(
+            user_id=user.id,
+            cooperative_id=coop_id,
+            latitude=payload.latitude or 12.9716,
+            longitude=payload.longitude or 77.5946,
+            primary_skill=primary_skill,
+            experience_years=payload.experience_years or 1,
+            hourly_rate=payload.hourly_rate or 350.0,
+            service_area=payload.service_area or "Bengaluru",
+            verification_status="PENDING",
+            availability_status="AVAILABLE",
+            bio=f"Registered cooperative worker in {primary_skill}."
+        )
+        db.add(worker)
+        await db.flush()
+
+        skills_to_add = payload.skills or ([payload.service] if payload.service else [])
+        for skill_name in skills_to_add:
+            if not skill_name:
+                continue
+            skill_obj = (await db.execute(select(Skill).where(Skill.name.ilike(skill_name)))).scalar_one_or_none()
+            if not skill_obj:
+                skill_obj = Skill(name=skill_name, description=f"{skill_name} service")
+                db.add(skill_obj)
+                await db.flush()
+            db.add(WorkerSkill(worker_id=worker.id, skill_id=skill_obj.id, proficiency="Intermediate", verified=False))
+
+        db.add(Welfare(worker_id=worker.id, leave_balance=12))
+        db.add(Notification(
+            user_id=user.id,
+            title="Registration Submitted",
+            message="Your worker registration has been submitted and is pending verification by a Cooperative Admin.",
+            type="welfare"
+        ))
+
+    await db.flush()
+    token = create_access_token({"sub": str(user.id), "role": user.role})
+    enriched = await enrich_user_out(user, db)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": enriched
+    }
 
 @app.post("/api/auth/login", tags=["Authentication"])
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
-    user = (await db.execute(select(User).where(User.email == payload.email))).scalar_one_or_none()
-    if not user or not verify_password(payload.password, user.password_hash): raise HTTPException(status_code=401, detail="Invalid email or password", headers={"WWW-Authenticate":"Bearer"})
-    return {"access_token": create_access_token({"sub": str(user.id), "role": user.role}), "token_type": "bearer", "user": user_out(user)}
+    try:
+        identifier = payload.get_identifier()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    clean_id = identifier.strip()
+    if clean_id.lower() == "worker1@coopserve.demo":
+        stmt = select(User).where(User.email.in_(["demo.worker@coopserve.test", "worker1@coopserve.demo"]))
+    else:
+        stmt = select(User).where((User.email.ilike(clean_id)) | (User.phone == clean_id))
+    user = (await db.execute(stmt)).scalars().first()
+
+    if not user or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password.",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    token = create_access_token({"sub": str(user.id), "role": user.role})
+    enriched = await enrich_user_out(user, db)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": enriched
+    }
+
+@app.post("/api/auth/demo-login", tags=["Authentication"])
+async def demo_login(payload: DemoLoginRequest, db: AsyncSession = Depends(get_db)):
+    role = payload.role.lower().strip()
+    if role not in {"customer", "worker", "admin"}:
+        raise HTTPException(status_code=400, detail="Invalid role for demo login. Must be 'customer', 'worker', or 'admin'.")
+
+    canonical_map = {
+        "customer": "demo.customer@coopserve.test",
+        "worker": "demo.worker@coopserve.test",
+        "admin": "demo.admin@coopserve.test"
+    }
+    user = (await db.execute(select(User).where(User.email == canonical_map[role]))).scalar_one_or_none()
+
+    if not user:
+        legacy_map = {
+            "customer": "customer@coopserve.demo",
+            "worker": "worker1@coopserve.demo",
+            "admin": "admin@coopserve.demo"
+        }
+        user = (await db.execute(select(User).where(User.email == legacy_map[role]))).scalar_one_or_none()
+
+    if not user:
+        user = (await db.execute(select(User).where(User.role == role))).scalars().first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail=f"No demo user found for role '{role}'. Please seed demo data.")
+
+    token = create_access_token({"sub": str(user.id), "role": user.role})
+    enriched = await enrich_user_out(user, db)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": enriched
+    }
+
+@app.post("/api/auth/logout", tags=["Authentication"])
+async def logout(current: Optional[User] = Depends(get_optional_user)):
+    return {"status": "success", "message": "Successfully logged out"}
 
 @app.get("/api/auth/me", tags=["Authentication"])
 @app.get("/api/users/me", tags=["Users"])
-async def me(current: User = Depends(get_current_user)): return user_out(current)
+async def me(current: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    return await enrich_user_out(current, db)
+
+@app.get("/api/workers/me", tags=["Workers"])
+async def worker_me(db: AsyncSession = Depends(get_db), current: User = Depends(require_role(["worker"]))):
+    result = await db.execute(
+        select(Worker)
+        .options(
+            selectinload(Worker.user),
+            selectinload(Worker.skills).selectinload(WorkerSkill.skill),
+            selectinload(Worker.certifications),
+            selectinload(Worker.ratings),
+            selectinload(Worker.cooperative)
+        )
+        .where(Worker.user_id == current.id)
+    )
+    worker = result.scalar_one_or_none()
+    if not worker:
+        raise HTTPException(404, "Worker profile not found for authenticated user")
+    return worker_out(worker)
 
 @app.put("/api/users/me", tags=["Users"])
-async def update_me(payload: UserUpdate, current: User = Depends(get_current_user)):
-    for key, value in payload.model_dump(exclude_none=True).items(): setattr(current, key, value)
-    return user_out(current)
+async def update_me(payload: UserUpdate, current: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    for key, value in payload.model_dump(exclude_none=True).items():
+        setattr(current, key, value)
+    await db.flush()
+    return await enrich_user_out(current, db)
 
 @app.get("/api/services", tags=["Services"])
 async def list_services(db: AsyncSession = Depends(get_db)): return (await db.execute(select(Service).where(Service.is_active == True))).scalars().all()

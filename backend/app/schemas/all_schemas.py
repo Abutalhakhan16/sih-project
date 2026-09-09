@@ -7,19 +7,35 @@ class RegisterRequest(BaseModel):
     name: str
     email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
     password: str
+    confirm_password: Optional[str] = None
     phone: Optional[str] = None
-    role: str = "customer"  # 'customer', 'worker', 'admin'
+    role: str = "customer"  # 'customer', 'worker'
     language: str = "en"
-    # Optional worker fields if registering as worker
+    # Worker-specific registration fields
     service: Optional[str] = "Plumber"
+    skills: Optional[List[str]] = None
     experience_years: Optional[int] = 1
+    cooperative: Optional[str] = None
+    cooperative_id: Optional[int] = None
+    service_area: Optional[str] = "Bengaluru"
     hourly_rate: Optional[float] = 350.0
     latitude: Optional[float] = 12.9716
     longitude: Optional[float] = 77.5946
 
 class LoginRequest(BaseModel):
-    email: str = Field(pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+    email: Optional[str] = None
+    identifier: Optional[str] = None
+    phone: Optional[str] = None
     password: str
+
+    def get_identifier(self) -> str:
+        val = self.identifier or self.email or self.phone
+        if not val:
+            raise ValueError("Email or mobile number is required")
+        return val.strip()
+
+class DemoLoginRequest(BaseModel):
+    role: str = "customer"  # 'customer', 'worker', 'admin'
 
 class TokenResponse(BaseModel):
     access_token: str
