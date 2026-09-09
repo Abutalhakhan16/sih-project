@@ -19,9 +19,15 @@ export function getToken(): string | null {
   return sessionStorage.getItem('coopserve_token') || localStorage.getItem('coopserve_token')
 }
 
-export function setToken(token: string): void {
+export function setToken(token: string, rememberMe: boolean = false): void {
   if (typeof window === 'undefined') return
-  sessionStorage.setItem('coopserve_token', token)
+  if (rememberMe) {
+    localStorage.setItem('coopserve_token', token)
+    sessionStorage.removeItem('coopserve_token')
+  } else {
+    sessionStorage.setItem('coopserve_token', token)
+    localStorage.removeItem('coopserve_token')
+  }
 }
 
 export function clearToken(): void {
@@ -44,6 +50,10 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   })
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      clearToken()
+      window.dispatchEvent(new CustomEvent('coopserve:unauthorized'))
+    }
     const body = await response.json().catch(() => ({}))
     const message = body.detail || 'The request could not be completed. Please try again.'
     throw new ApiError(message, response.status)

@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     ]
 
     # Demo credentials
+    DEMO_PASSWORD: str = "demo123"
     DEMO_CUSTOMER_PASSWORD: str = "demo123"
     DEMO_WORKER_PASSWORD: str = "demo123"
     DEMO_ADMIN_PASSWORD: str = "admin123"

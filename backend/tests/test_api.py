@@ -285,3 +285,113 @@ def test_chat_bilingual_faq_and_history():
         hist_empty = client.get("/api/chat/history", headers=cust_headers)
         assert len(hist_empty.json()["messages"]) == 0
 
+
+def test_demo_login_endpoints_and_seeded_accounts():
+    """Verify one-click demo logins for customer, worker, and admin."""
+    with TestClient(app) as client:
+        # Customer Demo Login
+        res_cust = client.post("/api/auth/demo-login", json={"role": "customer"})
+        assert res_cust.status_code == 200
+        data_cust = res_cust.json()
+        assert "access_token" in data_cust
+        assert data_cust["user"]["role"] == "customer"
+        assert data_cust["user"]["email"] == "demo.customer@coopserve.test"
+
+        # Worker Demo Login
+        res_worker = client.post("/api/auth/demo-login", json={"role": "worker"})
+        assert res_worker.status_code == 200
+        data_worker = res_worker.json()
+        assert "access_token" in data_worker
+        assert data_worker["user"]["role"] == "worker"
+        assert data_worker["user"]["email"] == "demo.worker@coopserve.test"
+        assert data_worker["user"]["verification_status"] == "VERIFIED"
+
+        # Admin Demo Login
+        res_admin = client.post("/api/auth/demo-login", json={"role": "admin"})
+        assert res_admin.status_code == 200
+        data_admin = res_admin.json()
+        assert "access_token" in data_admin
+        assert data_admin["user"]["role"] == "admin"
+        assert data_admin["user"]["email"] == "demo.admin@coopserve.test"
+
+        # Invalid Demo Role
+        res_invalid = client.post("/api/auth/demo-login", json={"role": "superman"})
+        assert res_invalid.status_code == 400
+
+
+def test_dual_identifier_login_and_invalid_credentials():
+    """Verify login with email vs phone number, and test clean 401 error message."""
+    with TestClient(app) as client:
+        # Login with email
+        res_email = client.post("/api/auth/login", json={"email": "demo.customer@coopserve.test", "password": "demo123"})
+        assert res_email.status_code == 200
+
+        # Login with phone number
+        res_phone = client.post("/api/auth/login", json={"identifier": "9000000001", "password": "demo123"})
+        assert res_phone.status_code == 200
+        assert res_phone.json()["user"]["email"] == "demo.customer@coopserve.test"
+
+        # Invalid password returns 401 with human-readable error
+        res_bad_pw = client.post("/api/auth/login", json={"email": "demo.customer@coopserve.test", "password": "wrongpassword"})
+        assert res_bad_pw.status_code == 401
+        assert res_bad_pw.json()["detail"] == "Invalid email or password."
+
+        # Non-existent user returns 401
+        res_not_found = client.post("/api/auth/login", json={"email": "nonexistent@coopserve.test", "password": "demo123"})
+        assert res_not_found.status_code == 401
+        assert res_not_found.json()["detail"] == "Invalid email or password."
+
+
+def test_worker_registration_verification_flow_and_rbac():
+    """Verify new worker has verification_status=PENDING, admin verifies, and RBAC prevents unauthorized access."""
+    with TestClient(app) as client:
+        # Register new worker
+        res_reg = client.post("/api/auth/register", json={
+            "name": "Arun Kumar",
+            "email": "arun.plumber@coopserve.test",
+            "phone": "9876543210",
+            "password": "securepassword123",
+            "role": "worker",
+            "service": "Plumber",
+            "experience_years": 3,
+            "hourly_rate": 400,
+            "service_area": "Indiranagar"
+        })
+        assert res_reg.status_code == 201
+        worker_info = res_reg.json()
+        worker_id = worker_info["user"]["worker_id"]
+        assert worker_info["user"]["verification_status"] == "PENDING"
+        worker_token = {"Authorization": f"Bearer {worker_info['access_token']}"}
+
+        # Worker can view own profile via /api/workers/me
+        res_me = client.get("/api/workers/me", headers=worker_token)
+        assert res_me.status_code == 200
+        assert res_me.json()["name"] == "Arun Kumar"
+        assert res_me.json()["verified"] is False
+
+        # Worker cannot access admin dashboard (RBAC 403)
+        res_admin_forbidden = client.get("/api/admin/dashboard", headers=worker_token)
+        assert res_admin_forbidden.status_code == 403
+
+        # Admin logs in and verifies the worker
+        admin_login = client.post("/api/auth/demo-login", json={"role": "admin"}).json()
+        admin_token = {"Authorization": f"Bearer {admin_login['access_token']}"}
+
+        verify_res = client.put(
+            f"/api/admin/workers/{worker_id}/verify",
+            headers=admin_token,
+            json={"verification_status": "VERIFIED"}
+        )
+        assert verify_res.status_code == 200
+        assert verify_res.json()["verificationStatus"] == "VERIFIED"
+
+        # Worker profile now reports verified
+        res_me_after = client.get("/api/workers/me", headers=worker_token)
+        assert res_me_after.status_code == 200
+        assert res_me_after.json()["verified"] is True
+
+        # Logout test
+        res_logout = client.post("/api/auth/logout", headers=worker_token)
+        assert res_logout.status_code == 200
+        assert res_logout.json()["status"] == "success"
+
