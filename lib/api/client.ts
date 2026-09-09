@@ -3,9 +3,28 @@
  * Provides unified request handling, JWT token management, and structured error responses.
  */
 
-const BASE_URL =
-  (typeof process !== 'undefined' && (process.env.VITE_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL)) ||
-  'http://localhost:8000/api'
+function getBaseUrl(): string {
+  let url =
+    (typeof process !== 'undefined' &&
+      (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.VITE_API_BASE_URL)) ||
+    ''
+
+  if (!url) {
+    return 'http://localhost:8000/api'
+  }
+
+  // Remove any trailing slashes
+  url = url.replace(/\/+$/, '')
+
+  // Ensure /api prefix is present when pointing to the backend root domain
+  if (url.startsWith('http') && !url.endsWith('/api')) {
+    url = `${url}/api`
+  }
+
+  return url
+}
+
+const BASE_URL = getBaseUrl()
 
 export class ApiError extends Error {
   constructor(message: string, public status: number) {
@@ -44,7 +63,10 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...((init.headers as Record<string, string>) || {}),
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  const targetUrl = `${BASE_URL}${cleanPath}`
+
+  const response = await fetch(targetUrl, {
     ...init,
     headers,
   })

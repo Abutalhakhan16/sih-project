@@ -1,0 +1,22 @@
+# Netlify configuration for Co-opServe Frontend (Next.js App Router)
+# Architecture: Next.js on Netlify -> FastAPI backend on Render
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NETLIFY_USE_PNPM = "false"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Optional transparent reverse-proxy to Render backend
+# When calling /api/*, Netlify forwards requests server-to-server to Render, eliminating browser CORS limitations.
+[[redirects]]
+  from = "/api/*"
+  to = "https://co-opserve-2ttb.onrender.com/api/:splat"
+  status = 200
+  force = false
