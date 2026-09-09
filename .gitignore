@@ -15,4 +15,15 @@ tsconfig.tsbuildinfo
 # Common ignores
 node_modules
 .next/
+.netlify/
 .DS_Store
+dist/
+build/
+
+# Backend & Python ignores
+backend/venv/
+venv/
+__pycache__/
+*.py[cod]
+coopserve.db
+backend/coopserve.db
