@@ -18,6 +18,7 @@ import {
   Star,
   Printer,
   CreditCard,
+  Sparkles,
 } from 'lucide-react'
 
 const InteractiveMap = dynamic(
@@ -253,6 +254,26 @@ export default function BookingTrackingModal({
             <span>{t('tracking.step4')}</span>
           </div>
         </div>
+
+        {/* Reported Problem & AI Allocation Badge */}
+        {currentBooking.problemDescription && (
+          <div className="tracking-problem-card">
+            <div className="problem-pill-row">
+              <span className="problem-label">Reported Issue:</span>
+              {currentBooking.urgency && (
+                <span className={`urgency-pill ${currentBooking.urgency.toLowerCase()}`}>
+                  {currentBooking.urgency}
+                </span>
+              )}
+              {currentBooking.aiMatchScore && (
+                <span className="ai-score-pill">
+                  <Sparkles size={11} /> AI Match: {currentBooking.aiMatchScore}%
+                </span>
+              )}
+            </div>
+            <p className="problem-text">{currentBooking.problemDescription}</p>
+          </div>
+        )}
 
         {/* Assigned Worker Details Card */}
         <div className="tracking-worker-card">

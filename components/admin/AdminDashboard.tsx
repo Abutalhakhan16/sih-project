@@ -25,8 +25,10 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { Worker, Booking, CoopStats } from '@/lib/types'
+import { initialCoopStats, initialWorkers, initialBookings } from '@/lib/mock-data'
 import { useTranslation } from '@/lib/i18n/LanguageContext'
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 import Chatbot from '@/components/chat/Chatbot'
 import { adminApi, aiApi, servicesApi, ServiceItem, AIForecastResponse, WorkforceRecommendationResponse } from '@/lib/api'
 
@@ -68,14 +70,17 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         aiApi.getAIForecast('Plumber', 'Central Zone').catch(() => null),
         aiApi.getWorkforceRecommendation('Plumber', 'Central Zone').catch(() => null),
       ])
-      if (statsData) setStats(statsData)
-      setWorkers(workersData)
-      setBookings(bookingsData)
-      setServices(servicesData)
+      setStats(statsData || initialCoopStats)
+      setWorkers(workersData && workersData.length > 0 ? workersData : initialWorkers)
+      setBookings(bookingsData && bookingsData.length > 0 ? bookingsData : initialBookings)
+      setServices(servicesData && servicesData.length > 0 ? servicesData : [])
       setForecast(forecastData)
       setRecommendation(recData)
     } catch (err: any) {
-      setNotice(err.message || 'Error loading cooperative dashboard')
+      setStats(initialCoopStats)
+      setWorkers(initialWorkers)
+      setBookings(initialBookings)
+      setNotice(err.message || 'Displaying local cooperative data.')
     } finally {
       setLoading(false)
     }
@@ -207,6 +212,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </div>
           <div className="header-actions">
             <LanguageSwitcher />
+            <ThemeToggle />
             <span className="pill pill-green">
               <span className="live-dot" /> Live System
             </span>

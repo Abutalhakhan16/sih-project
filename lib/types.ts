@@ -120,6 +120,9 @@ export interface Booking {
     community_fund: number
     issued_at?: string
   }
+  problemDescription?: string
+  urgency?: 'Standard' | 'Urgent' | 'Emergency'
+  aiMatchScore?: number
 }
 
 export interface RankedWorker extends Worker {
