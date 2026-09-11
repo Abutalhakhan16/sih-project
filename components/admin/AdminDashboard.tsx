@@ -23,6 +23,8 @@ import {
   BarChart3,
   Layers,
   ArrowRight,
+  Building2,
+  Award,
 } from 'lucide-react'
 import { Worker, Booking, CoopStats } from '@/lib/types'
 import { initialCoopStats, initialWorkers, initialBookings } from '@/lib/mock-data'
@@ -30,7 +32,27 @@ import { useTranslation } from '@/lib/i18n/LanguageContext'
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import Chatbot from '@/components/chat/Chatbot'
+import dynamic from 'next/dynamic'
 import { adminApi, aiApi, servicesApi, ServiceItem, AIForecastResponse, WorkforceRecommendationResponse } from '@/lib/api'
+
+const AdminCityMap = dynamic(() => import('@/components/map/AdminCityMap'), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        height: '400px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--muted, #f3f4f6)',
+        borderRadius: '16px',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <span>Loading Bhopal Operations Map...</span>
+    </div>
+  ),
+})
 
 interface AdminDashboardProps {
   onLogout: () => void
@@ -38,7 +60,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const { t, lang } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'Overview' | 'Workers' | 'Bookings' | 'Forecast' | 'Services'>('Overview')
+  const [activeTab, setActiveTab] = useState<'Overview' | 'Live Map' | 'Workers' | 'Federation Societies' | 'Bookings' | 'Forecast' | 'Services'>('Overview')
   
   // Data states
   const [stats, setStats] = useState<CoopStats | null>(null)
@@ -141,7 +163,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <span className="person-avatar blue">AD</span>
           <span>
             Cooperative Admin
-            <small>Bengaluru Central</small>
+            <small>Bhopal Central, MP</small>
           </span>
           <ChevronRight size={15} />
         </div>
@@ -155,6 +177,13 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             {lang === 'hi' ? 'अवलोकन और एनालिटिक्स' : 'Overview & Analytics'}
           </button>
           <button
+            className={activeTab === 'Live Map' ? 'nav-active' : ''}
+            onClick={() => setActiveTab('Live Map')}
+          >
+            <MapPin size={18} />
+            {lang === 'hi' ? 'भोपाल लाइव मैप' : 'Bhopal Live Map'}
+          </button>
+          <button
             className={activeTab === 'Workers' ? 'nav-active' : ''}
             onClick={() => setActiveTab('Workers')}
           >
@@ -165,6 +194,13 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 {workers.filter((w) => w.verificationStatus === 'Pending' || !w.verified).length}
               </span>
             )}
+          </button>
+          <button
+            className={activeTab === 'Federation Societies' ? 'nav-active' : ''}
+            onClick={() => setActiveTab('Federation Societies')}
+          >
+            <Building2 size={18} />
+            {lang === 'hi' ? 'सहकारी समितियां' : 'Federation Societies'}
           </button>
           <button
             className={activeTab === 'Bookings' ? 'nav-active' : ''}
@@ -235,14 +271,22 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <>
               <div className="welcome-line">
                 <div>
-                  <div className="eyebrow">COOPERATIVE INTELLIGENCE</div>
+                  <div className="eyebrow">COOPERATIVE INTELLIGENCE · BHOPAL MP</div>
                   <h2>Governance & Performance Hub</h2>
-                  <p className="muted">Transparent metrics governed by member consensus</p>
+                  <p className="muted">Real-time surveillance & transparent metrics across Bhopal district</p>
                 </div>
                 <button className="outline-button" onClick={loadData}>
                   Refresh Data
                 </button>
               </div>
+
+              {/* BHOPAL CITY LIVE OPERATIONS MAP */}
+              <AdminCityMap
+                workers={workers}
+                bookings={bookings}
+                onVerifyWorker={handleVerifyWorker}
+                height="420px"
+              />
 
               {/* STATS GRID */}
               <div className="worker-stats" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '24px' }}>
@@ -353,6 +397,29 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             </>
           )}
 
+          {/* TAB: BHOPAL LIVE MAP */}
+          {activeTab === 'Live Map' && (
+            <>
+              <div className="welcome-line">
+                <div>
+                  <div className="eyebrow">DISTRICT DISPATCH & SURVEILLANCE</div>
+                  <h2>Bhopal Metro Live Operations Map</h2>
+                  <p className="muted">Real-time geographic surveillance across Arera Colony, MP Nagar, TT Nagar, Kolar Road, and all Bhopal zones</p>
+                </div>
+                <button className="outline-button" onClick={loadData}>
+                  Refresh Map
+                </button>
+              </div>
+
+              <AdminCityMap
+                workers={workers}
+                bookings={bookings}
+                onVerifyWorker={handleVerifyWorker}
+                height="620px"
+              />
+            </>
+          )}
+
           {/* TAB 2: WORKER VERIFICATION */}
           {activeTab === 'Workers' && (
             <>
@@ -407,7 +474,12 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                   <div className="table-row" key={w.id}>
                     <span>
                       <b>{w.name}</b>
-                      <small style={{ display: 'block', color: 'var(--muted-foreground)' }}>{w.phone || 'Phone not set'}</small>
+                      <small style={{ display: 'block', color: 'var(--muted-foreground)' }}>{w.cooperative || 'Bhopal Kaushalya Seva Sahakari'}</small>
+                      {w.certifications?.[0] && (
+                        <small style={{ display: 'block', color: '#15803d', fontSize: '10px', fontWeight: 600 }}>
+                          ✓ {w.certifications[0]}
+                        </small>
+                      )}
                     </span>
                     <span>{w.service || w.primarySkill}</span>
                     <span>{w.experience} yrs</span>
@@ -446,6 +518,106 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                         </button>
                       )}
                     </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* TAB: FEDERATION SOCIETIES */}
+          {activeTab === 'Federation Societies' && (
+            <>
+              <div className="welcome-line">
+                <div>
+                  <div className="eyebrow">COOPERATIVE REGISTRY · BHOPAL FEDERATION</div>
+                  <h2>Primary Labour Cooperative Societies (PACS / LCS)</h2>
+                  <p className="muted">Constituent labour societies affiliated with the Madhya Pradesh Cooperative Federation</p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <span className="pill pill-green">
+                    <CheckCircle2 size={12} /> 4 Active Societies
+                  </span>
+                  <span className="pill pill-blue">
+                    <ShieldCheck size={12} /> 100% Social Compliance
+                  </span>
+                </div>
+              </div>
+
+              {/* Cooperative Societies Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                {[
+                  {
+                    name: 'Bhopal Kaushalya Seva Sahakari Maryadit',
+                    regNo: 'MP-BHP-2019-041',
+                    zones: 'MP Nagar, Arera Colony, TT Nagar',
+                    workers: 28,
+                    compliance: '98%',
+                    welfareFund: '₹1,42,800',
+                    trades: ['Plumber', 'Electrician', 'HVAC'],
+                  },
+                  {
+                    name: 'MP Nagar Nirman & Vidyut Karmachari Sahakari',
+                    regNo: 'MP-BHP-2020-072',
+                    zones: 'MP Nagar, Hoshangabad Rd, Misrod',
+                    workers: 19,
+                    compliance: '96%',
+                    welfareFund: '₹98,400',
+                    trades: ['Electrician', 'Carpenter', 'Mason'],
+                  },
+                  {
+                    name: 'Arera Nagar Kalyan Shramik Sahakari',
+                    regNo: 'MP-BHP-2018-019',
+                    zones: 'Arera Colony, Shahpura, Gulmohar',
+                    workers: 14,
+                    compliance: '99%',
+                    welfareFund: '₹86,200',
+                    trades: ['Caregiver', 'Cleaner', 'Painter'],
+                  },
+                  {
+                    name: 'Kolar Road Nirman & Karigar Sahakari',
+                    regNo: 'MP-BHP-2022-114',
+                    zones: 'Kolar Road, Chuna Bhatti, Sarvadharma',
+                    workers: 10,
+                    compliance: '94%',
+                    welfareFund: '₹52,900',
+                    trades: ['Auto Mechanic', 'Gardener', 'Pest Control'],
+                  },
+                ].map((soc) => (
+                  <div className="panel" key={soc.regNo} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <span className="stat-icon green" style={{ marginBottom: 0 }}>
+                        <Building2 size={18} />
+                      </span>
+                      <span className="pill pill-green" style={{ fontSize: '10px' }}>
+                        {soc.compliance} Compliance
+                      </span>
+                    </div>
+                    <b style={{ fontSize: '14px', lineHeight: 1.3 }}>{soc.name}</b>
+                    <small className="muted">Reg. No: {soc.regNo}</small>
+                    
+                    <div style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '8px 0', margin: '4px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px' }}>
+                      <div>
+                        <span className="muted" style={{ display: 'block' }}>Active Members</span>
+                        <b style={{ fontSize: '14px' }}>{soc.workers}</b>
+                      </div>
+                      <div>
+                        <span className="muted" style={{ display: 'block' }}>Welfare Escrow</span>
+                        <b style={{ fontSize: '14px', color: 'var(--green)' }}>{soc.welfareFund}</b>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '11px' }}>
+                      <span className="muted">Operational Zones: </span>
+                      <b>{soc.zones}</b>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: 'auto', paddingTop: '6px' }}>
+                      {soc.trades.map((t) => (
+                        <span key={t} className="pill pill-neutral" style={{ fontSize: '9px', padding: '3px 8px' }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -602,6 +774,50 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           )}
         </div>
       </div>
+
+      {/* MOBILE BOTTOM NAVIGATION BAR FOR ADMIN */}
+      <nav className="mobile-bottom-nav">
+        <button
+          type="button"
+          className={activeTab === 'Overview' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActiveTab('Overview')}
+        >
+          <BarChart3 size={18} />
+          <span>Overview</span>
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'Live Map' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActiveTab('Live Map')}
+        >
+          <MapPin size={18} />
+          <span>Live Map</span>
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'Workers' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActiveTab('Workers')}
+        >
+          <Users size={18} />
+          <span>Workers</span>
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'Bookings' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActiveTab('Bookings')}
+        >
+          <Briefcase size={18} />
+          <span>Bookings</span>
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'Forecast' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActiveTab('Forecast')}
+        >
+          <Sparkles size={18} />
+          <span>AI Forecast</span>
+        </button>
+      </nav>
 
       {/* CO-OPSERVE ADMIN AI ASSISTANT */}
       <Chatbot userRole="admin" />

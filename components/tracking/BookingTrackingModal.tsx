@@ -70,13 +70,13 @@ export default function BookingTrackingModal({
   }, [])
 
   const customerCoords = {
-    lat: currentBooking.customerLat || 12.9716,
-    lng: currentBooking.customerLng || 77.5946,
+    lat: currentBooking.customerLat || 23.2333,
+    lng: currentBooking.customerLng || 77.4334,
   }
 
   const workerCoords = {
-    lat: currentBooking.workerLat || (worker?.lat ?? 12.9795),
-    lng: currentBooking.workerLng || (worker?.lng ?? 77.601),
+    lat: currentBooking.workerLat || (worker?.lat ?? 23.2285),
+    lng: currentBooking.workerLng || (worker?.lng ?? 77.4380),
   }
 
   const workerRanked: any = worker

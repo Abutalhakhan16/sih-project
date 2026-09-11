@@ -36,6 +36,9 @@ import {
   Award,
   FileText,
   BarChart3,
+  AlertTriangle,
+  QrCode,
+  Building2,
 } from 'lucide-react'
 import {
   Role,
@@ -74,6 +77,30 @@ import NotificationDropdown from '@/components/ui/NotificationDropdown'
 import WorkerWelfareModal from '@/components/welfare/WorkerWelfareModal'
 import AdminDashboard from '@/components/admin/AdminDashboard'
 import Chatbot from '@/components/chat/Chatbot'
+import EmergencyBookingModal from '@/components/booking/EmergencyBookingModal'
+import CoopInvoiceModal from '@/components/payments/CoopInvoiceModal'
+import UpiPaymentModal from '@/components/payments/UpiPaymentModal'
+import RatingFeedbackModal from '@/components/feedback/RatingFeedbackModal'
+import dynamic from 'next/dynamic'
+
+const WorkerDispatchMap = dynamic(() => import('@/components/map/WorkerDispatchMap'), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        height: '340px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--muted, #f3f4f6)',
+        borderRadius: '14px',
+        border: '1px solid var(--border)',
+      }}
+    >
+      <span>Loading Bhopal live dispatch map...</span>
+    </div>
+  ),
+})
 import { coopserveApi } from '@/lib/api/client'
 import {
   authApi,
@@ -161,8 +188,8 @@ function Login() {
   // Worker-specific registration fields
   const [skill, setSkill] = useState('Plumber')
   const [experience, setExperience] = useState(2)
-  const [cooperative, setCooperative] = useState('Bengaluru Service Cooperative')
-  const [serviceArea, setServiceArea] = useState('Bengaluru Central')
+  const [cooperative, setCooperative] = useState('Bhopal Kaushalya Seva Sahakari')
+  const [serviceArea, setServiceArea] = useState('MP Nagar / Bhopal Central')
 
   // Feedback and UI state
   const [loading, setLoading] = useState(false)
@@ -558,21 +585,25 @@ function Login() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <label>
-                      <span>Cooperative Affiliation</span>
-                      <input
-                        type="text"
+                      <span>Labour Cooperative Society</span>
+                      <select
                         value={cooperative}
                         onChange={(e) => setCooperative(e.target.value)}
-                        placeholder="Bengaluru Service Cooperative"
-                      />
+                        style={{ height: '42px', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 10px', background: '#fff', fontSize: '12px' }}
+                      >
+                        <option value="Bhopal Kaushalya Seva Sahakari">Bhopal Kaushalya Seva Sahakari (MP-BHP-2019-041)</option>
+                        <option value="MP Nagar Nirman & Vidyut Karmachari Sahakari">MP Nagar Nirman & Vidyut Sahakari (MP-BHP-2020-072)</option>
+                        <option value="Arera Nagar Kalyan Shramik Sahakari">Arera Nagar Kalyan Shramik Society (MP-BHP-2018-019)</option>
+                        <option value="Kolar Road Nirman & Karigar Sahakari">Kolar Road Nirman & Karigar Sahakari (MP-BHP-2022-114)</option>
+                      </select>
                     </label>
                     <label>
-                      <span>Service Area</span>
+                      <span>Service Area (Bhopal Zone)</span>
                       <input
                         type="text"
                         value={serviceArea}
                         onChange={(e) => setServiceArea(e.target.value)}
-                        placeholder="Bengaluru Central"
+                        placeholder="MP Nagar / Arera Colony, Bhopal"
                       />
                     </label>
                   </div>
@@ -757,6 +788,7 @@ function SideNav({
       : [
           ['Overview', t('nav.overview'), Home],
           ['Job requests', t('nav.jobRequests'), Bell],
+          ['Live Route Map', lang === 'hi' ? 'लाइव नेविगेशन मैप' : 'Live Route Map', Navigation],
           ['My schedule', t('nav.mySchedule'), CalendarDays],
           ['Earnings', t('nav.earnings'), Wallet],
           ['Co-op Insights', t('nav.coopInsights'), BarChart3],
@@ -984,6 +1016,18 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
   // Problem description & AI allocation modal state
   const [problemModalWorker, setProblemModalWorker] = useState<Worker | null>(null)
 
+  // 24/7 Emergency SOS booking modal state
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false)
+
+  // Cooperative Invoice modal state
+  const [invoiceBooking, setInvoiceBooking] = useState<Booking | null>(null)
+
+  // UPI payment modal state
+  const [upiBooking, setUpiBooking] = useState<Booking | null>(null)
+
+  // Rating & feedback modal state
+  const [ratingBooking, setRatingBooking] = useState<Booking | null>(null)
+
   // Customer location reference for distance calculation in grid view
   const defaultLoc = DEFAULT_CUSTOMER_LOCATION
 
@@ -1106,6 +1150,123 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
     )
   }
 
+  // 24/7 Emergency SOS Instant Dispatch Handler
+  const handleConfirmEmergencyBooking = async (data: {
+    worker: Worker
+    service: string
+    problemDescription: string
+    urgency: 'Emergency'
+    address: string
+    etaMinutes: number
+    amount: number
+  }) => {
+    setShowEmergencyModal(false)
+    const loc = defaultLoc
+    let newBooking: Booking
+    try {
+      const created: any = await coopserveApi.createBooking({
+        worker_id: data.worker.id,
+        service: data.service,
+        customer_lat: loc.lat,
+        customer_lng: loc.lng,
+        address: data.address || loc.label,
+        amount: data.amount,
+        eta_minutes: data.etaMinutes,
+        problem_description: data.problemDescription,
+        urgency: 'Emergency',
+        ai_match_score: 99,
+      })
+      newBooking = {
+        ...created,
+        status: 'Matching',
+        urgency: 'Emergency',
+        problemDescription: data.problemDescription,
+        aiMatchScore: 99,
+      }
+    } catch {
+      newBooking = {
+        id: Date.now(),
+        service: data.service,
+        worker: data.worker.name,
+        workerId: data.worker.id,
+        date: new Date().toISOString(),
+        status: 'Matching',
+        amount: data.amount,
+        etaMinutes: data.etaMinutes,
+        address: data.address,
+        workerLat: data.worker.lat,
+        workerLng: data.worker.lng,
+        customerLat: loc.lat,
+        customerLng: loc.lng,
+        problemDescription: data.problemDescription,
+        urgency: 'Emergency',
+        aiMatchScore: 99,
+      }
+    }
+
+    setBookings((prev) => [newBooking, ...prev])
+    setCoopStats((prev) => ({
+      ...prev,
+      activeJobs: prev.activeJobs + 1,
+      totalRequests: prev.totalRequests + 1,
+      revenue: prev.revenue + data.amount,
+      workerEarnings: prev.workerEarnings + Math.round(data.amount * 0.85),
+    }))
+    setTrackingBooking(newBooking)
+    setNotice(
+      lang === 'hi'
+        ? `🚨 आपातकालीन कार्य आदेश प्रेषित! ${data.worker.name} (आगमन: ${data.etaMinutes} मिनट)`
+        : `🚨 24/7 Emergency Dispatch Confirmed: ${data.worker.name} en route (ETA: ${data.etaMinutes} mins)`
+    )
+  }
+
+  // Handle UPI Digital Settlement Success
+  const handleUpiPaymentSuccess = (bookingId: number) => {
+    setUpiBooking(null)
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, status: 'Paid' } : b))
+    )
+    const target = bookings.find((b) => b.id === bookingId)
+    setNotice(
+      lang === 'hi'
+        ? 'यूपीआई भुगतान सफल! 85% राशि सीधे श्रमिक के सहकारी बैंक खाते में और 10% कल्याण निधि में जमा हो गई।'
+        : 'UPI Payment Successful! 85% credited to worker and 10% to welfare escrow.'
+    )
+    if (target) {
+      setRatingBooking({ ...target, status: 'Paid' })
+    }
+  }
+
+  // Handle Cooperative Rating & Testimonial Submission
+  const handleSubmitRating = (data: {
+    bookingId: number
+    workerName: string
+    rating: number
+    tags: string[]
+    comment: string
+  }) => {
+    setRatingBooking(null)
+    setBookings((prev) =>
+      prev.map((b) => (b.id === data.bookingId ? { ...b, status: 'Rated' } : b))
+    )
+    setWorkersList((prev) =>
+      prev.map((w) =>
+        w.name === data.workerName
+          ? {
+              ...w,
+              reviews: w.reviews + 1,
+              rating: Number(((w.rating * w.reviews + data.rating) / (w.reviews + 1)).toFixed(1)),
+            }
+          : w
+      )
+    )
+    setNotice(
+      lang === 'hi'
+        ? `धन्यवाद! ${data.workerName} के लिए आपकी सहकारी रेटिंग (${data.rating}★) दर्ज कर ली गई है।`
+        : `Thank you! Your cooperative rating (${data.rating}★) for ${data.workerName} has been recorded.`
+    )
+  }
+
   // Instant one-click request (skip describing details)
   const handleInstantBookWorker = async (w: Worker | RankedWorker, location?: CustomerLocation) => {
     setProblemModalWorker(null)
@@ -1212,15 +1373,39 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
                   <Pill tone="yellow">{t('overview.needHelp')}</Pill>
                   <h3>{t('overview.findNearestHero')}</h3>
                   <p>{t('overview.heroSubtext')}</p>
-                  <button
-                    className="dark-button"
-                    onClick={() => {
-                      setActive('Find a service')
-                      setViewMode('map')
-                    }}
-                  >
-                    {t('overview.exploreOnMap')} <ArrowRight size={16} />
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
+                    <button
+                      className="dark-button"
+                      style={{ margin: 0 }}
+                      onClick={() => {
+                        setActive('Find a service')
+                        setViewMode('map')
+                      }}
+                    >
+                      {t('overview.exploreOnMap')} <ArrowRight size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowEmergencyModal(true)}
+                      style={{
+                        background: '#dc2626',
+                        color: '#ffffff',
+                        border: 0,
+                        padding: '11px 18px',
+                        borderRadius: '8px',
+                        fontWeight: 800,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(220, 38, 38, 0.4)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <AlertTriangle size={16} />
+                      {lang === 'hi' ? '24/7 आपातकालीन डिस्पैच (15 मिनट)' : '24/7 SOS Emergency (15-Min)'}
+                    </button>
+                  </div>
                 </div>
                 <div className="hero-art">
                   <span className="art-card art-one">
@@ -1471,11 +1656,19 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
               bookings={bookings}
               setBookings={setBookings}
               onTrack={(b) => setTrackingBooking(b)}
+              onViewInvoice={(b) => setInvoiceBooking(b)}
+              onPayUpi={(b) => setUpiBooking(b)}
+              onRate={(b) => setRatingBooking(b)}
             />
           )}
 
           {/* PAYMENTS SCREEN */}
-          {active === 'Payments' && <Payments bookings={bookings} />}
+          {active === 'Payments' && (
+            <Payments
+              bookings={bookings}
+              onViewInvoice={(b) => setInvoiceBooking(b)}
+            />
+          )}
 
           {/* CO-OP INSIGHTS (SIH Cooperative Dashboard & AI Predictions) */}
           {active === 'Co-op Insights' && (
@@ -1576,6 +1769,42 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
         />
       )}
 
+      {/* 24/7 EMERGENCY SOS BOOKING MODAL */}
+      {showEmergencyModal && (
+        <EmergencyBookingModal
+          workers={workersList}
+          currentLocation={defaultLoc}
+          onClose={() => setShowEmergencyModal(false)}
+          onConfirmEmergencyBooking={handleConfirmEmergencyBooking}
+        />
+      )}
+
+      {/* COOPERATIVE TAX INVOICE MODAL */}
+      {invoiceBooking && (
+        <CoopInvoiceModal
+          booking={invoiceBooking}
+          onClose={() => setInvoiceBooking(null)}
+        />
+      )}
+
+      {/* UPI DIGITAL PAYMENT MODAL */}
+      {upiBooking && (
+        <UpiPaymentModal
+          booking={upiBooking}
+          onClose={() => setUpiBooking(null)}
+          onPaymentSuccess={handleUpiPaymentSuccess}
+        />
+      )}
+
+      {/* RATING & FEEDBACK MODAL */}
+      {ratingBooking && (
+        <RatingFeedbackModal
+          booking={ratingBooking}
+          onClose={() => setRatingBooking(null)}
+          onSubmitRating={handleSubmitRating}
+        />
+      )}
+
       {/* NOTIFICATIONS DROPDOWN */}
       {showNotifications && (
         <NotificationDropdown
@@ -1611,6 +1840,50 @@ function CustomerDashboard({ onLogout }: { onLogout: () => void }) {
           if (target) handleInitiateBooking(target)
         }}
       />
+
+      {/* MOBILE BOTTOM NAVIGATION BAR FOR CUSTOMER */}
+      <nav className="mobile-bottom-nav">
+        <button
+          type="button"
+          className={active === 'Overview' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Overview')}
+        >
+          <Home size={18} />
+          <span>Home</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Find a service' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Find a service')}
+        >
+          <Search size={18} />
+          <span>Services</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'My bookings' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('My bookings')}
+        >
+          <CalendarDays size={18} />
+          <span>Bookings</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Payments' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Payments')}
+        >
+          <CreditCard size={18} />
+          <span>Payments</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Co-op Insights' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Co-op Insights')}
+        >
+          <BarChart3 size={18} />
+          <span>Insights</span>
+        </button>
+      </nav>
     </div>
   )
 }
@@ -1619,10 +1892,16 @@ function Bookings({
   bookings,
   setBookings,
   onTrack,
+  onViewInvoice,
+  onPayUpi,
+  onRate,
 }: {
   bookings: Booking[]
   setBookings: React.Dispatch<React.SetStateAction<Booking[]>>
   onTrack?: (b: Booking) => void
+  onViewInvoice?: (b: Booking) => void
+  onPayUpi?: (b: Booking) => void
+  onRate?: (b: Booking) => void
 }) {
   const { t, lang } = useTranslation()
   const [rated, setRated] = useState<number | null>(null)
@@ -1654,7 +1933,8 @@ function Bookings({
                   b.status === 'Pending' ||
                   b.status === 'Accepted' ||
                   b.status === 'In Progress' ||
-                  b.status === 'On the Way'
+                  b.status === 'On the Way' ||
+                  b.status === 'Matching'
               ).length
             }
           </b>{' '}
@@ -1700,11 +1980,12 @@ function Bookings({
               <StatusPill status={b.status} />
             </span>
             <span>₹{b.amount}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               {(b.status === 'Accepted' ||
                 b.status === 'In Progress' ||
                 b.status === 'On the Way' ||
-                b.status === 'Pending') &&
+                b.status === 'Pending' ||
+                b.status === 'Matching') &&
                 onTrack && (
                   <button
                     type="button"
@@ -1715,29 +1996,68 @@ function Bookings({
                     <Navigation size={13} /> {t('common.trackWorker')}
                   </button>
                 )}
-              {b.status === 'Completed' ? (
-                <button
-                  type="button"
-                  className="text-button"
-                  style={{ color: '#176b4d', fontWeight: 700 }}
-                  onClick={() => onTrack && onTrack(b)}
-                >
-                  <CreditCard size={13} /> {lang === 'hi' ? 'भुगतान करें' : `Pay ₹${b.amount}`}
-                </button>
-              ) : b.status === 'Paid' ? (
-                <button
-                  type="button"
-                  className="text-button"
-                  style={{ color: '#d97706', fontWeight: 600 }}
-                  onClick={() => onTrack && onTrack(b)}
-                >
-                  <Star size={13} /> {t('bookings.rateBtn')}
-                </button>
-              ) : b.status === 'Rated' || rated === b.id ? (
-                <span className="rated">
-                  <Check size={13} /> {t('bookings.ratedThanks')}
-                </span>
-              ) : (b.status === 'Pending' || b.status === 'Requested' || b.status === 'Matching') ? (
+              {b.status === 'Completed' && (
+                <>
+                  <button
+                    type="button"
+                    className="text-button"
+                    style={{ color: '#176b4d', fontWeight: 700 }}
+                    onClick={() => (onPayUpi ? onPayUpi(b) : onTrack && onTrack(b))}
+                  >
+                    <CreditCard size={13} /> {lang === 'hi' ? 'यूपीआई भुगतान' : `Pay ₹${b.amount}`}
+                  </button>
+                  {onViewInvoice && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      style={{ color: 'var(--muted-foreground)', fontSize: '11px' }}
+                      onClick={() => onViewInvoice(b)}
+                    >
+                      <FileText size={12} /> {lang === 'hi' ? 'रसीद' : 'Invoice'}
+                    </button>
+                  )}
+                </>
+              )}
+              {b.status === 'Paid' && (
+                <>
+                  <button
+                    type="button"
+                    className="text-button"
+                    style={{ color: '#d97706', fontWeight: 700 }}
+                    onClick={() => (onRate ? onRate(b) : onTrack && onTrack(b))}
+                  >
+                    <Star size={13} fill="currentColor" /> {lang === 'hi' ? 'रेटिंग दें' : 'Rate & Review'}
+                  </button>
+                  {onViewInvoice && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      style={{ color: 'var(--muted-foreground)', fontSize: '11px' }}
+                      onClick={() => onViewInvoice(b)}
+                    >
+                      <FileText size={12} /> {lang === 'hi' ? 'रसीद' : 'Invoice'}
+                    </button>
+                  )}
+                </>
+              )}
+              {(b.status === 'Rated' || rated === b.id) && (
+                <>
+                  <span className="rated">
+                    <Check size={13} /> {t('bookings.ratedThanks')}
+                  </span>
+                  {onViewInvoice && (
+                    <button
+                      type="button"
+                      className="text-button"
+                      style={{ color: 'var(--muted-foreground)', fontSize: '11px' }}
+                      onClick={() => onViewInvoice(b)}
+                    >
+                      <FileText size={12} /> {lang === 'hi' ? 'रसीद' : 'Invoice'}
+                    </button>
+                  )}
+                </>
+              )}
+              {(b.status === 'Pending' || b.status === 'Requested' || b.status === 'Matching') && (
                 <button
                   className="text-button danger"
                   onClick={async () => {
@@ -1751,8 +2071,6 @@ function Bookings({
                 >
                   {t('bookings.cancelBtn')}
                 </button>
-              ) : (
-                <span className="muted">—</span>
               )}
             </span>
           </div>
@@ -1762,14 +2080,20 @@ function Bookings({
   )
 }
 
-function Payments({ bookings = [] }: { bookings?: Booking[] }) {
-  const { t } = useTranslation()
+function Payments({
+  bookings = [],
+  onViewInvoice,
+}: {
+  bookings?: Booking[]
+  onViewInvoice?: (b: Booking) => void
+}) {
+  const { t, lang } = useTranslation()
   const paidBookings = bookings.filter((b) => ['Paid', 'Rated', 'Completed'].includes(b.status))
   const totalAmount = paidBookings.reduce((sum, b) => sum + (b.amount || 0), 0) || 1680
   const count = paidBookings.length || 5
-  const workerShare = Math.round(totalAmount * 0.75)
-  const coopShare = Math.round(totalAmount * 0.20)
-  const fundShare = Math.round(totalAmount * 0.05)
+  const workerShare = Math.round(totalAmount * 0.85) // 85% worker direct bank transfer
+  const welfareShare = Math.round(totalAmount * 0.10) // 10% welfare escrow
+  const coopShare = totalAmount - workerShare - welfareShare // 5% federation ops
 
   return (
     <>
@@ -1787,13 +2111,13 @@ function Payments({ bookings = [] }: { bookings?: Booking[] }) {
           <div className="big-amount">₹{totalAmount.toLocaleString('en-IN')}</div>
           <div className="split-line">
             <span>
-              {t('payments.workerEarningsLabel')} <b>₹{workerShare.toLocaleString('en-IN')} (75%)</b>
+              {t('payments.workerEarningsLabel')} <b>₹{workerShare.toLocaleString('en-IN')} (85% Direct to Bank)</b>
             </span>
             <span>
-              {t('payments.coopOpsLabel')} <b>₹{coopShare.toLocaleString('en-IN')} (20%)</b>
+              Worker Welfare & Insurance Escrow <b>₹{welfareShare.toLocaleString('en-IN')} (10% Ayushman & PMSBY)</b>
             </span>
             <span>
-              {t('payments.communityFundLabel')} <b>₹{fundShare.toLocaleString('en-IN')} (5%)</b>
+              {t('payments.coopOpsLabel')} <b>₹{coopShare.toLocaleString('en-IN')} (5% Federation Ops)</b>
             </span>
           </div>
         </div>
@@ -1803,6 +2127,55 @@ function Payments({ bookings = [] }: { bookings?: Booking[] }) {
           <p>{t('payments.fairnessDesc')}</p>
           <Pill tone="green">{t('payments.transparentTag')}</Pill>
         </div>
+      </div>
+
+      {/* Itemized Cooperative Tax Invoices & Receipts */}
+      <div className="section-heading" style={{ marginTop: '30px' }}>
+        <div>
+          <h3>Cooperative Tax Invoices & Payment Receipts</h3>
+          <p className="muted">Official GST & MP Cooperative Federation receipts with social security split</p>
+        </div>
+      </div>
+
+      <div className="panel table-panel">
+        <div className="table-row table-head">
+          <span>Invoice No & Date</span>
+          <span>Service & Specialist</span>
+          <span>Payment Mode</span>
+          <span>Social Security Split</span>
+          <span>Amount</span>
+          <span>Action</span>
+        </div>
+        {(paidBookings.length > 0 ? paidBookings : bookings.slice(0, 4)).map((b) => (
+          <div className="table-row" key={b.id}>
+            <span>
+              <b>INV-2026-BHP-{b.id.toString().padStart(4, '0')}</b>
+              <small style={{ display: 'block', color: 'var(--muted-foreground)' }}>{b.date}</small>
+            </span>
+            <span>
+              <b>{b.service}</b>
+              <small style={{ display: 'block', color: 'var(--muted-foreground)' }}>{b.worker}</small>
+            </span>
+            <span>
+              <span className="pill pill-blue">BHIM / UPI</span>
+            </span>
+            <span>
+              <small style={{ display: 'block', color: '#15803d', fontWeight: 600 }}>85% Worker · 10% Welfare</small>
+            </span>
+            <span><b>₹{b.amount}</b></span>
+            <span>
+              {onViewInvoice && (
+                <button
+                  type="button"
+                  className="text-button"
+                  onClick={() => onViewInvoice(b)}
+                >
+                  <FileText size={13} /> {lang === 'hi' ? 'रसीद देखें' : 'View Invoice'}
+                </button>
+              )}
+            </span>
+          </div>
+        ))}
       </div>
     </>
   )
@@ -1831,8 +2204,8 @@ function Profile({ role }: { role: Role }) {
           <h3>{role === 'customer' ? t('roles.demoCustomer') : t('roles.demoWorker')}</h3>
           <p className="muted">
             {role === 'customer'
-              ? 'Indiranagar, Bengaluru'
-              : 'Electrician · 8 years experience'}
+              ? 'E-3 Arera Colony, Bhopal, MP'
+              : 'Electrician · 8 years experience (MP Nagar, Bhopal)'}
           </p>
           <button className="outline-button">{t('common.edit')} profile</button>
         </div>
@@ -2038,6 +2411,13 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                 </div>
               )}
 
+              {/* REAL-TIME WORKER DISPATCH & JOB NAVIGATION MAP (BHOPAL, MP) */}
+              <WorkerDispatchMap
+                workerProfile={workerProfile}
+                activeJob={currentJob}
+                height="360px"
+              />
+
               <div className="worker-grid">
                 <div className="panel request-panel">
                   <div className="panel-head">
@@ -2045,9 +2425,9 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
                       <Pill tone="yellow">
                         <span className="pulse-dot" /> {currentJob?.status || t('workerDash.newRequest')}
                       </Pill>
-                      <h3>{currentJob ? (t(`categories.${currentJob.service}`) || currentJob.service) : 'Deep Home Cleaning'}</h3>
+                      <h3>{currentJob ? (t(`categories.${currentJob.service}`) || currentJob.service) : 'Switchboard & Socket Replacement'}</h3>
                       <p className="muted">
-                        Requested by {currentJob?.customerName || 'Ananya Nair'} · {currentJob?.address || 'Indiranagar'}
+                        Requested by {currentJob?.customerName || 'Pooja Singhal'} · {currentJob?.address || 'Zone-I, MP Nagar, Bhopal'}
                       </p>
                       {currentJob?.problemDescription && (
                         <div style={{
@@ -2242,6 +2622,22 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
             </>
           )}
 
+          {active === 'Live Route Map' && (
+            <>
+              <div className="welcome-line">
+                <div>
+                  <div className="eyebrow">BHOPAL REAL-TIME DISPATCH</div>
+                  <h2>{lang === 'hi' ? 'लाइव कार्य नेविगेशन और रूट' : 'Live Dispatch & Turn-by-Turn Navigation'}</h2>
+                  <p className="muted">Turn-by-turn routing across Bhopal MP to assigned customer destinations</p>
+                </div>
+              </div>
+              <WorkerDispatchMap
+                workerProfile={workerProfile}
+                activeJob={currentJob}
+                height="540px"
+              />
+            </>
+          )}
           {active === 'My schedule' && <WorkerSchedule />}
           {active === 'Earnings' && <WorkerEarnings done={done} />}
           {active === 'Co-op Insights' && (
@@ -2250,6 +2646,50 @@ function WorkerDashboard({ onLogout }: { onLogout: () => void }) {
           {active === 'My profile' && <Profile role="worker" />}
         </div>
       </div>
+
+      {/* MOBILE BOTTOM NAVIGATION BAR FOR WORKER */}
+      <nav className="mobile-bottom-nav">
+        <button
+          type="button"
+          className={active === 'Overview' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Overview')}
+        >
+          <Home size={18} />
+          <span>Home</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Job requests' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Job requests')}
+        >
+          <Bell size={18} />
+          <span>Requests</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Live Route Map' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Live Route Map')}
+        >
+          <Navigation size={18} />
+          <span>Map</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Earnings' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Earnings')}
+        >
+          <Wallet size={18} />
+          <span>Earnings</span>
+        </button>
+        <button
+          type="button"
+          className={active === 'Co-op Insights' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+          onClick={() => setActive('Co-op Insights')}
+        >
+          <BarChart3 size={18} />
+          <span>Insights</span>
+        </button>
+      </nav>
 
       {/* WORKER WELFARE MODAL */}
       {showWelfare && (
