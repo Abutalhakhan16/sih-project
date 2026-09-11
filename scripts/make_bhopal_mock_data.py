@@ -1,32 +1,20 @@
-import {
-  Worker,
-  CustomerRecord,
-  CatalogService,
-  Booking,
-  CoopStats,
-  DemandForecast,
-  NotificationItem,
-  WorkerWelfare,
-} from './types'
+import json
 
-export const categories = [
-  "Plumber",
-  "Electrician",
-  "Carpenter",
-  "Painter",
-  "Cleaner",
-  "Gardener",
-  "Driver",
-  "Appliance Repair",
-  "AC Technician",
-  "Caregiver"
+categories = [
+  'Plumber',
+  'Electrician',
+  'Carpenter',
+  'Painter',
+  'Cleaner',
+  'Gardener',
+  'Driver',
+  'Appliance Repair',
+  'AC Technician',
+  'Caregiver',
 ]
 
-/**
- * 71 Realistic Gig Workers spanning all 10 trades, realistic Bhopal MP geo-distribution,
- * verified/unverified statuses, varied workloads, and male/female cooperative members.
- */
-export const initialWorkers: Worker[] = [
+workers = [
+  # --- PLUMBER (8 Workers) ---
   {
     "id": 101,
     "name": "Ramesh Verma",
@@ -34,16 +22,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98260 22345",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Pipe Fitting",
-      "Water Heater Repair",
-      "Tank Cleaning"
-    ],
+    "secondarySkills": ["Pipe Fitting", "Water Heater Repair", "Tank Cleaning"],
     "experience": 9,
-    "certifications": [
-      "Govt. ITI Bhopal Plumbing Specialist",
-      "ISO Water Safety Grade 1"
-    ],
+    "certifications": ["Govt. ITI Bhopal Plumbing Specialist", "ISO Water Safety Grade 1"],
     "rating": 4.8,
     "reviews": 142,
     "completedJobs": 318,
@@ -54,18 +35,15 @@ export const initialWorkers: Worker[] = [
     "color": "blue",
     "bio": "Certified master plumber with 9+ years experience across MP Nagar & Arera Colony. Specializes in leak detection and pressure fixtures.",
     "lat": 23.2355,
-    "lng": 77.435,
+    "lng": 77.4350,
     "serviceArea": "MP Nagar & Arera Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Zone-II, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Zone-II, MP Nagar, Bhopal",
   },
   {
     "id": 102,
@@ -74,14 +52,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98261 33456",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Drain Unblocking",
-      "Sanitary Fitting"
-    ],
+    "secondarySkills": ["Drain Unblocking", "Sanitary Fitting"],
     "experience": 5,
-    "certifications": [
-      "MP Skill Mission Certified Plumber"
-    ],
+    "certifications": ["MP Skill Mission Certified Plumber"],
     "rating": 4.7,
     "reviews": 88,
     "completedJobs": 174,
@@ -91,18 +64,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 350,
     "color": "mint",
     "bio": "Prompt domestic plumbing, drain cleaning, and bathroom fixtures. Transparent flat quotes and rapid response.",
-    "lat": 23.218,
-    "lng": 77.439,
+    "lat": 23.2180,
+    "lng": 77.4390,
     "serviceArea": "Arera Colony & Shahpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-4 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-4 Arera Colony, Bhopal",
   },
   {
     "id": 103,
@@ -111,15 +82,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98262 44567",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Commercial Piping",
-      "Submersible Pump Overhaul"
-    ],
+    "secondarySkills": ["Commercial Piping", "Submersible Pump Overhaul"],
     "experience": 12,
-    "certifications": [
-      "Govt. Polytechnic Commercial Piping",
-      "Plumbing Supervisor Level 4"
-    ],
+    "certifications": ["Govt. Polytechnic Commercial Piping", "Plumbing Supervisor Level 4"],
     "rating": 4.9,
     "reviews": 230,
     "completedJobs": 512,
@@ -129,19 +94,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 450,
     "color": "peach",
     "bio": "12 years commercial and residential plumbing specialist. Currently handling an apartment booster pump line overhaul.",
-    "lat": 23.239,
-    "lng": 77.404,
+    "lat": 23.2390,
+    "lng": 77.4040,
     "serviceArea": "New Market & TT Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 4,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Malviya Nagar, TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Malviya Nagar, TT Nagar, Bhopal",
   },
   {
     "id": 104,
@@ -150,15 +112,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98263 55678",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "RO Water Purifier",
-      "Leak Detection",
-      "Kitchen Piping"
-    ],
+    "secondarySkills": ["RO Water Purifier", "Leak Detection", "Kitchen Piping"],
     "experience": 6,
-    "certifications": [
-      "Jal Seva Plumbing Associate MP"
-    ],
+    "certifications": ["Jal Seva Plumbing Associate MP"],
     "rating": 4.75,
     "reviews": 94,
     "completedJobs": 198,
@@ -168,18 +124,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 360,
     "color": "lilac",
     "bio": "Specialist in kitchen sink plumbing, water purifier installations, and bathroom fixture renewals.",
-    "lat": 23.181,
-    "lng": 77.422,
+    "lat": 23.1810,
+    "lng": 77.4220,
     "serviceArea": "Kolar Road & Sarvadharma, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Sector A, Sarvadharma, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Sector A, Sarvadharma, Kolar Road, Bhopal",
   },
   {
     "id": 105,
@@ -188,14 +142,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98264 66789",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Overhead Tank Cleaning",
-      "Valve Replacement"
-    ],
+    "secondarySkills": ["Overhead Tank Cleaning", "Valve Replacement"],
     "experience": 8,
-    "certifications": [
-      "Plumbing Safety Tier 2 Bhopal"
-    ],
+    "certifications": ["Plumbing Safety Tier 2 Bhopal"],
     "rating": 4.6,
     "reviews": 67,
     "completedJobs": 145,
@@ -205,18 +154,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 390,
     "color": "yellow",
     "bio": "Underground and overhead tank waterline repairs and motor pump connections. Currently on weekly scheduled leave.",
-    "lat": 23.272,
-    "lng": 77.465,
+    "lat": 23.2720,
+    "lng": 77.4650,
     "serviceArea": "Ayodhya Bypass & Anand Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Anand Nagar, Ayodhya Bypass, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Anand Nagar, Ayodhya Bypass, Bhopal",
   },
   {
     "id": 139,
@@ -225,14 +172,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98265 77891",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Bathroom Renovation",
-      "CPVC Fittings"
-    ],
+    "secondarySkills": ["Bathroom Renovation", "CPVC Fittings"],
     "experience": 7,
-    "certifications": [
-      "Skill India Level 3 Plumbing"
-    ],
+    "certifications": ["Skill India Level 3 Plumbing"],
     "rating": 4.85,
     "reviews": 112,
     "completedJobs": 240,
@@ -242,19 +184,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 400,
     "color": "mint",
     "bio": "Experienced in luxury bathroom fittings, CPVC pipe welding, and geyser plumbing connections across Hoshangabad corridor.",
-    "lat": 23.191,
-    "lng": 77.458,
+    "lat": 23.1910,
+    "lng": 77.4580,
     "serviceArea": "Hoshangabad Road & Misrod, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Near Aashima Mall, Hoshangabad Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Near Aashima Mall, Hoshangabad Road, Bhopal",
   },
   {
     "id": 140,
@@ -263,14 +202,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98266 88902",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Sewer Line Clearing",
-      "Industrial Pipe Layout"
-    ],
+    "secondarySkills": ["Sewer Line Clearing", "Industrial Pipe Layout"],
     "experience": 4,
-    "certifications": [
-      "Govt. ITI Karond Plumbing Certificate"
-    ],
+    "certifications": ["Govt. ITI Karond Plumbing Certificate"],
     "rating": 4.5,
     "reviews": 43,
     "completedJobs": 89,
@@ -280,18 +214,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 320,
     "color": "blue",
     "bio": "Affordable sanitary repairs, water tank fittings, and sewer maintenance for North Bhopal neighborhoods.",
-    "lat": 23.303,
-    "lng": 77.398,
+    "lat": 23.3030,
+    "lng": 77.3980,
     "serviceArea": "Karond & Bhanpur, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Krishi Upaj Mandi Rd, Karond, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Krishi Upaj Mandi Rd, Karond, Bhopal",
   },
   {
     "id": 141,
@@ -300,14 +232,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98267 99013",
     "service": "Plumber",
     "primarySkill": "Plumber",
-    "secondarySkills": [
-      "Emergency Leak Sealing",
-      "Motor Rewiring"
-    ],
+    "secondarySkills": ["Emergency Leak Sealing", "Motor Rewiring"],
     "experience": 3,
-    "certifications": [
-      "Apprentice Certification Bhopal Board"
-    ],
+    "certifications": ["Apprentice Certification Bhopal Board"],
     "rating": 4.4,
     "reviews": 31,
     "completedJobs": 64,
@@ -317,19 +244,19 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 300,
     "color": "coral",
     "bio": "Rapid emergency pipe repair and faucet fixing in Bairagarh and Lalghati areas.",
-    "lat": 23.278,
-    "lng": 77.348,
+    "lat": 23.2780,
+    "lng": 77.3480,
     "serviceArea": "Bairagarh & Lalghati, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Documentation",
-    "address": "Main Market, Bairagarh, Bhopal"
+    "address": "Main Market, Bairagarh, Bhopal",
   },
+
+  # --- ELECTRICIAN (8 Workers) ---
   {
     "id": 1,
     "name": "Ravi Kumar",
@@ -337,16 +264,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98270 11223",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Inverter Repair",
-      "MCB Diagnostics",
-      "Smart Lighting"
-    ],
+    "secondarySkills": ["Inverter Repair", "MCB Diagnostics", "Smart Lighting"],
     "experience": 8,
-    "certifications": [
-      "Licensed Wireman Grade 1 MP",
-      "Schneider Electric Certified Technician"
-    ],
+    "certifications": ["Licensed Wireman Grade 1 MP", "Schneider Electric Certified Technician"],
     "rating": 4.9,
     "reviews": 168,
     "completedJobs": 345,
@@ -356,19 +276,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 450,
     "color": "peach",
     "bio": "Lead cooperative electrician in Bhopal. Master of residential wiring, short-circuit diagnostics, and solar inverter setup.",
-    "lat": 23.232,
+    "lat": 23.2320,
     "lng": 77.4325,
     "serviceArea": "MP Nagar & Arera Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Plot 14, Zone-I, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Plot 14, Zone-I, MP Nagar, Bhopal",
   },
   {
     "id": 106,
@@ -377,14 +294,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98271 22334",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Industrial Distribution Panels",
-      "Substation Earthing"
-    ],
+    "secondarySkills": ["Industrial Distribution Panels", "Substation Earthing"],
     "experience": 11,
-    "certifications": [
-      "Govt. Master Electrician Board MP"
-    ],
+    "certifications": ["Govt. Master Electrician Board MP"],
     "rating": 4.92,
     "reviews": 195,
     "completedJobs": 430,
@@ -394,19 +306,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 500,
     "color": "yellow",
     "bio": "Specialist in heavy commercial load distribution and 3-phase commercial panel installations across Govindpura and MP Nagar.",
-    "lat": 23.247,
-    "lng": 77.471,
+    "lat": 23.2470,
+    "lng": 77.4710,
     "serviceArea": "Govindpura & BHEL, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Industrial Area, Govindpura, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Industrial Area, Govindpura, Bhopal",
   },
   {
     "id": 9,
@@ -415,15 +324,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98272 33445",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Ceiling Fan Setup",
-      "Switchboard Wiring",
-      "LED Profiles"
-    ],
+    "secondarySkills": ["Ceiling Fan Setup", "Switchboard Wiring", "LED Profiles"],
     "experience": 4,
-    "certifications": [
-      "ITI Wireman Trade Certificate Bhopal"
-    ],
+    "certifications": ["ITI Wireman Trade Certificate Bhopal"],
     "rating": 4.7,
     "reviews": 75,
     "completedJobs": 160,
@@ -433,18 +336,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 320,
     "color": "mint",
     "bio": "Quick household wiring fixes, fan installation, switch replacement, and designer ceiling LED lighting.",
-    "lat": 23.212,
+    "lat": 23.2120,
     "lng": 77.4365,
     "serviceArea": "Arera Colony (E-1 to E-7), Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-3, 10 No. Market, Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-3, 10 No. Market, Arera Colony, Bhopal",
   },
   {
     "id": 107,
@@ -453,14 +354,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98273 44556",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Generator Interlock",
-      "Appliance Wiring"
-    ],
+    "secondarySkills": ["Generator Interlock", "Appliance Wiring"],
     "experience": 7,
-    "certifications": [
-      "Skill India Level 4 Electrical Technician"
-    ],
+    "certifications": ["Skill India Level 4 Electrical Technician"],
     "rating": 4.8,
     "reviews": 110,
     "completedJobs": 248,
@@ -470,19 +366,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 400,
     "color": "blue",
     "bio": "Expert in inverter installation, copper earthing, and whole-house surge suppression systems.",
-    "lat": 23.202,
-    "lng": 77.441,
+    "lat": 23.2020,
+    "lng": 77.4410,
     "serviceArea": "Shahpura & Gulmohar Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Near Shahpura Lake, Gulmohar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Near Shahpura Lake, Gulmohar, Bhopal",
   },
   {
     "id": 108,
@@ -491,15 +384,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98274 55667",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Solar Panel Cabling",
-      "High-Voltage Isolators"
-    ],
+    "secondarySkills": ["Solar Panel Cabling", "High-Voltage Isolators"],
     "experience": 9,
-    "certifications": [
-      "MNRE Solar Grid-Tie Certified",
-      "Madhya Kshetra Vidyut Vitaran Approved"
-    ],
+    "certifications": ["MNRE Solar Grid-Tie Certified", "Madhya Kshetra Vidyut Vitaran Approved"],
     "rating": 4.85,
     "reviews": 134,
     "completedJobs": 290,
@@ -509,18 +396,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 460,
     "color": "peach",
     "bio": "Rooftop solar electrical wiring, net-metering synchronization, and breaker panel upgrades.",
-    "lat": 23.179,
-    "lng": 77.418,
+    "lat": 23.1790,
+    "lng": 77.4180,
     "serviceArea": "Kolar Road & Mandakini, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Mandakini Colony, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Mandakini Colony, Kolar Road, Bhopal",
   },
   {
     "id": 142,
@@ -529,14 +414,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98275 66778",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Commercial Lighting",
-      "Transformer Maintenance"
-    ],
+    "secondarySkills": ["Commercial Lighting", "Transformer Maintenance"],
     "experience": 6,
-    "certifications": [
-      "Govt. ITI Bhopal Wireman"
-    ],
+    "certifications": ["Govt. ITI Bhopal Wireman"],
     "rating": 4.65,
     "reviews": 69,
     "completedJobs": 150,
@@ -546,18 +426,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 370,
     "color": "lilac",
     "bio": "Reliable electrician for TT Nagar, New Market, and Platinum Plaza shops and offices.",
-    "lat": 23.237,
-    "lng": 77.403,
+    "lat": 23.2370,
+    "lng": 77.4030,
     "serviceArea": "TT Nagar & Roshanpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Rangmahal Square, TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Rangmahal Square, TT Nagar, Bhopal",
   },
   {
     "id": 143,
@@ -566,14 +444,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98276 77889",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Earthing Pits",
-      "Submersible Motor Starter"
-    ],
+    "secondarySkills": ["Earthing Pits", "Submersible Motor Starter"],
     "experience": 5,
-    "certifications": [
-      "ITI Electrician Trade Pass"
-    ],
+    "certifications": ["ITI Electrician Trade Pass"],
     "rating": 4.55,
     "reviews": 51,
     "completedJobs": 110,
@@ -583,18 +456,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 340,
     "color": "mint",
     "bio": "Domestic electrical earthing, motor starters, and emergency power lines in northern Bhopal.",
-    "lat": 23.307,
-    "lng": 77.394,
+    "lat": 23.3070,
+    "lng": 77.3940,
     "serviceArea": "Karond & Nishatpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Bhanpur Overbridge, Karond, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Bhanpur Overbridge, Karond, Bhopal",
   },
   {
     "id": 144,
@@ -603,14 +474,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98277 88990",
     "service": "Electrician",
     "primarySkill": "Electrician",
-    "secondarySkills": [
-      "Home Theater Cabling",
-      "Modular Switches"
-    ],
+    "secondarySkills": ["Home Theater Cabling", "Modular Switches"],
     "experience": 3,
-    "certifications": [
-      "Skill India Electrician Apprentice"
-    ],
+    "certifications": ["Skill India Electrician Apprentice"],
     "rating": 4.35,
     "reviews": 28,
     "completedJobs": 52,
@@ -620,19 +486,19 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 290,
     "color": "coral",
     "bio": "Junior electrician providing economical switchboard repairs and lighting setups.",
-    "lat": 23.264,
-    "lng": 77.436,
+    "lat": 23.2640,
+    "lng": 77.4360,
     "serviceArea": "Ashoka Garden & Subhash Nagar, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Subhash Nagar, Bhopal"
+    "address": "Subhash Nagar, Bhopal",
   },
+
+  # --- CARPENTER (7 Workers) ---
   {
     "id": 111,
     "name": "Vijay Vishwakarma",
@@ -640,16 +506,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98280 12345",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Modular Kitchen",
-      "Door Lock Fitting",
-      "Furniture Polishing"
-    ],
+    "secondarySkills": ["Modular Kitchen", "Door Lock Fitting", "Furniture Polishing"],
     "experience": 14,
-    "certifications": [
-      "Master Woodcraft Guild MP",
-      "Godrej Locks Certified Installer"
-    ],
+    "certifications": ["Master Woodcraft Guild MP", "Godrej Locks Certified Installer"],
     "rating": 4.95,
     "reviews": 210,
     "completedJobs": 480,
@@ -659,19 +518,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 420,
     "color": "peach",
     "bio": "14 years of expert woodworking, modular kitchen repairs, hydraulic hinges, and antique wood restoration.",
-    "lat": 23.234,
-    "lng": 77.431,
+    "lat": 23.2340,
+    "lng": 77.4310,
     "serviceArea": "MP Nagar & Arera Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Zone-I, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Zone-I, MP Nagar, Bhopal",
   },
   {
     "id": 112,
@@ -680,15 +536,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98281 23456",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Custom Wardrobe",
-      "Bed Assembly",
-      "Laminate Pasting"
-    ],
+    "secondarySkills": ["Custom Wardrobe", "Bed Assembly", "Laminate Pasting"],
     "experience": 8,
-    "certifications": [
-      "ITI Woodcraft Certificate Bhopal"
-    ],
+    "certifications": ["ITI Woodcraft Certificate Bhopal"],
     "rating": 4.75,
     "reviews": 118,
     "completedJobs": 245,
@@ -698,18 +548,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 380,
     "color": "blue",
     "bio": "Specialist in flat-pack IKEA/Pepperfry assembly, wardrobe hinge realignment, and laminate edge banding.",
-    "lat": 23.214,
-    "lng": 77.438,
+    "lat": 23.2140,
+    "lng": 77.4380,
     "serviceArea": "Arera Colony & 10 No. Market, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-2 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-2 Arera Colony, Bhopal",
   },
   {
     "id": 113,
@@ -718,14 +566,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98282 34567",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Solid Teak Restoration",
-      "CNC Carving"
-    ],
+    "secondarySkills": ["Solid Teak Restoration", "CNC Carving"],
     "experience": 16,
-    "certifications": [
-      "Heritage Artisan Guild Award MP"
-    ],
+    "certifications": ["Heritage Artisan Guild Award MP"],
     "rating": 4.9,
     "reviews": 178,
     "completedJobs": 390,
@@ -735,19 +578,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 490,
     "color": "yellow",
     "bio": "Heritage teak wood carving, door frame repairs, and polyurethane polish specialist for residences.",
-    "lat": 23.242,
-    "lng": 77.385,
+    "lat": 23.2420,
+    "lng": 77.3850,
     "serviceArea": "Shyamla Hills & VIP Road, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Shyamla Hills, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Shyamla Hills, Bhopal",
   },
   {
     "id": 114,
@@ -756,14 +596,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98283 45678",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Window Mesh Fitting",
-      "Drawer Channel Fix"
-    ],
+    "secondarySkills": ["Window Mesh Fitting", "Drawer Channel Fix"],
     "experience": 6,
-    "certifications": [
-      "Vocational Skills Board Bhopal"
-    ],
+    "certifications": ["Vocational Skills Board Bhopal"],
     "rating": 4.65,
     "reviews": 84,
     "completedJobs": 170,
@@ -773,18 +608,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 350,
     "color": "mint",
     "bio": "Quick domestic carpentry: sliding window mosquito nets, ball-bearing drawer channels, and door trims.",
-    "lat": 23.177,
-    "lng": 77.42,
+    "lat": 23.1770,
+    "lng": 77.4200,
     "serviceArea": "Kolar Road & Janki Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Janki Nagar, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Janki Nagar, Kolar Road, Bhopal",
   },
   {
     "id": 145,
@@ -793,14 +626,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98284 56789",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Office Workstations",
-      "Acoustic Paneling"
-    ],
+    "secondarySkills": ["Office Workstations", "Acoustic Paneling"],
     "experience": 9,
-    "certifications": [
-      "Skill India Level 4 Interior Woodwork"
-    ],
+    "certifications": ["Skill India Level 4 Interior Woodwork"],
     "rating": 4.82,
     "reviews": 125,
     "completedJobs": 270,
@@ -810,19 +638,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 430,
     "color": "blue",
     "bio": "Commercial office partitions, modular computer stations, and acoustic door sealing across MP Nagar & Misrod.",
-    "lat": 23.188,
-    "lng": 77.455,
+    "lat": 23.1880,
+    "lng": 77.4550,
     "serviceArea": "Hoshangabad Road & Misrod, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Sector 1, Misrod, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Sector 1, Misrod, Bhopal",
   },
   {
     "id": 146,
@@ -831,14 +656,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98285 67890",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Shoe Rack Fabrication",
-      "Plywood Partitions"
-    ],
+    "secondarySkills": ["Shoe Rack Fabrication", "Plywood Partitions"],
     "experience": 5,
-    "certifications": [
-      "MP Artisan Council Member"
-    ],
+    "certifications": ["MP Artisan Council Member"],
     "rating": 4.6,
     "reviews": 62,
     "completedJobs": 130,
@@ -848,18 +668,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 360,
     "color": "lilac",
     "bio": "Plywood partition walls, shoe racks, custom TV consoles, and balcony storage cabinets.",
-    "lat": 23.27,
-    "lng": 77.467,
+    "lat": 23.2700,
+    "lng": 77.4670,
     "serviceArea": "Ayodhya Bypass & Piplani, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Piplani BHEL, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Piplani BHEL, Bhopal",
   },
   {
     "id": 147,
@@ -868,14 +686,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98286 78901",
     "service": "Carpenter",
     "primarySkill": "Carpenter",
-    "secondarySkills": [
-      "Curtain Rod Fixing",
-      "Hinges & Handles"
-    ],
+    "secondarySkills": ["Curtain Rod Fixing", "Hinges & Handles"],
     "experience": 3,
-    "certifications": [
-      "Apprentice Certificate Bhopal"
-    ],
+    "certifications": ["Apprentice Certificate Bhopal"],
     "rating": 4.4,
     "reviews": 24,
     "completedJobs": 48,
@@ -885,19 +698,19 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 300,
     "color": "yellow",
     "bio": "General household woodwork, door lock adjustments, and curtain rod fittings.",
-    "lat": 23.256,
-    "lng": 77.411,
+    "lat": 23.2560,
+    "lng": 77.4110,
     "serviceArea": "Jahangirabad & Old Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Jahangirabad, Bhopal"
+    "address": "Jahangirabad, Bhopal",
   },
+
+  # --- PAINTER (7 Workers) ---
   {
     "id": 5,
     "name": "Arjun Patel",
@@ -905,16 +718,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98290 11224",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Texture Painting",
-      "Waterproofing",
-      "Distemper & Emulsion"
-    ],
+    "secondarySkills": ["Texture Painting", "Waterproofing", "Distemper & Emulsion"],
     "experience": 10,
-    "certifications": [
-      "Asian Paints Certified Applicator",
-      "Dr. Fixit Waterproofing Master"
-    ],
+    "certifications": ["Asian Paints Certified Applicator", "Dr. Fixit Waterproofing Master"],
     "rating": 4.85,
     "reviews": 156,
     "completedJobs": 320,
@@ -924,19 +730,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 400,
     "color": "blue",
     "bio": "Professional interior and exterior painting, damp-wall waterproofing, stencil art, and royal luxury texture coating.",
-    "lat": 23.231,
-    "lng": 77.434,
+    "lat": 23.2310,
+    "lng": 77.4340,
     "serviceArea": "MP Nagar & Shivaji Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Shivaji Nagar 6 No. Stop, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Shivaji Nagar 6 No. Stop, Bhopal",
   },
   {
     "id": 115,
@@ -945,14 +748,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98291 22335",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Wall Putty Finishing",
-      "Ceiling Whitewash"
-    ],
+    "secondarySkills": ["Wall Putty Finishing", "Ceiling Whitewash"],
     "experience": 7,
-    "certifications": [
-      "Berger Paints Master Applicator MP"
-    ],
+    "certifications": ["Berger Paints Master Applicator MP"],
     "rating": 4.7,
     "reviews": 92,
     "completedJobs": 185,
@@ -962,18 +760,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 360,
     "color": "mint",
     "bio": "Flawless wall putty application, spot touch-ups, tenant turnaround repainting, and ceiling whitewashing.",
-    "lat": 23.211,
+    "lat": 23.2110,
     "lng": 77.4395,
     "serviceArea": "Arera Colony & Shahpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-6 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-6 Arera Colony, Bhopal",
   },
   {
     "id": 116,
@@ -982,14 +778,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98292 33446",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Wood Polish & Enamel",
-      "Metal Gate Spray"
-    ],
+    "secondarySkills": ["Wood Polish & Enamel", "Metal Gate Spray"],
     "experience": 11,
-    "certifications": [
-      "Nerolac Professional Painter Board"
-    ],
+    "certifications": ["Nerolac Professional Painter Board"],
     "rating": 4.9,
     "reviews": 164,
     "completedJobs": 350,
@@ -999,18 +790,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 450,
     "color": "peach",
     "bio": "Wood polish (melamine, PU) for doors, cabinets, and anti-rust spray enamel painting for exterior iron gates.",
-    "lat": 23.238,
-    "lng": 77.401,
+    "lat": 23.2380,
+    "lng": 77.4010,
     "serviceArea": "TT Nagar & Malviya Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 4,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "New Market, TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "New Market, TT Nagar, Bhopal",
   },
   {
     "id": 148,
@@ -1019,14 +808,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98293 44557",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Terrace Waterproofing",
-      "Exterior Weatherproof Coat"
-    ],
+    "secondarySkills": ["Terrace Waterproofing", "Exterior Weatherproof Coat"],
     "experience": 8,
-    "certifications": [
-      "Fosroc Waterproofing Applicator"
-    ],
+    "certifications": ["Fosroc Waterproofing Applicator"],
     "rating": 4.8,
     "reviews": 105,
     "completedJobs": 210,
@@ -1036,18 +820,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 410,
     "color": "yellow",
     "bio": "Specialist in heavy monsoon rainproofing, terrace elastomer coats, and exterior acrylic wall coatings.",
-    "lat": 23.18,
-    "lng": 77.417,
+    "lat": 23.1800,
+    "lng": 77.4170,
     "serviceArea": "Kolar Road & Chuna Bhatti, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Chuna Bhatti, Kolar Rd, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Chuna Bhatti, Kolar Rd, Bhopal",
   },
   {
     "id": 149,
@@ -1056,14 +838,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98294 55668",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Rental Apartment Repaint",
-      "Wall Decals"
-    ],
+    "secondarySkills": ["Rental Apartment Repaint", "Wall Decals"],
     "experience": 5,
-    "certifications": [
-      "MP Skill Mission Painter Level 2"
-    ],
+    "certifications": ["MP Skill Mission Painter Level 2"],
     "rating": 4.65,
     "reviews": 73,
     "completedJobs": 140,
@@ -1073,18 +850,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 330,
     "color": "mint",
     "bio": "Budget rental apartment repainting, quick turnaround single-room painting, and wallpaper installation.",
-    "lat": 23.272,
-    "lng": 77.466,
+    "lat": 23.2720,
+    "lng": 77.4660,
     "serviceArea": "Ayodhya Bypass & Govindpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Ayodhya Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Ayodhya Nagar, Bhopal",
   },
   {
     "id": 150,
@@ -1093,14 +868,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98295 66779",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Epoxy Floor Coating",
-      "Industrial Primer"
-    ],
+    "secondarySkills": ["Epoxy Floor Coating", "Industrial Primer"],
     "experience": 6,
-    "certifications": [
-      "Industrial Coating Standard Bhopal"
-    ],
+    "certifications": ["Industrial Coating Standard Bhopal"],
     "rating": 4.75,
     "reviews": 88,
     "completedJobs": 175,
@@ -1110,18 +880,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 390,
     "color": "blue",
     "bio": "Epoxy floor coatings for garages and clinics, polyurethane wood varnishing, and anti-fungal bathroom paints.",
-    "lat": 23.19,
-    "lng": 77.457,
+    "lat": 23.1900,
+    "lng": 77.4570,
     "serviceArea": "Hoshangabad Road & Bagsewaniya, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Bagsewaniya, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Bagsewaniya, Bhopal",
   },
   {
     "id": 151,
@@ -1130,14 +898,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98296 77880",
     "service": "Painter",
     "primarySkill": "Painter",
-    "secondarySkills": [
-      "Ceiling Painting",
-      "Brush Touch-up"
-    ],
+    "secondarySkills": ["Ceiling Painting", "Brush Touch-up"],
     "experience": 3,
-    "certifications": [
-      "Vocational Training Bhopal"
-    ],
+    "certifications": ["Vocational Training Bhopal"],
     "rating": 4.3,
     "reviews": 19,
     "completedJobs": 38,
@@ -1147,19 +910,19 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 280,
     "color": "coral",
     "bio": "Entry level painter for single room walls and boundary fence repainting.",
-    "lat": 23.304,
-    "lng": 77.396,
+    "lat": 23.3040,
+    "lng": 77.3960,
     "serviceArea": "Karond & Bhanpur, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Bhanpur, Bhopal"
+    "address": "Bhanpur, Bhopal",
   },
+
+  # --- CLEANER (8 Workers) ---
   {
     "id": 117,
     "name": "Priya Sharma",
@@ -1167,16 +930,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98300 11225",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Deep Home Sanitization",
-      "Kitchen De-greasing",
-      "Sofa Shampooing"
-    ],
+    "secondarySkills": ["Deep Home Sanitization", "Kitchen De-greasing", "Sofa Shampooing"],
     "experience": 6,
-    "certifications": [
-      "Hygiene Standard Council Certified Level 3",
-      "Bio-Safe Cleaning Protocol"
-    ],
+    "certifications": ["Hygiene Standard Council Certified Level 3", "Bio-Safe Cleaning Protocol"],
     "rating": 4.95,
     "reviews": 182,
     "completedJobs": 410,
@@ -1186,19 +942,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 420,
     "color": "mint",
     "bio": "Cooperative hygiene champion. Master of deep apartment scrubbing, mechanized floor buffing, and chemical-safe kitchen degreasing.",
-    "lat": 23.215,
-    "lng": 77.437,
+    "lat": 23.2150,
+    "lng": 77.4370,
     "serviceArea": "Arera Colony & MP Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-3 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-3 Arera Colony, Bhopal",
   },
   {
     "id": 118,
@@ -1207,14 +960,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98301 22336",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Bathroom Acid Descaling",
-      "Balcony Powerwash"
-    ],
+    "secondarySkills": ["Bathroom Acid Descaling", "Balcony Powerwash"],
     "experience": 8,
-    "certifications": [
-      "Govt. Swachh Bharat Hygiene Specialist"
-    ],
+    "certifications": ["Govt. Swachh Bharat Hygiene Specialist"],
     "rating": 4.8,
     "reviews": 135,
     "completedJobs": 290,
@@ -1224,18 +972,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 380,
     "color": "lilac",
     "bio": "Hard-water tile stain removal, glass window pane buffing, and eco-friendly bathroom deep sanitation.",
-    "lat": 23.236,
-    "lng": 77.432,
+    "lat": 23.2360,
+    "lng": 77.4320,
     "serviceArea": "MP Nagar & Shahpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Zone-II, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Zone-II, MP Nagar, Bhopal",
   },
   {
     "id": 152,
@@ -1244,15 +990,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98302 33447",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Move-in Deep Clean",
-      "Window Panes",
-      "Floor Scrubbing"
-    ],
+    "secondarySkills": ["Move-in Deep Clean", "Window Panes", "Floor Scrubbing"],
     "experience": 9,
-    "certifications": [
-      "Cooperative Hygiene Excellence"
-    ],
+    "certifications": ["Cooperative Hygiene Excellence"],
     "rating": 4.88,
     "reviews": 160,
     "completedJobs": 370,
@@ -1263,17 +1003,15 @@ export const initialWorkers: Worker[] = [
     "color": "peach",
     "bio": "Trusted across Arera Colony for post-renovation dust removal and full-house move-in deep sanitization.",
     "lat": 23.2125,
-    "lng": 77.436,
+    "lng": 77.4360,
     "serviceArea": "Arera Colony & Kolar Road, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "10 No. Market, Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "10 No. Market, Arera Colony, Bhopal",
   },
   {
     "id": 153,
@@ -1282,14 +1020,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98303 44558",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Carpet Extraction",
-      "Chimney Deep Clean"
-    ],
+    "secondarySkills": ["Carpet Extraction", "Chimney Deep Clean"],
     "experience": 5,
-    "certifications": [
-      "Skill India Housekeeping Associate"
-    ],
+    "certifications": ["Skill India Housekeeping Associate"],
     "rating": 4.7,
     "reviews": 82,
     "completedJobs": 178,
@@ -1300,17 +1033,15 @@ export const initialWorkers: Worker[] = [
     "color": "mint",
     "bio": "Kitchen chimney oil degreasing, carpet vacuum extraction, and thorough tile grout cleaning.",
     "lat": 23.1795,
-    "lng": 77.421,
+    "lng": 77.4210,
     "serviceArea": "Kolar Road & Sarvadharma, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Sarvadharma Sector B, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Sarvadharma Sector B, Kolar Road, Bhopal",
   },
   {
     "id": 154,
@@ -1319,14 +1050,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98304 55669",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Office Floor Scrubbing",
-      "Commercial Pantry"
-    ],
+    "secondarySkills": ["Office Floor Scrubbing", "Commercial Pantry"],
     "experience": 6,
-    "certifications": [
-      "Commercial Janitorial Certificate MP"
-    ],
+    "certifications": ["Commercial Janitorial Certificate MP"],
     "rating": 4.75,
     "reviews": 95,
     "completedJobs": 205,
@@ -1337,17 +1063,15 @@ export const initialWorkers: Worker[] = [
     "color": "blue",
     "bio": "Specialized in office premises deep cleaning, banking branch hygiene maintenance, and clinic sanitization.",
     "lat": 23.2375,
-    "lng": 77.402,
+    "lng": 77.4020,
     "serviceArea": "TT Nagar & New Market, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Bhadbhada Rd, TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Bhadbhada Rd, TT Nagar, Bhopal",
   },
   {
     "id": 155,
@@ -1356,14 +1080,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98305 66770",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Water Tank Cleaning",
-      "Basement De-molding"
-    ],
+    "secondarySkills": ["Water Tank Cleaning", "Basement De-molding"],
     "experience": 7,
-    "certifications": [
-      "Tank Sanitization Grade A"
-    ],
+    "certifications": ["Tank Sanitization Grade A"],
     "rating": 4.82,
     "reviews": 114,
     "completedJobs": 230,
@@ -1374,17 +1093,15 @@ export const initialWorkers: Worker[] = [
     "color": "peach",
     "bio": "Underground sump and Sintex overhead tank pressure cleaning with antibacterial UV treatment.",
     "lat": 23.2715,
-    "lng": 77.469,
+    "lng": 77.4690,
     "serviceArea": "Ayodhya Bypass & Anand Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Anand Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Anand Nagar, Bhopal",
   },
   {
     "id": 156,
@@ -1393,14 +1110,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98306 77881",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "Mattress Sanitation",
-      "Appliance Deodorizing"
-    ],
+    "secondarySkills": ["Mattress Sanitation", "Appliance Deodorizing"],
     "experience": 4,
-    "certifications": [
-      "Vocational Housekeeping Certificate"
-    ],
+    "certifications": ["Vocational Housekeeping Certificate"],
     "rating": 4.6,
     "reviews": 58,
     "completedJobs": 120,
@@ -1413,15 +1125,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.1895,
     "lng": 77.4565,
     "serviceArea": "Hoshangabad Road & Misrod, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Misrod, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Misrod, Bhopal",
   },
   {
     "id": 157,
@@ -1430,14 +1140,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98307 88992",
     "service": "Cleaner",
     "primarySkill": "Cleaner",
-    "secondarySkills": [
-      "General House Cleaning",
-      "Dusting"
-    ],
+    "secondarySkills": ["General House Cleaning", "Dusting"],
     "experience": 3,
-    "certifications": [
-      "Apprentice Certificate"
-    ],
+    "certifications": ["Apprentice Certificate"],
     "rating": 4.4,
     "reviews": 29,
     "completedJobs": 60,
@@ -1447,19 +1152,19 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 310,
     "color": "mint",
     "bio": "Honest and thorough general home cleaning and dusting for apartments in northern Bhopal.",
-    "lat": 23.306,
-    "lng": 77.397,
+    "lat": 23.3060,
+    "lng": 77.3970,
     "serviceArea": "Karond & Bhanpur, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Karond Mandi, Bhopal"
+    "address": "Karond Mandi, Bhopal",
   },
+
+  # --- GARDENER (6 Workers) ---
   {
     "id": 119,
     "name": "Prakash Malviya",
@@ -1467,16 +1172,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98310 11226",
     "service": "Gardener",
     "primarySkill": "Gardener",
-    "secondarySkills": [
-      "Lawn Mowing",
-      "Bonsai Care",
-      "Organic Composting"
-    ],
+    "secondarySkills": ["Lawn Mowing", "Bonsai Care", "Organic Composting"],
     "experience": 11,
-    "certifications": [
-      "Govt. Agriculture College Horticulture Certificate MP",
-      "Organic Farming Master"
-    ],
+    "certifications": ["Govt. Agriculture College Horticulture Certificate MP", "Organic Farming Master"],
     "rating": 4.9,
     "reviews": 140,
     "completedJobs": 310,
@@ -1486,19 +1184,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 400,
     "color": "mint",
     "bio": "Master horticulturist with deep knowledge of Bhopal soil conditions. Terrace garden setup, fruit tree pruning, and natural pest management.",
-    "lat": 23.213,
+    "lat": 23.2130,
     "lng": 77.4375,
     "serviceArea": "Arera Colony & Shahpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-5 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-5 Arera Colony, Bhopal",
   },
   {
     "id": 120,
@@ -1507,14 +1202,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98311 22337",
     "service": "Gardener",
     "primarySkill": "Gardener",
-    "secondarySkills": [
-      "Hedge Trimming",
-      "Potting Mix Blending"
-    ],
+    "secondarySkills": ["Hedge Trimming", "Potting Mix Blending"],
     "experience": 8,
-    "certifications": [
-      "Horticulture Nursery Association MP"
-    ],
+    "certifications": ["Horticulture Nursery Association MP"],
     "rating": 4.75,
     "reviews": 98,
     "completedJobs": 215,
@@ -1527,15 +1217,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2015,
     "lng": 77.4425,
     "serviceArea": "Shahpura & Gulmohar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Trilanga, Gulmohar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Trilanga, Gulmohar, Bhopal",
   },
   {
     "id": 158,
@@ -1544,14 +1232,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98312 33448",
     "service": "Gardener",
     "primarySkill": "Gardener",
-    "secondarySkills": [
-      "Drip Irrigation",
-      "Medicinal Plants"
-    ],
+    "secondarySkills": ["Drip Irrigation", "Medicinal Plants"],
     "experience": 13,
-    "certifications": [
-      "MP Krishi Vigyan Kendra Certified"
-    ],
+    "certifications": ["MP Krishi Vigyan Kendra Certified"],
     "rating": 4.92,
     "reviews": 165,
     "completedJobs": 360,
@@ -1561,19 +1244,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 440,
     "color": "yellow",
     "bio": "Automated drip irrigation setups for balconies, medicinal garden cultivation, and organic vegetable patches.",
-    "lat": 23.244,
-    "lng": 77.383,
+    "lat": 23.2440,
+    "lng": 77.3830,
     "serviceArea": "Shyamla Hills & VIP Road, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Polytechnic Square, Shyamla Hills, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Polytechnic Square, Shyamla Hills, Bhopal",
   },
   {
     "id": 159,
@@ -1582,14 +1262,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98313 44559",
     "service": "Gardener",
     "primarySkill": "Gardener",
-    "secondarySkills": [
-      "Tree Lopping",
-      "Grass Turf Laying"
-    ],
+    "secondarySkills": ["Tree Lopping", "Grass Turf Laying"],
     "experience": 7,
-    "certifications": [
-      "Urban Forestry Training Bhopal"
-    ],
+    "certifications": ["Urban Forestry Training Bhopal"],
     "rating": 4.7,
     "reviews": 86,
     "completedJobs": 180,
@@ -1602,15 +1277,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.1785,
     "lng": 77.4195,
     "serviceArea": "Kolar Road & Mandakini, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Mandakini, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Mandakini, Kolar Road, Bhopal",
   },
   {
     "id": 160,
@@ -1619,14 +1292,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98314 55660",
     "service": "Gardener",
     "primarySkill": "Gardener",
-    "secondarySkills": [
-      "Terrace Greenhouses",
-      "Soil Testing"
-    ],
+    "secondarySkills": ["Terrace Greenhouses", "Soil Testing"],
     "experience": 6,
-    "certifications": [
-      "Skill India Floriculture Level 3"
-    ],
+    "certifications": ["Skill India Floriculture Level 3"],
     "rating": 4.8,
     "reviews": 92,
     "completedJobs": 195,
@@ -1636,18 +1304,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 380,
     "color": "lilac",
     "bio": "Terrace shade netting, hydroponic herb towers, and cocopeat soil conditioning.",
-    "lat": 23.189,
-    "lng": 77.455,
+    "lat": 23.1890,
+    "lng": 77.4550,
     "serviceArea": "Hoshangabad Road & Misrod, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Bawadiya Kalan, Hoshangabad Rd, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Bawadiya Kalan, Hoshangabad Rd, Bhopal",
   },
   {
     "id": 161,
@@ -1656,14 +1322,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98315 66771",
     "service": "Gardener",
     "primarySkill": "Gardener",
-    "secondarySkills": [
-      "Clay Pot Supplying",
-      "Weed Removal"
-    ],
+    "secondarySkills": ["Clay Pot Supplying", "Weed Removal"],
     "experience": 4,
-    "certifications": [
-      "Artisan Nursery Council"
-    ],
+    "certifications": ["Artisan Nursery Council"],
     "rating": 4.5,
     "reviews": 38,
     "completedJobs": 80,
@@ -1676,16 +1337,16 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2725,
     "lng": 77.4675,
     "serviceArea": "Ayodhya Bypass & Piplani, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Ayodhya Bypass, Bhopal"
+    "address": "Ayodhya Bypass, Bhopal",
   },
+
+  # --- DRIVER (7 Workers) ---
   {
     "id": 121,
     "name": "Sumit Verma",
@@ -1693,16 +1354,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98320 11227",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "Outstation Highway Trips",
-      "Automatic & EV Expert",
-      "Airport Drop"
-    ],
+    "secondarySkills": ["Outstation Highway Trips", "Automatic & EV Expert", "Airport Drop"],
     "experience": 9,
-    "certifications": [
-      "Commercial Heavy & Light Transport License MP",
-      "Defensive Driving National Safety Council"
-    ],
+    "certifications": ["Commercial Heavy & Light Transport License MP", "Defensive Driving National Safety Council"],
     "rating": 4.92,
     "reviews": 215,
     "completedJobs": 540,
@@ -1712,19 +1366,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 500,
     "color": "blue",
     "bio": "Punctual, verified chauffeur for city commute, Raja Bhoj Airport transfers, and outstation trips (Indore, Ujjain, Pachmarhi).",
-    "lat": 23.233,
-    "lng": 77.433,
+    "lat": 23.2330,
+    "lng": 77.4330,
     "serviceArea": "MP Nagar & Arera Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Zone-I, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Zone-I, MP Nagar, Bhopal",
   },
   {
     "id": 122,
@@ -1733,14 +1384,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98321 22338",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "Sedan & SUV",
-      "Night Shifts"
-    ],
+    "secondarySkills": ["Sedan & SUV", "Night Shifts"],
     "experience": 7,
-    "certifications": [
-      "Commercial Transport Badge MP RTO"
-    ],
+    "certifications": ["Commercial Transport Badge MP RTO"],
     "rating": 4.78,
     "reviews": 140,
     "completedJobs": 320,
@@ -1750,18 +1396,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 450,
     "color": "peach",
     "bio": "Polite luxury sedan and SUV driver with spotless safety record. Fluent in city routes and outstation highways.",
-    "lat": 23.213,
-    "lng": 77.437,
+    "lat": 23.2130,
+    "lng": 77.4370,
     "serviceArea": "Arera Colony & 10 No. Market, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-2 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-2 Arera Colony, Bhopal",
   },
   {
     "id": 162,
@@ -1770,15 +1414,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98322 33449",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "Airport Fast Transfers",
-      "VIP Chauffeur"
-    ],
+    "secondarySkills": ["Airport Fast Transfers", "VIP Chauffeur"],
     "experience": 12,
-    "certifications": [
-      "VIP Escort Driver Certification",
-      "MP RTO Commercial"
-    ],
+    "certifications": ["VIP Escort Driver Certification", "MP RTO Commercial"],
     "rating": 4.96,
     "reviews": 260,
     "completedJobs": 610,
@@ -1788,20 +1426,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 550,
     "color": "mint",
     "bio": "12 years experience catering to corporate executives, VIP delegations, and Raja Bhoj Airport pickups.",
-    "lat": 23.276,
-    "lng": 77.346,
+    "lat": 23.2760,
+    "lng": 77.3460,
     "serviceArea": "Bairagarh & Airport Road, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English",
-      "Urdu"
-    ],
+    "language": ["Hindi", "English", "Urdu"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Airport Road, Lalghati, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Airport Road, Lalghati, Bhopal",
   },
   {
     "id": 163,
@@ -1810,14 +1444,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98323 44550",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "School & Office Pickups",
-      "Manual Gearboxes"
-    ],
+    "secondarySkills": ["School & Office Pickups", "Manual Gearboxes"],
     "experience": 6,
-    "certifications": [
-      "Skill India Chauffeur L3"
-    ],
+    "certifications": ["Skill India Chauffeur L3"],
     "rating": 4.7,
     "reviews": 98,
     "completedJobs": 240,
@@ -1827,18 +1456,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 420,
     "color": "yellow",
     "bio": "Reliable daily office and family commute driver. Patient in congested traffic and respectful.",
-    "lat": 23.178,
+    "lat": 23.1780,
     "lng": 77.4185,
     "serviceArea": "Kolar Road & Sarvadharma, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Sarvadharma, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Sarvadharma, Kolar Road, Bhopal",
   },
   {
     "id": 164,
@@ -1847,14 +1474,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98324 55661",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "Pachmarhi & Mahakal Outstation",
-      "Emergency Medical Trips"
-    ],
+    "secondarySkills": ["Pachmarhi & Mahakal Outstation", "Emergency Medical Trips"],
     "experience": 10,
-    "certifications": [
-      "Highway Defensive Driving MP"
-    ],
+    "certifications": ["Highway Defensive Driving MP"],
     "rating": 4.88,
     "reviews": 175,
     "completedJobs": 420,
@@ -1864,19 +1486,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 520,
     "color": "blue",
     "bio": "Specialist in highway pilgrimages (Ujjain Mahakal, Omkareshwar) and hill station trips (Pachmarhi) with excellent night driving vision.",
-    "lat": 23.238,
+    "lat": 23.2380,
     "lng": 77.4015,
     "serviceArea": "TT Nagar & New Market, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Roshanpura, TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Roshanpura, TT Nagar, Bhopal",
   },
   {
     "id": 165,
@@ -1885,14 +1504,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98325 66772",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "Tempo & Van Transport",
-      "Goods Dispatch"
-    ],
+    "secondarySkills": ["Tempo & Van Transport", "Goods Dispatch"],
     "experience": 5,
-    "certifications": [
-      "Commercial Light Goods License"
-    ],
+    "certifications": ["Commercial Light Goods License"],
     "rating": 4.65,
     "reviews": 84,
     "completedJobs": 190,
@@ -1902,18 +1516,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 460,
     "color": "lilac",
     "bio": "Van, Tempo Trax, and mini-bus driver for wedding parties, commercial goods, and family tours.",
-    "lat": 23.189,
-    "lng": 77.457,
+    "lat": 23.1890,
+    "lng": 77.4570,
     "serviceArea": "Hoshangabad Road & Mandideep, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Indus Towne, Hoshangabad Rd, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Indus Towne, Hoshangabad Rd, Bhopal",
   },
   {
     "id": 166,
@@ -1922,14 +1534,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98326 77883",
     "service": "Driver",
     "primarySkill": "Driver",
-    "secondarySkills": [
-      "City Hatchback Driving",
-      "Parking Assistance"
-    ],
+    "secondarySkills": ["City Hatchback Driving", "Parking Assistance"],
     "experience": 3,
-    "certifications": [
-      "RTO Driving Certificate"
-    ],
+    "certifications": ["RTO Driving Certificate"],
     "rating": 4.4,
     "reviews": 32,
     "completedJobs": 68,
@@ -1939,19 +1546,19 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 380,
     "color": "peach",
     "bio": "Economical driver for city shopping trips and vehicle servicing drop-offs.",
-    "lat": 23.305,
-    "lng": 77.396,
+    "lat": 23.3050,
+    "lng": 77.3960,
     "serviceArea": "Karond & Bhanpur, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Bhanpur, Bhopal"
+    "address": "Bhanpur, Bhopal",
   },
+
+  # --- APPLIANCE REPAIR (7 Workers) ---
   {
     "id": 123,
     "name": "Naveen Saxena",
@@ -1959,16 +1566,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98330 11228",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "Microwave Magnetron Fix",
-      "Front-load Washing Machine",
-      "Inverter Refrigerator"
-    ],
+    "secondarySkills": ["Microwave Magnetron Fix", "Front-load Washing Machine", "Inverter Refrigerator"],
     "experience": 10,
-    "certifications": [
-      "Samsung & LG Certified Tech Lead",
-      "Govt. ITI Consumer Electronics"
-    ],
+    "certifications": ["Samsung & LG Certified Tech Lead", "Govt. ITI Consumer Electronics"],
     "rating": 4.9,
     "reviews": 190,
     "completedJobs": 420,
@@ -1981,16 +1581,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2345,
     "lng": 77.4335,
     "serviceArea": "MP Nagar & Arera Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Zone-I, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Zone-I, MP Nagar, Bhopal",
   },
   {
     "id": 124,
@@ -1999,14 +1596,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98331 22339",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "Water Heater / Geyser",
-      "Chimney Motor"
-    ],
+    "secondarySkills": ["Water Heater / Geyser", "Chimney Motor"],
     "experience": 6,
-    "certifications": [
-      "Havells & Bajaj Geyser Certified Specialist"
-    ],
+    "certifications": ["Havells & Bajaj Geyser Certified Specialist"],
     "rating": 4.75,
     "reviews": 115,
     "completedJobs": 260,
@@ -2019,15 +1611,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2145,
     "lng": 77.4385,
     "serviceArea": "Arera Colony (E-1 to E-7), Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-4 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-4 Arera Colony, Bhopal",
   },
   {
     "id": 167,
@@ -2036,14 +1626,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98332 33450",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "RO Membrane Replacement",
-      "TDS Calibration"
-    ],
+    "secondarySkills": ["RO Membrane Replacement", "TDS Calibration"],
     "experience": 7,
-    "certifications": [
-      "Kent & Aquaguard Authorized Associate MP"
-    ],
+    "certifications": ["Kent & Aquaguard Authorized Associate MP"],
     "rating": 4.88,
     "reviews": 142,
     "completedJobs": 310,
@@ -2053,19 +1638,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 400,
     "color": "yellow",
     "bio": "Water purifier specialist. Full pump overhaul, RO/UV filter replacement, and digital TDS water quality calibration.",
-    "lat": 23.202,
-    "lng": 77.443,
+    "lat": 23.2020,
+    "lng": 77.4430,
     "serviceArea": "Shahpura & Gulmohar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Gulmohar Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Gulmohar Colony, Bhopal",
   },
   {
     "id": 168,
@@ -2074,14 +1656,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98333 44561",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "Double-door Refrigerator",
-      "Deep Freezer Compressor"
-    ],
+    "secondarySkills": ["Double-door Refrigerator", "Deep Freezer Compressor"],
     "experience": 9,
-    "certifications": [
-      "Whirlpool & Godrej Technician Guild"
-    ],
+    "certifications": ["Whirlpool & Godrej Technician Guild"],
     "rating": 4.82,
     "reviews": 128,
     "completedJobs": 275,
@@ -2091,18 +1668,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 440,
     "color": "peach",
     "bio": "Commercial deep freezer and domestic frost-free refrigerator cooling coil repair and eco gas recharging.",
-    "lat": 23.179,
-    "lng": 77.419,
+    "lat": 23.1790,
+    "lng": 77.4190,
     "serviceArea": "Kolar Road & Mandakini, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Bima Kunj, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Bima Kunj, Kolar Road, Bhopal",
   },
   {
     "id": 169,
@@ -2111,14 +1686,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98334 55672",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "Mixer Grinder",
-      "Induction Cooktop"
-    ],
+    "secondarySkills": ["Mixer Grinder", "Induction Cooktop"],
     "experience": 5,
-    "certifications": [
-      "ITI Small Electronics Certificate"
-    ],
+    "certifications": ["ITI Small Electronics Certificate"],
     "rating": 4.6,
     "reviews": 78,
     "completedJobs": 165,
@@ -2131,15 +1701,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2385,
     "lng": 77.4025,
     "serviceArea": "TT Nagar & New Market, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Platinum Plaza, TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Platinum Plaza, TT Nagar, Bhopal",
   },
   {
     "id": 170,
@@ -2148,14 +1716,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98335 66783",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "Semi-Automatic Washers",
-      "Spin Dryer Motors"
-    ],
+    "secondarySkills": ["Semi-Automatic Washers", "Spin Dryer Motors"],
     "experience": 6,
-    "certifications": [
-      "Skill India Consumer Electronics"
-    ],
+    "certifications": ["Skill India Consumer Electronics"],
     "rating": 4.7,
     "reviews": 89,
     "completedJobs": 190,
@@ -2165,18 +1728,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 370,
     "color": "blue",
     "bio": "Washing machine drain pump, gear box, and spin tub motor overhaul for residences in eastern Bhopal.",
-    "lat": 23.271,
+    "lat": 23.2710,
     "lng": 77.4685,
     "serviceArea": "Ayodhya Bypass & Govindpura, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Ayodhya Bypass, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Ayodhya Bypass, Bhopal",
   },
   {
     "id": 171,
@@ -2185,14 +1746,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98336 77894",
     "service": "Appliance Repair",
     "primarySkill": "Appliance Repair",
-    "secondarySkills": [
-      "Basic Geyser Cleaning",
-      "Immersion Rods"
-    ],
+    "secondarySkills": ["Basic Geyser Cleaning", "Immersion Rods"],
     "experience": 3,
-    "certifications": [
-      "Apprentice Certificate Bhopal"
-    ],
+    "certifications": ["Apprentice Certificate Bhopal"],
     "rating": 4.4,
     "reviews": 26,
     "completedJobs": 55,
@@ -2205,16 +1761,16 @@ export const initialWorkers: Worker[] = [
     "lat": 23.3055,
     "lng": 77.3965,
     "serviceArea": "Karond & Bhanpur, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Karond, Bhopal"
+    "address": "Karond, Bhopal",
   },
+
+  # --- AC TECHNICIAN (7 Workers) ---
   {
     "id": 125,
     "name": "Imran Mansoori",
@@ -2222,16 +1778,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98340 11229",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "Inverter AC PCB Diagnostics",
-      "Copper Line Brazing",
-      "R32/R410 Gas Recharging"
-    ],
+    "secondarySkills": ["Inverter AC PCB Diagnostics", "Copper Line Brazing", "R32/R410 Gas Recharging"],
     "experience": 11,
-    "certifications": [
-      "Daikin Master Inverter Engineer",
-      "Govt. HVAC Board Level 4 MP"
-    ],
+    "certifications": ["Daikin Master Inverter Engineer", "Govt. HVAC Board Level 4 MP"],
     "rating": 4.94,
     "reviews": 235,
     "completedJobs": 510,
@@ -2241,20 +1790,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 480,
     "color": "blue",
     "bio": "Bhopal's premier HVAC & inverter split AC technician. Master of complex inverter motherboard troubleshooting, pressure leak brazing, and high-efficiency jet foam servicing.",
-    "lat": 23.235,
-    "lng": 77.434,
+    "lat": 23.2350,
+    "lng": 77.4340,
     "serviceArea": "MP Nagar & Arera Colony, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English",
-      "Urdu"
-    ],
+    "language": ["Hindi", "English", "Urdu"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Zone-I, MP Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Zone-I, MP Nagar, Bhopal",
   },
   {
     "id": 126,
@@ -2263,14 +1808,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98341 22340",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "Jet Pump Servicing",
-      "AC Gas Refill"
-    ],
+    "secondarySkills": ["Jet Pump Servicing", "AC Gas Refill"],
     "experience": 7,
-    "certifications": [
-      "Voltas & Blue Star Certified Service Specialist"
-    ],
+    "certifications": ["Voltas & Blue Star Certified Service Specialist"],
     "rating": 4.8,
     "reviews": 150,
     "completedJobs": 320,
@@ -2280,18 +1820,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 420,
     "color": "mint",
     "bio": "Comprehensive seasonal jet pump chemical foam cleaning, blower mold removal, and split AC gas charging.",
-    "lat": 23.214,
-    "lng": 77.438,
+    "lat": 23.2140,
+    "lng": 77.4380,
     "serviceArea": "Arera Colony (E-1 to E-7), Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-4 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-4 Arera Colony, Bhopal",
   },
   {
     "id": 172,
@@ -2300,14 +1838,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98342 33451",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "VRV / VRF Multi-split Systems",
-      "Ductable AC"
-    ],
+    "secondarySkills": ["VRV / VRF Multi-split Systems", "Ductable AC"],
     "experience": 13,
-    "certifications": [
-      "Carrier Certified Commercial Airflow Lead"
-    ],
+    "certifications": ["Carrier Certified Commercial Airflow Lead"],
     "rating": 4.96,
     "reviews": 198,
     "completedJobs": 440,
@@ -2320,16 +1853,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2465,
     "lng": 77.4705,
     "serviceArea": "Govindpura & MP Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Govindpura Industrial Hub, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Govindpura Industrial Hub, Bhopal",
   },
   {
     "id": 173,
@@ -2338,14 +1868,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98343 44562",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "Compressor Replacement",
-      "Capacitor Overhaul"
-    ],
+    "secondarySkills": ["Compressor Replacement", "Capacitor Overhaul"],
     "experience": 8,
-    "certifications": [
-      "Hitachi AC Technician Guild MP"
-    ],
+    "certifications": ["Hitachi AC Technician Guild MP"],
     "rating": 4.82,
     "reviews": 138,
     "completedJobs": 295,
@@ -2355,18 +1880,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 450,
     "color": "yellow",
     "bio": "Expert compressor replacement, run capacitor repair, drainage unclogging, and anti-leak nitrogen testing.",
-    "lat": 23.201,
-    "lng": 77.442,
+    "lat": 23.2010,
+    "lng": 77.4420,
     "serviceArea": "Shahpura & Gulmohar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Shahpura Sector B, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Shahpura Sector B, Bhopal",
   },
   {
     "id": 174,
@@ -2375,14 +1898,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98344 55673",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "Window AC Re-installation",
-      "Uninstallation"
-    ],
+    "secondarySkills": ["Window AC Re-installation", "Uninstallation"],
     "experience": 6,
-    "certifications": [
-      "Skill India Level 4 HVAC"
-    ],
+    "certifications": ["Skill India Level 4 HVAC"],
     "rating": 4.75,
     "reviews": 94,
     "completedJobs": 205,
@@ -2393,17 +1911,15 @@ export const initialWorkers: Worker[] = [
     "color": "mint",
     "bio": "Safe split AC uninstallation and wall bracket mounting, window AC frame fitting, and copper piping extension.",
     "lat": 23.1785,
-    "lng": 77.419,
+    "lng": 77.4190,
     "serviceArea": "Kolar Road & Mandakini, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Mandakini Colony, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Mandakini Colony, Kolar Road, Bhopal",
   },
   {
     "id": 175,
@@ -2412,14 +1928,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98345 66784",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "Emergency Cooling Failure",
-      "Sensor Tuning"
-    ],
+    "secondarySkills": ["Emergency Cooling Failure", "Sensor Tuning"],
     "experience": 5,
-    "certifications": [
-      "Govt. ITI Refrigeration & AC"
-    ],
+    "certifications": ["Govt. ITI Refrigeration & AC"],
     "rating": 4.7,
     "reviews": 82,
     "completedJobs": 170,
@@ -2430,17 +1941,15 @@ export const initialWorkers: Worker[] = [
     "color": "blue",
     "bio": "Prompt response for summer cooling failures, indoor thermostat sensor replacement, and remote control sync.",
     "lat": 23.1895,
-    "lng": 77.456,
+    "lng": 77.4560,
     "serviceArea": "Hoshangabad Road & Misrod, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Surendra Palace, Hoshangabad Rd, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Surendra Palace, Hoshangabad Rd, Bhopal",
   },
   {
     "id": 176,
@@ -2449,14 +1958,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98346 77895",
     "service": "AC Technician",
     "primarySkill": "AC Technician",
-    "secondarySkills": [
-      "Basic AC Filter Wash",
-      "Drain Pipe Clearing"
-    ],
+    "secondarySkills": ["Basic AC Filter Wash", "Drain Pipe Clearing"],
     "experience": 3,
-    "certifications": [
-      "Apprentice Certificate Bhopal"
-    ],
+    "certifications": ["Apprentice Certificate Bhopal"],
     "rating": 4.35,
     "reviews": 22,
     "completedJobs": 45,
@@ -2467,18 +1971,18 @@ export const initialWorkers: Worker[] = [
     "color": "coral",
     "bio": "Affordable AC filter cleaning, water dripping rectification, and general seasonal checkups.",
     "lat": 23.3045,
-    "lng": 77.397,
+    "lng": 77.3970,
     "serviceArea": "Karond & Bhanpur, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Karond, Bhopal"
+    "address": "Karond, Bhopal",
   },
+
+  # --- CAREGIVER (6 Workers) ---
   {
     "id": 127,
     "name": "Kavita Malviya",
@@ -2486,16 +1990,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98350 11230",
     "service": "Caregiver",
     "primarySkill": "Caregiver",
-    "secondarySkills": [
-      "Elderly Mobility Support",
-      "Post-operative Care",
-      "Medication Monitoring"
-    ],
+    "secondarySkills": ["Elderly Mobility Support", "Post-operative Care", "Medication Monitoring"],
     "experience": 8,
-    "certifications": [
-      "Red Cross Senior Care Specialist Level 3",
-      "First Aid & CPR Certified MP"
-    ],
+    "certifications": ["Red Cross Senior Care Specialist Level 3", "First Aid & CPR Certified MP"],
     "rating": 4.96,
     "reviews": 160,
     "completedJobs": 380,
@@ -2506,18 +2003,15 @@ export const initialWorkers: Worker[] = [
     "color": "peach",
     "bio": "Compassionate, certified elderly caregiver and nursing assistant. Expertise in post-surgery recovery, physiotherapy mobility assistance, and gentle companionship.",
     "lat": 23.2135,
-    "lng": 77.437,
+    "lng": 77.4370,
     "serviceArea": "Arera Colony & MP Nagar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "E-3 Arera Colony, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "E-3 Arera Colony, Bhopal",
   },
   {
     "id": 128,
@@ -2526,14 +2020,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98351 22341",
     "service": "Caregiver",
     "primarySkill": "Caregiver",
-    "secondarySkills": [
-      "Bedridden Patient Assistance",
-      "Vitals Checking"
-    ],
+    "secondarySkills": ["Bedridden Patient Assistance", "Vitals Checking"],
     "experience": 6,
-    "certifications": [
-      "General Nursing & Midwifery Support Guild MP"
-    ],
+    "certifications": ["General Nursing & Midwifery Support Guild MP"],
     "rating": 4.88,
     "reviews": 124,
     "completedJobs": 290,
@@ -2543,18 +2032,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 460,
     "color": "mint",
     "bio": "Experienced in daily vitals monitoring (BP, sugar, SpO2), bed-sore prevention, diet feeding, and wheelchair mobility.",
-    "lat": 23.237,
-    "lng": 77.402,
+    "lat": 23.2370,
+    "lng": 77.4020,
     "serviceArea": "TT Nagar & New Market, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 2,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "TT Nagar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "TT Nagar, Bhopal",
   },
   {
     "id": 177,
@@ -2563,14 +2050,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98352 33452",
     "service": "Caregiver",
     "primarySkill": "Caregiver",
-    "secondarySkills": [
-      "Dementia Care",
-      "Patience Companion"
-    ],
+    "secondarySkills": ["Dementia Care", "Patience Companion"],
     "experience": 9,
-    "certifications": [
-      "Geriatric Care Diploma Bhopal University"
-    ],
+    "certifications": ["Geriatric Care Diploma Bhopal University"],
     "rating": 4.94,
     "reviews": 150,
     "completedJobs": 340,
@@ -2583,16 +2065,13 @@ export const initialWorkers: Worker[] = [
     "lat": 23.2025,
     "lng": 77.4415,
     "serviceArea": "Shahpura & Gulmohar, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi",
-      "English"
-    ],
+    "language": ["Hindi", "English"],
     "workload": 3,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Gulmohar, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Gulmohar, Bhopal",
   },
   {
     "id": 178,
@@ -2601,14 +2080,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98353 44563",
     "service": "Caregiver",
     "primarySkill": "Caregiver",
-    "secondarySkills": [
-      "Child Care / Nanny",
-      "Newborn Care"
-    ],
+    "secondarySkills": ["Child Care / Nanny", "Newborn Care"],
     "experience": 7,
-    "certifications": [
-      "Certified Child Development & Nutrition Associate"
-    ],
+    "certifications": ["Certified Child Development & Nutrition Associate"],
     "rating": 4.85,
     "reviews": 110,
     "completedJobs": 260,
@@ -2618,18 +2092,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 440,
     "color": "lilac",
     "bio": "Warm and trusted nanny for infants and toddlers. Meal preparation, creative playtime, and hygienic nursery care.",
-    "lat": 23.179,
-    "lng": 77.419,
+    "lat": 23.1790,
+    "lng": 77.4190,
     "serviceArea": "Kolar Road & Sarvadharma, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Bhopal Kaushalya Seva Sahakari",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Sarvadharma, Kolar Road, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Sarvadharma, Kolar Road, Bhopal",
   },
   {
     "id": 179,
@@ -2638,14 +2110,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98354 55674",
     "service": "Caregiver",
     "primarySkill": "Caregiver",
-    "secondarySkills": [
-      "Post-Natal Convalescence",
-      "Mother & Baby Care"
-    ],
+    "secondarySkills": ["Post-Natal Convalescence", "Mother & Baby Care"],
     "experience": 8,
-    "certifications": [
-      "Ayurvedic Postnatal Care MP"
-    ],
+    "certifications": ["Ayurvedic Postnatal Care MP"],
     "rating": 4.9,
     "reviews": 130,
     "completedJobs": 310,
@@ -2655,18 +2122,16 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 480,
     "color": "yellow",
     "bio": "Traditional postpartum care for mothers and newborns. Herbal massages, nutritious diet, and infant hygiene.",
-    "lat": 23.189,
-    "lng": 77.457,
+    "lat": 23.1890,
+    "lng": 77.4570,
     "serviceArea": "Hoshangabad Road & Misrod, Bhopal",
-    "verified": true,
+    "verified": True,
     "verificationStatus": "Verified",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 1,
-    "insuranceStatus": "Active (\u20b95,00,000 Ayushman & Co-op Shield)",
-    "address": "Bagmugaliya, Bhopal"
+    "insuranceStatus": "Active (₹5,00,000 Ayushman & Co-op Shield)",
+    "address": "Bagmugaliya, Bhopal",
   },
   {
     "id": 180,
@@ -2675,14 +2140,9 @@ export const initialWorkers: Worker[] = [
     "phone": "+91 98355 66785",
     "service": "Caregiver",
     "primarySkill": "Caregiver",
-    "secondarySkills": [
-      "Daytime Elderly Escort",
-      "Doctor Appointment Visits"
-    ],
+    "secondarySkills": ["Daytime Elderly Escort", "Doctor Appointment Visits"],
     "experience": 4,
-    "certifications": [
-      "First Aid Certificate"
-    ],
+    "certifications": ["First Aid Certificate"],
     "rating": 4.5,
     "reviews": 36,
     "completedJobs": 75,
@@ -2692,22 +2152,20 @@ export const initialWorkers: Worker[] = [
     "hourlyRate": 380,
     "color": "mint",
     "bio": "Assistance with hospital appointments at AIIMS Bhopal, prescription pickups, and daytime support.",
-    "lat": 23.271,
-    "lng": 77.467,
+    "lat": 23.2710,
+    "lng": 77.4670,
     "serviceArea": "Ayodhya Bypass & Piplani, Bhopal",
-    "verified": false,
+    "verified": False,
     "verificationStatus": "Pending",
     "cooperative": "Madhya Pradesh Shramik Cooperative",
-    "language": [
-      "Hindi"
-    ],
+    "language": ["Hindi"],
     "workload": 0,
     "insuranceStatus": "Pending Verification",
-    "address": "Ayodhya Bypass, Bhopal"
-  }
+    "address": "Ayodhya Bypass, Bhopal",
+  },
 ]
 
-export const initialCustomers: CustomerRecord[] = [
+customers = [
   {
     "id": 1,
     "name": "Ananya Nair",
@@ -2716,17 +2174,17 @@ export const initialCustomers: CustomerRecord[] = [
     "lat": 23.2135,
     "lng": 77.4377,
     "previousBookings": 6,
-    "preferredLanguage": "en"
+    "preferredLanguage": "en",
   },
   {
     "id": 2,
     "name": "Dr. Alok Mathur",
     "phone": "+91 98260 22002",
     "location": "Lake View Enclave, Shyamla Hills, Bhopal",
-    "lat": 23.245,
-    "lng": 77.382,
+    "lat": 23.2450,
+    "lng": 77.3820,
     "previousBookings": 12,
-    "preferredLanguage": "en"
+    "preferredLanguage": "en",
   },
   {
     "id": 3,
@@ -2736,7 +2194,7 @@ export const initialCustomers: CustomerRecord[] = [
     "lat": 23.2333,
     "lng": 77.4334,
     "previousBookings": 8,
-    "preferredLanguage": "hi"
+    "preferredLanguage": "hi",
   },
   {
     "id": 4,
@@ -2746,620 +2204,506 @@ export const initialCustomers: CustomerRecord[] = [
     "lat": 23.2384,
     "lng": 77.4018,
     "previousBookings": 15,
-    "preferredLanguage": "hi"
+    "preferredLanguage": "hi",
   },
   {
     "id": 5,
     "name": "Sneha Verma",
     "phone": "+91 98260 55005",
     "location": "Sector A, Sarvadharma, Kolar Road, Bhopal",
-    "lat": 23.178,
-    "lng": 77.419,
+    "lat": 23.1780,
+    "lng": 77.4190,
     "previousBookings": 4,
-    "preferredLanguage": "hi"
+    "preferredLanguage": "hi",
   },
   {
     "id": 6,
     "name": "Vikram Sethi",
     "phone": "+91 98260 66006",
     "location": "Gulmohar Colony, Near Shahpura Lake, Bhopal",
-    "lat": 23.201,
-    "lng": 77.442,
+    "lat": 23.2010,
+    "lng": 77.4420,
     "previousBookings": 9,
-    "preferredLanguage": "en"
+    "preferredLanguage": "en",
   },
   {
     "id": 7,
     "name": "Meera Joshi",
     "phone": "+91 98260 77007",
     "location": "Bawadiya Kalan, Hoshangabad Road, Bhopal",
-    "lat": 23.182,
-    "lng": 77.448,
+    "lat": 23.1820,
+    "lng": 77.4480,
     "previousBookings": 5,
-    "preferredLanguage": "hi"
+    "preferredLanguage": "hi",
   },
   {
     "id": 8,
     "name": "Sunil Tiwari",
     "phone": "+91 98260 88008",
     "location": "Anand Nagar, Ayodhya Bypass, Bhopal",
-    "lat": 23.271,
-    "lng": 77.468,
+    "lat": 23.2710,
+    "lng": 77.4680,
     "previousBookings": 7,
-    "preferredLanguage": "hi"
+    "preferredLanguage": "hi",
   },
   {
     "id": 9,
     "name": "Farhan Siddiqui",
     "phone": "+91 98260 99009",
     "location": "Main Road, Bairagarh, Bhopal",
-    "lat": 23.275,
-    "lng": 77.345,
+    "lat": 23.2750,
+    "lng": 77.3450,
     "previousBookings": 3,
-    "preferredLanguage": "hi"
+    "preferredLanguage": "hi",
   },
   {
     "id": 10,
     "name": "Preeti Sharma",
     "phone": "+91 98260 10010",
     "location": "Krishi Upaj Mandi Rd, Karond, Bhopal",
-    "lat": 23.305,
-    "lng": 77.395,
+    "lat": 23.3050,
+    "lng": 77.3950,
     "previousBookings": 11,
-    "preferredLanguage": "hi"
-  }
+    "preferredLanguage": "hi",
+  },
 ]
 
-export const catalogServices: CatalogService[] = [
+catalog_services = [
   {
-    "serviceId": "srv-plumb-01",
-    "category": "Plumber",
-    "serviceName": "Tap & Mixer Leakage Repair",
-    "description": "Fix dripping faucets, mixer cartridges, and washer seal replacements.",
+    "serviceId": 'srv-plumb-01',
+    "category": 'Plumber',
+    "serviceName": 'Tap & Mixer Leakage Repair',
+    "description": 'Fix dripping faucets, mixer cartridges, and washer seal replacements.',
     "basePrice": 280,
-    "estimatedDuration": "45 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Pipe Fitting",
-      "Washers"
-    ]
+    "estimatedDuration": '45 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Pipe Fitting', 'Washers'],
   },
   {
-    "serviceId": "srv-plumb-02",
-    "category": "Plumber",
-    "serviceName": "Pipeline Clog & Drainage Clearing",
-    "description": "Complete mechanical clearing of blocked kitchen or bathroom drainage pipes.",
+    "serviceId": 'srv-plumb-02',
+    "category": 'Plumber',
+    "serviceName": 'Pipeline Clog & Drainage Clearing',
+    "description": 'Complete mechanical clearing of blocked kitchen or bathroom drainage pipes.',
     "basePrice": 420,
-    "estimatedDuration": "60 mins",
-    "priorityOptions": [
-      "Standard",
-      "Emergency",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Drain Clearing",
-      "Pressure Testing"
-    ]
+    "estimatedDuration": '60 mins',
+    "priorityOptions": ['Standard', 'Emergency', 'Same Day'],
+    "requiredSkills": ['Drain Clearing', 'Pressure Testing'],
   },
   {
-    "serviceId": "srv-plumb-03",
-    "category": "Plumber",
-    "serviceName": "Overhead Water Tank Cleaning & Valve Check",
-    "description": "Sediment flush, bacterial scrub, and float valve replacement.",
+    "serviceId": 'srv-plumb-03',
+    "category": 'Plumber',
+    "serviceName": 'Overhead Water Tank Cleaning & Valve Check',
+    "description": 'Sediment flush, bacterial scrub, and float valve replacement.',
     "basePrice": 650,
-    "estimatedDuration": "90 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Tank Sanitation",
-      "Float Valve"
-    ]
+    "estimatedDuration": '90 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Tank Sanitation', 'Float Valve'],
   },
   {
-    "serviceId": "srv-elec-01",
-    "category": "Electrician",
-    "serviceName": "Switchboard & Socket Replacement",
-    "description": "Replace burned or sparking sockets, modular switches, and earthing checks.",
+    "serviceId": 'srv-elec-01',
+    "category": 'Electrician',
+    "serviceName": 'Switchboard & Socket Replacement',
+    "description": 'Replace burned or sparking sockets, modular switches, and earthing checks.',
     "basePrice": 320,
-    "estimatedDuration": "45 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Circuit Wiring",
-      "Earthing"
-    ]
+    "estimatedDuration": '45 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Circuit Wiring', 'Earthing'],
   },
   {
-    "serviceId": "srv-elec-02",
-    "category": "Electrician",
-    "serviceName": "Ceiling Fan Installation & Regulator Fix",
-    "description": "Safe ceiling mount, balance blade adjustment, and electronic speed controller fix.",
+    "serviceId": 'srv-elec-02',
+    "category": 'Electrician',
+    "serviceName": 'Ceiling Fan Installation & Regulator Fix',
+    "description": 'Safe ceiling mount, balance blade adjustment, and electronic speed controller fix.',
     "basePrice": 380,
-    "estimatedDuration": "50 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Fan Mounting",
-      "Capacitor Testing"
-    ]
+    "estimatedDuration": '50 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Fan Mounting', 'Capacitor Testing'],
   },
   {
-    "serviceId": "srv-elec-03",
-    "category": "Electrician",
-    "serviceName": "Full Home Wiring Safety Inspection",
-    "description": "Digital thermal inspection of main DB, MCB trips, neutral leakage, and safety report.",
+    "serviceId": 'srv-elec-03',
+    "category": 'Electrician',
+    "serviceName": 'Full Home Wiring Safety Inspection',
+    "description": 'Digital thermal inspection of main DB, MCB trips, neutral leakage, and safety report.',
     "basePrice": 750,
-    "estimatedDuration": "120 mins",
-    "priorityOptions": [
-      "Standard"
-    ],
-    "requiredSkills": [
-      "High Voltage Safety",
-      "MCB Diagnostics"
-    ]
+    "estimatedDuration": '120 mins',
+    "priorityOptions": ['Standard'],
+    "requiredSkills": ['High Voltage Safety', 'MCB Diagnostics'],
   },
   {
-    "serviceId": "srv-clean-01",
-    "category": "Cleaner",
-    "serviceName": "Deep Home Cleaning & Disinfection",
-    "description": "Intense scrub of floors, kitchen counters, appliances exterior, and sanitization.",
+    "serviceId": 'srv-clean-01',
+    "category": 'Cleaner',
+    "serviceName": 'Deep Home Cleaning & Disinfection',
+    "description": 'Intense scrub of floors, kitchen counters, appliances exterior, and sanitization.',
     "basePrice": 650,
-    "estimatedDuration": "150 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Sanitization",
-      "Eco-friendly Supplies"
-    ]
+    "estimatedDuration": '150 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Sanitization', 'Eco-friendly Supplies'],
   },
   {
-    "serviceId": "srv-clean-02",
-    "category": "Cleaner",
-    "serviceName": "Intense Bathroom Descaling & Polishing",
-    "description": "Removal of hard water stains from tiles, glass partitions, and chrome faucets.",
+    "serviceId": 'srv-clean-02',
+    "category": 'Cleaner',
+    "serviceName": 'Intense Bathroom Descaling & Polishing',
+    "description": 'Removal of hard water stains from tiles, glass partitions, and chrome faucets.',
     "basePrice": 420,
-    "estimatedDuration": "60 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Descaling",
-      "Tile Polishing"
-    ]
+    "estimatedDuration": '60 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Descaling', 'Tile Polishing'],
   },
   {
-    "serviceId": "srv-carp-01",
-    "category": "Carpenter",
-    "serviceName": "Door Latch, Hinge & Lock Repair",
-    "description": "Fix squeaky or jammed doors, install godrej mortise locks, and adjust hinges.",
+    "serviceId": 'srv-carp-01',
+    "category": 'Carpenter',
+    "serviceName": 'Door Latch, Hinge & Lock Repair',
+    "description": 'Fix squeaky or jammed doors, install godrej mortise locks, and adjust hinges.',
     "basePrice": 380,
-    "estimatedDuration": "45 mins",
-    "priorityOptions": [
-      "Standard",
-      "Emergency"
-    ],
-    "requiredSkills": [
-      "Lock Installation",
-      "Hinge Tuning"
-    ]
+    "estimatedDuration": '45 mins',
+    "priorityOptions": ['Standard', 'Emergency'],
+    "requiredSkills": ['Lock Installation', 'Hinge Tuning'],
   },
   {
-    "serviceId": "srv-carp-02",
-    "category": "Carpenter",
-    "serviceName": "Furniture Assembly (IKEA / Modular)",
-    "description": "Precision assembly of study desks, wardrobes, beds, and wall anchors.",
+    "serviceId": 'srv-carp-02',
+    "category": 'Carpenter',
+    "serviceName": 'Furniture Assembly (IKEA / Modular)',
+    "description": 'Precision assembly of study desks, wardrobes, beds, and wall anchors.',
     "basePrice": 550,
-    "estimatedDuration": "90 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Modular Furniture",
-      "Wall Anchors"
-    ]
+    "estimatedDuration": '90 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Modular Furniture', 'Wall Anchors'],
   },
   {
-    "serviceId": "srv-paint-01",
-    "category": "Painter",
-    "serviceName": "Interior Room Touch-up & Spot Painting",
-    "description": "Putty patch repair, stain blocking primer, and dual coats of acrylic emulsion.",
+    "serviceId": 'srv-paint-01',
+    "category": 'Painter',
+    "serviceName": 'Interior Room Touch-up & Spot Painting',
+    "description": 'Putty patch repair, stain blocking primer, and dual coats of acrylic emulsion.',
     "basePrice": 700,
-    "estimatedDuration": "180 mins",
-    "priorityOptions": [
-      "Standard"
-    ],
-    "requiredSkills": [
-      "Stain Blocking",
-      "Emulsion Coating"
-    ]
+    "estimatedDuration": '180 mins',
+    "priorityOptions": ['Standard'],
+    "requiredSkills": ['Stain Blocking', 'Emulsion Coating'],
   },
   {
-    "serviceId": "srv-ac-01",
-    "category": "AC Technician",
-    "serviceName": "Split AC Power Jet Deep Service",
-    "description": "High pressure water jet coil cleaning, indoor filter flush, and gas pressure check.",
+    "serviceId": 'srv-ac-01',
+    "category": 'AC Technician',
+    "serviceName": 'Split AC Power Jet Deep Service',
+    "description": 'High pressure water jet coil cleaning, indoor filter flush, and gas pressure check.',
     "basePrice": 499,
-    "estimatedDuration": "60 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Pressure Jet",
-      "Refrigerant Check"
-    ]
+    "estimatedDuration": '60 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Pressure Jet', 'Refrigerant Check'],
   },
   {
-    "serviceId": "srv-ac-02",
-    "category": "AC Technician",
-    "serviceName": "AC Refrigerant Gas Leak Fix & Refill",
-    "description": "Nitrogen leak test, copper brazing, vacuum evacuation, and R-32/R-410 gas refill.",
+    "serviceId": 'srv-ac-02',
+    "category": 'AC Technician',
+    "serviceName": 'AC Refrigerant Gas Leak Fix & Refill',
+    "description": 'Nitrogen leak test, copper brazing, vacuum evacuation, and R-32/R-410 gas refill.',
     "basePrice": 1450,
-    "estimatedDuration": "90 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Brazing",
-      "Gas Recharging"
-    ]
+    "estimatedDuration": '90 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Brazing', 'Gas Recharging'],
   },
   {
-    "serviceId": "srv-appl-01",
-    "category": "Appliance Repair",
-    "serviceName": "Washing Machine Drum & Motor Diagnostics",
-    "description": "Fix spin errors, drainage pump noise, belt replacement, and PCB diagnosis.",
+    "serviceId": 'srv-appl-01',
+    "category": 'Appliance Repair',
+    "serviceName": 'Washing Machine Drum & Motor Diagnostics',
+    "description": 'Fix spin errors, drainage pump noise, belt replacement, and PCB diagnosis.',
     "basePrice": 380,
-    "estimatedDuration": "60 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Motor Diagnostics",
-      "Drain Pump"
-    ]
+    "estimatedDuration": '60 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Motor Diagnostics', 'Drain Pump'],
   },
   {
-    "serviceId": "srv-appl-02",
-    "category": "Appliance Repair",
-    "serviceName": "Refrigerator Cooling & Defrost Repair",
-    "description": "Thermostat replacement, relay repair, condenser cleaning, and cooling recovery.",
+    "serviceId": 'srv-appl-02',
+    "category": 'Appliance Repair',
+    "serviceName": 'Refrigerator Cooling & Defrost Repair',
+    "description": 'Thermostat replacement, relay repair, condenser cleaning, and cooling recovery.',
     "basePrice": 420,
-    "estimatedDuration": "60 mins",
-    "priorityOptions": [
-      "Standard",
-      "Emergency"
-    ],
-    "requiredSkills": [
-      "Thermostat",
-      "Condenser"
-    ]
+    "estimatedDuration": '60 mins',
+    "priorityOptions": ['Standard', 'Emergency'],
+    "requiredSkills": ['Thermostat', 'Condenser'],
   },
   {
-    "serviceId": "srv-gard-01",
-    "category": "Gardener",
-    "serviceName": "Balcony & Terrace Garden Overhaul",
-    "description": "Soil aerating, organic compost blending, seasonal repotting, and pest pruning.",
+    "serviceId": 'srv-gard-01',
+    "category": 'Gardener',
+    "serviceName": 'Balcony & Terrace Garden Overhaul',
+    "description": 'Soil aerating, organic compost blending, seasonal repotting, and pest pruning.',
     "basePrice": 480,
-    "estimatedDuration": "90 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Horticulture",
-      "Organic Compost"
-    ]
+    "estimatedDuration": '90 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Horticulture', 'Organic Compost'],
   },
   {
-    "serviceId": "srv-driv-01",
-    "category": "Driver",
-    "serviceName": "Bhopal City Errand & Medical Chauffeur (4 hrs)",
-    "description": "Dedicated professional driver in your personal vehicle for AIIMS Bhopal or city appointments.",
+    "serviceId": 'srv-driv-01',
+    "category": 'Driver',
+    "serviceName": 'Bhopal City Errand & Medical Chauffeur (4 hrs)',
+    "description": 'Dedicated professional driver in your personal vehicle for AIIMS Bhopal or city appointments.',
     "basePrice": 550,
-    "estimatedDuration": "240 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "City Navigation",
-      "Automatic/Manual"
-    ]
+    "estimatedDuration": '240 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['City Navigation', 'Automatic/Manual'],
   },
   {
-    "serviceId": "srv-driv-02",
-    "category": "Driver",
-    "serviceName": "Raja Bhoj Airport Bhopal Round-Trip Driver",
-    "description": "Safe highway transfer to/from Raja Bhoj International Airport (BHO).",
+    "serviceId": 'srv-driv-02',
+    "category": 'Driver',
+    "serviceName": 'Raja Bhoj Airport Bhopal Round-Trip Driver',
+    "description": 'Safe highway transfer to/from Raja Bhoj International Airport (BHO).',
     "basePrice": 650,
-    "estimatedDuration": "180 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Highway Driving",
-      "Airport Transfer"
-    ]
+    "estimatedDuration": '180 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Highway Driving', 'Airport Transfer'],
   },
   {
-    "serviceId": "srv-care-01",
-    "category": "Caregiver",
-    "serviceName": "Elderly Day Care & Mobility Support",
-    "description": "Dedicated certified caregiver for vitals monitoring, walking assistance, and companionship.",
+    "serviceId": 'srv-care-01',
+    "category": 'Caregiver',
+    "serviceName": 'Elderly Day Care & Mobility Support',
+    "description": 'Dedicated certified caregiver for vitals monitoring, walking assistance, and companionship.',
     "basePrice": 550,
-    "estimatedDuration": "240 mins",
-    "priorityOptions": [
-      "Standard",
-      "Same Day"
-    ],
-    "requiredSkills": [
-      "Elderly Care",
-      "Vitals Check",
-      "First Aid"
-    ]
-  }
+    "estimatedDuration": '240 mins',
+    "priorityOptions": ['Standard', 'Same Day'],
+    "requiredSkills": ['Elderly Care', 'Vitals Check', 'First Aid'],
+  },
 ]
 
-export const initialBookings: Booking[] = [
+bookings = [
   {
     "id": 1001,
-    "service": "Deep Home Cleaning & Disinfection",
-    "serviceId": "srv-clean-01",
-    "worker": "Priya Sharma",
+    "service": 'Deep Home Cleaning & Disinfection',
+    "serviceId": 'srv-clean-01',
+    "worker": 'Priya Sharma',
     "workerId": 117,
     "customerId": 1,
-    "customerName": "Ananya Nair",
-    "workerLat": 23.215,
-    "workerLng": 77.437,
+    "customerName": 'Ananya Nair',
+    "workerLat": 23.2150,
+    "workerLng": 77.4370,
     "customerLat": 23.2135,
     "customerLng": 77.4377,
-    "date": "Today \u00b7 10:00 AM",
-    "status": "Accepted",
+    "date": 'Today · 10:00 AM',
+    "status": 'Accepted',
     "amount": 650,
     "etaMinutes": 8,
-    "address": "E-3 Arera Colony, 10 No. Market, Bhopal",
-    "invoiceNumber": "INV-2025-0101",
-    "paymentMethod": "Co-op UPI Pay",
+    "address": 'E-3 Arera Colony, 10 No. Market, Bhopal',
+    "invoiceNumber": 'INV-2025-0101',
+    "paymentMethod": 'Co-op UPI Pay',
     "workerEarnings": 488,
     "coopFee": 130,
     "communityFund": 32,
     "problemDescription": "Kitchen and 2 bathrooms need deep descaling and sanitization before family arrival.",
     "urgency": "Urgent",
-    "aiMatchScore": 96
+    "aiMatchScore": 96,
   },
   {
     "id": 1002,
-    "service": "Tap & Mixer Leakage Repair",
-    "serviceId": "srv-plumb-01",
-    "worker": "Ramesh Verma",
+    "service": 'Tap & Mixer Leakage Repair',
+    "serviceId": 'srv-plumb-01',
+    "worker": 'Ramesh Verma',
     "workerId": 101,
     "customerId": 1,
-    "customerName": "Ananya Nair",
+    "customerName": 'Ananya Nair',
     "workerLat": 23.2355,
-    "workerLng": 77.435,
+    "workerLng": 77.4350,
     "customerLat": 23.2135,
     "customerLng": 77.4377,
-    "date": "10 Mar 2025",
-    "status": "Completed",
+    "date": '10 Mar 2025',
+    "status": 'Completed',
     "amount": 380,
-    "address": "E-3 Arera Colony, 10 No. Market, Bhopal",
-    "invoiceNumber": "INV-2025-0098",
+    "address": 'E-3 Arera Colony, 10 No. Market, Bhopal',
+    "invoiceNumber": 'INV-2025-0098',
     "rating": 5,
-    "review": "Fast leak fix and very honest quote. Highly recommended!",
-    "paymentMethod": "Co-op Wallet",
+    "review": 'Fast leak fix and very honest quote. Highly recommended!',
+    "paymentMethod": 'Co-op Wallet',
     "workerEarnings": 285,
     "coopFee": 76,
-    "communityFund": 19
+    "communityFund": 19,
   },
   {
     "id": 1003,
-    "service": "Switchboard & Socket Replacement",
-    "serviceId": "srv-elec-01",
-    "worker": "Ravi Kumar",
+    "service": 'Switchboard & Socket Replacement',
+    "serviceId": 'srv-elec-01',
+    "worker": 'Ravi Kumar',
     "workerId": 1,
     "customerId": 3,
-    "customerName": "Pooja Singhal",
-    "workerLat": 23.232,
+    "customerName": 'Pooja Singhal',
+    "workerLat": 23.2320,
     "workerLng": 77.4325,
     "customerLat": 23.2333,
     "customerLng": 77.4334,
-    "date": "Today \u00b7 11:30 AM",
-    "status": "On the Way",
+    "date": 'Today · 11:30 AM',
+    "status": 'On the Way',
     "amount": 450,
     "etaMinutes": 6,
-    "address": "Plot 24, Zone-I, MP Nagar, Bhopal",
-    "invoiceNumber": "INV-2025-0102",
-    "paymentMethod": "Co-op UPI Pay",
+    "address": 'Plot 24, Zone-I, MP Nagar, Bhopal',
+    "invoiceNumber": 'INV-2025-0102',
+    "paymentMethod": 'Co-op UPI Pay',
     "workerEarnings": 338,
     "coopFee": 90,
     "communityFund": 22,
     "problemDescription": "AC power switchboard sparking and tripping the main circuit breaker.",
     "urgency": "Emergency",
-    "aiMatchScore": 98
+    "aiMatchScore": 98,
   },
   {
     "id": 1004,
-    "service": "Full Home Wiring Safety Inspection",
-    "serviceId": "srv-elec-03",
-    "worker": "Ravi Kumar",
+    "service": 'Full Home Wiring Safety Inspection',
+    "serviceId": 'srv-elec-03',
+    "worker": 'Ravi Kumar',
     "workerId": 1,
     "customerId": 4,
-    "customerName": "Rajesh Agrawal",
-    "workerLat": 23.232,
+    "customerName": 'Rajesh Agrawal',
+    "workerLat": 23.2320,
     "workerLng": 77.4325,
     "customerLat": 23.2384,
     "customerLng": 77.4018,
-    "date": "18 Mar 2025",
-    "status": "Requested",
+    "date": '18 Mar 2025',
+    "status": 'Requested',
     "amount": 750,
     "etaMinutes": 15,
-    "address": "Platinum Plaza, New Market, TT Nagar, Bhopal",
-    "invoiceNumber": "INV-2025-0104",
+    "address": 'Platinum Plaza, New Market, TT Nagar, Bhopal',
+    "invoiceNumber": 'INV-2025-0104',
     "problemDescription": "Annual electrical audit for 3-story commercial shop in New Market.",
     "urgency": "Standard",
-    "aiMatchScore": 94
+    "aiMatchScore": 94,
   },
   {
     "id": 1005,
-    "service": "Split AC Power Jet Deep Service",
-    "serviceId": "srv-ac-01",
-    "worker": "Imran Mansoori",
+    "service": 'Split AC Power Jet Deep Service',
+    "serviceId": 'srv-ac-01',
+    "worker": 'Imran Mansoori',
     "workerId": 125,
     "customerId": 2,
-    "customerName": "Dr. Alok Mathur",
-    "workerLat": 23.235,
-    "workerLng": 77.434,
-    "customerLat": 23.245,
-    "customerLng": 77.382,
-    "date": "Yesterday \u00b7 3:30 PM",
-    "status": "Completed",
+    "customerName": 'Dr. Alok Mathur',
+    "workerLat": 23.2350,
+    "workerLng": 77.4340,
+    "customerLat": 23.2450,
+    "customerLng": 77.3820,
+    "date": 'Yesterday · 3:30 PM',
+    "status": 'Completed',
     "amount": 499,
     "rating": 5,
-    "review": "AC cooling restored to brand-new condition. Very professional cleaning.",
-    "invoiceNumber": "INV-2025-0099",
+    "review": 'AC cooling restored to brand-new condition. Very professional cleaning.',
+    "invoiceNumber": 'INV-2025-0099',
     "workerEarnings": 374,
     "coopFee": 100,
     "communityFund": 25,
-    "address": "Lake View Enclave, Shyamla Hills, Bhopal"
+    "address": 'Lake View Enclave, Shyamla Hills, Bhopal',
   },
   {
     "id": 1006,
-    "service": "Elderly Day Care & Mobility Support",
-    "serviceId": "srv-care-01",
-    "worker": "Kavita Malviya",
+    "service": 'Elderly Day Care & Mobility Support',
+    "serviceId": 'srv-care-01',
+    "worker": 'Kavita Malviya',
     "workerId": 127,
     "customerId": 1,
-    "customerName": "Ananya Nair",
+    "customerName": 'Ananya Nair',
     "workerLat": 23.2135,
-    "workerLng": 77.437,
+    "workerLng": 77.4370,
     "customerLat": 23.2135,
     "customerLng": 77.4377,
-    "date": "11 Mar 2025",
-    "status": "Completed",
+    "date": '11 Mar 2025',
+    "status": 'Completed',
     "amount": 550,
     "rating": 5,
-    "review": "Took extraordinary care of my grandmother with utmost patience.",
-    "invoiceNumber": "INV-2025-0095",
+    "review": 'Took extraordinary care of my grandmother with utmost patience.',
+    "invoiceNumber": 'INV-2025-0095',
     "workerEarnings": 412,
     "coopFee": 110,
     "communityFund": 28,
-    "address": "E-3 Arera Colony, Bhopal"
+    "address": 'E-3 Arera Colony, Bhopal',
   },
   {
     "id": 1007,
-    "service": "Door Latch, Hinge & Lock Repair",
-    "serviceId": "srv-carp-01",
-    "worker": "Vijay Vishwakarma",
+    "service": 'Door Latch, Hinge & Lock Repair',
+    "serviceId": 'srv-carp-01',
+    "worker": 'Vijay Vishwakarma',
     "workerId": 111,
     "customerId": 6,
-    "customerName": "Vikram Sethi",
-    "workerLat": 23.234,
-    "workerLng": 77.431,
-    "customerLat": 23.201,
-    "customerLng": 77.442,
-    "date": "Today \u00b7 2:00 PM",
-    "status": "In Progress",
+    "customerName": 'Vikram Sethi',
+    "workerLat": 23.2340,
+    "workerLng": 77.4310,
+    "customerLat": 23.2010,
+    "customerLng": 77.4420,
+    "date": 'Today · 2:00 PM',
+    "status": 'In Progress',
     "amount": 380,
     "etaMinutes": 10,
-    "address": "Gulmohar Colony, Near Shahpura Lake, Bhopal",
-    "invoiceNumber": "INV-2025-0105",
+    "address": 'Gulmohar Colony, Near Shahpura Lake, Bhopal',
+    "invoiceNumber": 'INV-2025-0105',
     "workerEarnings": 285,
     "coopFee": 76,
     "communityFund": 19,
     "problemDescription": "Main teak wood door latch stuck and deadlock jammed.",
     "urgency": "Urgent",
-    "aiMatchScore": 92
+    "aiMatchScore": 92,
   },
   {
     "id": 1008,
-    "service": "Balcony & Terrace Garden Overhaul",
-    "serviceId": "srv-gard-01",
-    "worker": "Prakash Malviya",
+    "service": 'Balcony & Terrace Garden Overhaul',
+    "serviceId": 'srv-gard-01',
+    "worker": 'Prakash Malviya',
     "workerId": 119,
     "customerId": 5,
-    "customerName": "Sneha Verma",
-    "workerLat": 23.213,
+    "customerName": 'Sneha Verma',
+    "workerLat": 23.2130,
     "workerLng": 77.4375,
-    "customerLat": 23.178,
-    "customerLng": 77.419,
-    "date": "05 Mar 2025",
-    "status": "Completed",
+    "customerLat": 23.1780,
+    "customerLng": 77.4190,
+    "date": '05 Mar 2025',
+    "status": 'Completed',
     "amount": 480,
     "rating": 5,
-    "review": "Terrace plants repotted nicely with organic vermicompost.",
-    "invoiceNumber": "INV-2025-0089",
+    "review": 'Terrace plants repotted nicely with organic vermicompost.',
+    "invoiceNumber": 'INV-2025-0089',
     "workerEarnings": 360,
     "coopFee": 96,
     "communityFund": 24,
-    "address": "Sector A, Sarvadharma, Kolar Road, Bhopal"
+    "address": 'Sector A, Sarvadharma, Kolar Road, Bhopal',
   },
   {
     "id": 1009,
-    "service": "Raja Bhoj Airport Bhopal Round-Trip Driver",
-    "serviceId": "srv-driv-02",
-    "worker": "Sumit Verma",
+    "service": 'Raja Bhoj Airport Bhopal Round-Trip Driver',
+    "serviceId": 'srv-driv-02',
+    "worker": 'Sumit Verma',
     "workerId": 121,
     "customerId": 4,
-    "customerName": "Rajesh Agrawal",
-    "workerLat": 23.233,
-    "workerLng": 77.433,
+    "customerName": 'Rajesh Agrawal',
+    "workerLat": 23.2330,
+    "workerLng": 77.4330,
     "customerLat": 23.2384,
     "customerLng": 77.4018,
-    "date": "02 Mar 2025",
-    "status": "Completed",
+    "date": '02 Mar 2025',
+    "status": 'Completed',
     "amount": 650,
     "rating": 5,
-    "review": "Punctual 4:30 AM pickup for morning Delhi flight from Bhopal airport.",
-    "invoiceNumber": "INV-2025-0078",
+    "review": 'Punctual 4:30 AM pickup for morning Delhi flight from Bhopal airport.',
+    "invoiceNumber": 'INV-2025-0078',
     "workerEarnings": 488,
     "coopFee": 130,
     "communityFund": 32,
-    "address": "New Market, TT Nagar, Bhopal"
+    "address": 'New Market, TT Nagar, Bhopal',
   },
   {
     "id": 1010,
-    "service": "Interior Room Touch-up & Spot Painting",
-    "serviceId": "srv-paint-01",
-    "worker": "Arjun Patel",
+    "service": 'Interior Room Touch-up & Spot Painting',
+    "serviceId": 'srv-paint-01',
+    "worker": 'Arjun Patel',
     "workerId": 5,
     "customerId": 7,
-    "customerName": "Meera Joshi",
-    "workerLat": 23.231,
-    "workerLng": 77.434,
-    "customerLat": 23.182,
-    "customerLng": 77.448,
-    "date": "15 Feb 2025",
-    "status": "Completed",
+    "customerName": 'Meera Joshi',
+    "workerLat": 23.2310,
+    "workerLng": 77.4340,
+    "customerLat": 23.1820,
+    "customerLng": 77.4480,
+    "date": '15 Feb 2025',
+    "status": 'Completed',
     "amount": 700,
     "rating": 4,
-    "invoiceNumber": "INV-2025-0062",
+    "invoiceNumber": 'INV-2025-0062',
     "workerEarnings": 525,
     "coopFee": 140,
     "communityFund": 35,
-    "address": "Bawadiya Kalan, Hoshangabad Road, Bhopal"
-  }
+    "address": 'Bawadiya Kalan, Hoshangabad Road, Bhopal',
+  },
 ]
 
-export const initialCoopStats: CoopStats = {
-  "totalWorkers": 71,
-  "verifiedWorkers": 61,
+coop_stats = {
+  "totalWorkers": len(workers),
+  "verifiedWorkers": sum(1 for w in workers if w["verified"]),
   "activeJobs": 11,
   "completedJobs": 342,
   "pendingJobs": 4,
@@ -3369,241 +2713,244 @@ export const initialCoopStats: CoopStats = {
   "workerEarnings": 288375,
   "averageRating": 4.84,
   "topServices": [
-    {
-      "name": "Plumber",
-      "count": 108,
-      "percentage": 30
-    },
-    {
-      "name": "Cleaner",
-      "count": 86,
-      "percentage": 24
-    },
-    {
-      "name": "Electrician",
-      "count": 68,
-      "percentage": 19
-    },
-    {
-      "name": "AC Technician",
-      "count": 54,
-      "percentage": 15
-    },
-    {
-      "name": "Caregiver",
-      "count": 41,
-      "percentage": 12
-    }
+    { "name": 'Plumber', "count": 108, "percentage": 30 },
+    { "name": 'Cleaner', "count": 86, "percentage": 24 },
+    { "name": 'Electrician', "count": 68, "percentage": 19 },
+    { "name": 'AC Technician', "count": 54, "percentage": 15 },
+    { "name": 'Caregiver', "count": 41, "percentage": 12 },
   ],
   "demandByArea": [
-    {
-      "zone": "Central (MP Nagar / TT Nagar)",
-      "requests": 124,
-      "activeWorkers": 24
-    },
-    {
-      "zone": "South (Arera Colony / Kolar / Shahpura)",
-      "requests": 148,
-      "activeWorkers": 26
-    },
-    {
-      "zone": "East (Hoshangabad Rd / Misrod / BHEL)",
-      "requests": 78,
-      "activeWorkers": 13
-    },
-    {
-      "zone": "North (Ayodhya Bypass / Karond / Bairagarh)",
-      "requests": 46,
-      "activeWorkers": 8
-    }
-  ]
+    { "zone": 'Central (MP Nagar / TT Nagar)', "requests": 124, "activeWorkers": 24 },
+    { "zone": 'South (Arera Colony / Kolar / Shahpura)', "requests": 148, "activeWorkers": 26 },
+    { "zone": 'East (Hoshangabad Rd / Misrod / BHEL)', "requests": 78, "activeWorkers": 13 },
+    { "zone": 'North (Ayodhya Bypass / Karond / Bairagarh)', "requests": 46, "activeWorkers": 8 },
+  ],
 }
 
-export const initialForecast: DemandForecast[] = [
+forecast = [
   {
-    "id": "fc-1",
-    "date": "12 Mar (Tue)",
-    "dayOfWeek": "Tuesday",
-    "serviceType": "Plumber",
-    "zone": "Central Zone (MP Nagar & TT Nagar)",
+    "id": 'fc-1',
+    "date": '12 Mar (Tue)',
+    "dayOfWeek": 'Tuesday',
+    "serviceType": 'Plumber',
+    "zone": 'Central Zone (MP Nagar & TT Nagar)',
     "requests": 48,
-    "weather": "Clear (31\u00b0C)",
-    "holiday": false,
+    "weather": 'Clear (31°C)',
+    "holiday": False,
     "trendPercent": 14,
-    "predictionText": "Steady residential and shop water fixture maintenance demand across Central Bhopal."
+    "predictionText": 'Steady residential and shop water fixture maintenance demand across Central Bhopal.',
   },
   {
-    "id": "fc-2",
-    "date": "13 Mar (Wed)",
-    "dayOfWeek": "Wednesday",
-    "serviceType": "AC Technician",
-    "zone": "South Zone (Arera Colony & Shahpura)",
+    "id": 'fc-2',
+    "date": '13 Mar (Wed)',
+    "dayOfWeek": 'Wednesday',
+    "serviceType": 'AC Technician',
+    "zone": 'South Zone (Arera Colony & Shahpura)',
     "requests": 62,
-    "weather": "Sunny (34\u00b0C)",
-    "holiday": false,
+    "weather": 'Sunny (34°C)',
+    "holiday": False,
     "trendPercent": 26,
-    "predictionText": "Summer temperature spike in Bhopal (+3\u00b0C). 26% surge in split AC jet servicing and gas refills."
+    "predictionText": 'Summer temperature spike in Bhopal (+3°C). 26% surge in split AC jet servicing and gas refills.',
   },
   {
-    "id": "fc-3",
-    "date": "14 Mar (Thu)",
-    "dayOfWeek": "Thursday",
-    "serviceType": "Cleaner",
-    "zone": "Kolar Road & Sarvadharma",
+    "id": 'fc-3',
+    "date": '14 Mar (Thu)',
+    "dayOfWeek": 'Thursday',
+    "serviceType": 'Cleaner',
+    "zone": 'Kolar Road & Sarvadharma',
     "requests": 52,
-    "weather": "Warm (33\u00b0C)",
-    "holiday": false,
+    "weather": 'Warm (33°C)',
+    "holiday": False,
     "trendPercent": 12,
-    "predictionText": "Mid-week apartment move-in deep cleaning and water tank flushing requests rising in Kolar."
+    "predictionText": 'Mid-week apartment move-in deep cleaning and water tank flushing requests rising in Kolar.',
   },
   {
-    "id": "fc-4",
-    "date": "15 Mar (Fri)",
-    "dayOfWeek": "Friday",
-    "serviceType": "Electrician",
-    "zone": "Hoshangabad Road & Misrod Corridor",
+    "id": 'fc-4',
+    "date": '15 Mar (Fri)',
+    "dayOfWeek": 'Friday',
+    "serviceType": 'Electrician',
+    "zone": 'Hoshangabad Road & Misrod Corridor',
     "requests": 78,
-    "weather": "Sunny (35\u00b0C)",
-    "holiday": false,
+    "weather": 'Sunny (35°C)',
+    "holiday": False,
     "trendPercent": 19,
-    "predictionText": "High industrial and township load checks; inverter battery safety audits prior to weekend."
+    "predictionText": 'High industrial and township load checks; inverter battery safety audits prior to weekend.',
   },
   {
-    "id": "fc-5",
-    "date": "16 Mar (Sat)",
-    "dayOfWeek": "Saturday",
-    "serviceType": "All Trades",
-    "zone": "City-wide (Bhopal MP)",
+    "id": 'fc-5',
+    "date": '16 Mar (Sat)',
+    "dayOfWeek": 'Saturday',
+    "serviceType": 'All Trades',
+    "zone": 'City-wide (Bhopal MP)',
     "requests": 112,
-    "weather": "Sunny (36\u00b0C)",
-    "holiday": true,
+    "weather": 'Sunny (36°C)',
+    "holiday": True,
     "trendPercent": 32,
-    "predictionText": "Peak weekend household demand across Bhopal (+32%). 18 additional open worker dispatch slots recommended."
+    "predictionText": 'Peak weekend household demand across Bhopal (+32%). 18 additional open worker dispatch slots recommended.',
   },
   {
-    "id": "fc-6",
-    "date": "17 Mar (Sun)",
-    "dayOfWeek": "Sunday",
-    "serviceType": "All Trades",
-    "zone": "City-wide (Bhopal MP)",
+    "id": 'fc-6',
+    "date": '17 Mar (Sun)',
+    "dayOfWeek": 'Sunday',
+    "serviceType": 'All Trades',
+    "zone": 'City-wide (Bhopal MP)',
     "requests": 96,
-    "weather": "Clear (35\u00b0C)",
-    "holiday": true,
+    "weather": 'Clear (35°C)',
+    "holiday": True,
     "trendPercent": 25,
-    "predictionText": "Sustained family weekend home repairs, garden overhauls, and airport transfers."
+    "predictionText": 'Sustained family weekend home repairs, garden overhauls, and airport transfers.',
   },
   {
-    "id": "fc-7",
-    "date": "18 Mar (Mon)",
-    "dayOfWeek": "Monday",
-    "serviceType": "Driver & Caregiver",
-    "zone": "Ayodhya Bypass & Karond",
+    "id": 'fc-7',
+    "date": '18 Mar (Mon)',
+    "dayOfWeek": 'Monday',
+    "serviceType": 'Driver & Caregiver',
+    "zone": 'Ayodhya Bypass & Karond',
     "requests": 58,
-    "weather": "Clear (32\u00b0C)",
-    "holiday": false,
+    "weather": 'Clear (32°C)',
+    "holiday": False,
     "trendPercent": 8,
-    "predictionText": "Weekday medical appointments at AIIMS Bhopal and senior mobility assistance schedules."
-  }
+    "predictionText": 'Weekday medical appointments at AIIMS Bhopal and senior mobility assistance schedules.',
+  },
 ]
 
-export const demoWorkerWelfare: WorkerWelfare = {
-  "insuranceStatus": "Active \u00b7 Pradhan Mantri Jan Arogya & Co-op Shield (\u20b95,00,000)",
-  "trainingCompleted": "Advanced Electrical Safety & Child-Safe Fixtures (Level 3)",
-  "certificationStatus": "Certified Master Electrician (Govt. ITI Bhopal Accredited)",
+worker_welfare = {
+  "insuranceStatus": 'Active · Pradhan Mantri Jan Arogya & Co-op Shield (₹5,00,000)',
+  "trainingCompleted": 'Advanced Electrical Safety & Child-Safe Fixtures (Level 3)',
+  "certificationStatus": 'Certified Master Electrician (Govt. ITI Bhopal Accredited)',
   "leaveBalance": 5,
-  "welfareEligibility": "Tier 1 Prime Member (Eligible for zero-interest equipment loans in Bhopal)",
-  "grievanceStatus": "0 Pending \u00b7 Clean community standing with Bhopal Kaushalya Sahakari"
+  "welfareEligibility": 'Tier 1 Prime Member (Eligible for zero-interest equipment loans in Bhopal)',
+  "grievanceStatus": '0 Pending · Clean community standing with Bhopal Kaushalya Sahakari',
 }
 
-export const initialNotifications: NotificationItem[] = [
+notifications = [
   {
-    "id": "notif-c-1",
-    "role": "customer",
-    "title": "Worker Accepted Booking",
-    "message": "Priya Sharma accepted your Deep Home Cleaning booking in Arera Colony.",
-    "time": "5 min ago",
-    "read": false,
-    "type": "booking"
+    "id": 'notif-c-1',
+    "role": 'customer',
+    "title": 'Worker Accepted Booking',
+    "message": 'Priya Sharma accepted your Deep Home Cleaning booking in Arera Colony.',
+    "time": '5 min ago',
+    "read": False,
+    "type": 'booking',
   },
   {
-    "id": "notif-c-2",
-    "role": "customer",
-    "title": "Worker is En Route",
-    "message": "Ravi Kumar is 1.2 km away in MP Nagar. Estimated arrival in ~8 mins.",
-    "time": "12 min ago",
-    "read": false,
-    "type": "booking"
+    "id": 'notif-c-2',
+    "role": 'customer',
+    "title": 'Worker is En Route',
+    "message": 'Ravi Kumar is 1.2 km away in MP Nagar. Estimated arrival in ~8 mins.',
+    "time": '12 min ago',
+    "read": False,
+    "type": 'booking',
   },
   {
-    "id": "notif-c-3",
-    "role": "customer",
-    "title": "Service Completed & Verified",
-    "message": "Plumbing repair by Ramesh Verma completed in Arera Colony. Tap rating to confirm.",
-    "time": "Yesterday",
-    "read": true,
-    "type": "booking"
+    "id": 'notif-c-3',
+    "role": 'customer',
+    "title": 'Service Completed & Verified',
+    "message": 'Plumbing repair by Ramesh Verma completed in Arera Colony. Tap rating to confirm.',
+    "time": 'Yesterday',
+    "read": True,
+    "type": 'booking',
   },
   {
-    "id": "notif-c-4",
-    "role": "customer",
-    "title": "Payment Receipt Ready",
-    "message": "Payment of \u20b9380 confirmed. Invoice INV-2025-0098 generated.",
-    "time": "Yesterday",
-    "read": true,
-    "type": "payment"
+    "id": 'notif-c-4',
+    "role": 'customer',
+    "title": 'Payment Receipt Ready',
+    "message": 'Payment of ₹380 confirmed. Invoice INV-2025-0098 generated.',
+    "time": 'Yesterday',
+    "read": True,
+    "type": 'payment',
   },
   {
-    "id": "notif-c-5",
-    "role": "customer",
-    "title": "Community Dividend Active",
-    "message": "Your booking contributed \u20b919 to the Bhopal artisan welfare fund.",
-    "time": "3 days ago",
-    "read": true,
-    "type": "welfare"
+    "id": 'notif-c-5',
+    "role": 'customer',
+    "title": 'Community Dividend Active',
+    "message": 'Your booking contributed ₹19 to the Bhopal artisan welfare fund.',
+    "time": '3 days ago',
+    "read": True,
+    "type": 'welfare',
   },
   {
-    "id": "notif-w-1",
-    "role": "worker",
-    "title": "New Nearby Job Available",
-    "message": "Switchboard replacement requested 0.8 km away in MP Nagar by Pooja Singhal.",
-    "time": "2 min ago",
-    "read": false,
-    "type": "booking"
+    "id": 'notif-w-1',
+    "role": 'worker',
+    "title": 'New Nearby Job Available',
+    "message": 'Switchboard replacement requested 0.8 km away in MP Nagar by Pooja Singhal.',
+    "time": '2 min ago',
+    "read": False,
+    "type": 'booking',
   },
   {
-    "id": "notif-w-2",
-    "role": "worker",
-    "title": "Booking Confirmed",
-    "message": "Customer location in MP Nagar unlocked. Turn-by-turn navigation active.",
-    "time": "15 min ago",
-    "read": false,
-    "type": "booking"
+    "id": 'notif-w-2',
+    "role": 'worker',
+    "title": 'Booking Confirmed',
+    "message": 'Customer location in MP Nagar unlocked. Turn-by-turn navigation active.',
+    "time": '15 min ago',
+    "read": False,
+    "type": 'booking',
   },
   {
-    "id": "notif-w-3",
-    "role": "worker",
-    "title": "Weekly Earnings Credited",
-    "message": "\u20b918,450 service earnings + \u20b91,400 Bhopal co-op dividend credited to bank.",
-    "time": "Yesterday",
-    "read": true,
-    "type": "payment"
+    "id": 'notif-w-3',
+    "role": 'worker',
+    "title": 'Weekly Earnings Credited',
+    "message": '₹18,450 service earnings + ₹1,400 Bhopal co-op dividend credited to bank.',
+    "time": 'Yesterday',
+    "read": True,
+    "type": 'payment',
   },
   {
-    "id": "notif-w-4",
-    "role": "worker",
-    "title": "Annual Health Shield Active",
-    "message": "Your Ayushman & Bhopal Co-op health cover has been renewed through 2026.",
-    "time": "2 days ago",
-    "read": true,
-    "type": "welfare"
+    "id": 'notif-w-4',
+    "role": 'worker',
+    "title": 'Annual Health Shield Active',
+    "message": 'Your Ayushman & Bhopal Co-op health cover has been renewed through 2026.',
+    "time": '2 days ago',
+    "read": True,
+    "type": 'welfare',
   },
   {
-    "id": "notif-w-5",
-    "role": "worker",
-    "title": "Safety Certification Refresher",
-    "message": "Complete the 30-min annual electrical safety module at Govt. ITI Bhopal.",
-    "time": "4 days ago",
-    "read": true,
-    "type": "system"
-  }
+    "id": 'notif-w-5',
+    "role": 'worker',
+    "title": 'Safety Certification Refresher',
+    "message": 'Complete the 30-min annual electrical safety module at Govt. ITI Bhopal.',
+    "time": '4 days ago',
+    "read": True,
+    "type": 'system',
+  },
 ]
+
+ts_content = f"""import {{
+  Worker,
+  CustomerRecord,
+  CatalogService,
+  Booking,
+  CoopStats,
+  DemandForecast,
+  NotificationItem,
+  WorkerWelfare,
+}} from './types'
+
+export const categories = {json.dumps(categories, indent=2)}
+
+/**
+ * {len(workers)} Realistic Gig Workers spanning all 10 trades, realistic Bhopal MP geo-distribution,
+ * verified/unverified statuses, varied workloads, and male/female cooperative members.
+ */
+export const initialWorkers: Worker[] = {json.dumps(workers, indent=2)}
+
+export const initialCustomers: CustomerRecord[] = {json.dumps(customers, indent=2)}
+
+export const catalogServices: CatalogService[] = {json.dumps(catalog_services, indent=2)}
+
+export const initialBookings: Booking[] = {json.dumps(bookings, indent=2)}
+
+export const initialCoopStats: CoopStats = {json.dumps(coop_stats, indent=2)}
+
+export const initialForecast: DemandForecast[] = {json.dumps(forecast, indent=2)}
+
+export const demoWorkerWelfare: WorkerWelfare = {json.dumps(worker_welfare, indent=2)}
+
+export const initialNotifications: NotificationItem[] = {json.dumps(notifications, indent=2)}
+"""
+
+with open("/Users/talhakhan/Downloads/co-opserve/lib/mock-data.ts", "w") as f:
+    f.write(ts_content)
+
+print(f"Successfully generated lib/mock-data.ts with {len(workers)} Bhopal workers!")

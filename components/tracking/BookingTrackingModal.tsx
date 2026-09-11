@@ -18,6 +18,7 @@ import {
   Star,
   Printer,
   CreditCard,
+  Sparkles,
 } from 'lucide-react'
 
 const InteractiveMap = dynamic(
@@ -69,13 +70,13 @@ export default function BookingTrackingModal({
   }, [])
 
   const customerCoords = {
-    lat: currentBooking.customerLat || 12.9716,
-    lng: currentBooking.customerLng || 77.5946,
+    lat: currentBooking.customerLat || 23.2333,
+    lng: currentBooking.customerLng || 77.4334,
   }
 
   const workerCoords = {
-    lat: currentBooking.workerLat || (worker?.lat ?? 12.9795),
-    lng: currentBooking.workerLng || (worker?.lng ?? 77.601),
+    lat: currentBooking.workerLat || (worker?.lat ?? 23.2285),
+    lng: currentBooking.workerLng || (worker?.lng ?? 77.4380),
   }
 
   const workerRanked: any = worker
@@ -253,6 +254,26 @@ export default function BookingTrackingModal({
             <span>{t('tracking.step4')}</span>
           </div>
         </div>
+
+        {/* Reported Problem & AI Allocation Badge */}
+        {currentBooking.problemDescription && (
+          <div className="tracking-problem-card">
+            <div className="problem-pill-row">
+              <span className="problem-label">Reported Issue:</span>
+              {currentBooking.urgency && (
+                <span className={`urgency-pill ${currentBooking.urgency.toLowerCase()}`}>
+                  {currentBooking.urgency}
+                </span>
+              )}
+              {currentBooking.aiMatchScore && (
+                <span className="ai-score-pill">
+                  <Sparkles size={11} /> AI Match: {currentBooking.aiMatchScore}%
+                </span>
+              )}
+            </div>
+            <p className="problem-text">{currentBooking.problemDescription}</p>
+          </div>
+        )}
 
         {/* Assigned Worker Details Card */}
         <div className="tracking-worker-card">

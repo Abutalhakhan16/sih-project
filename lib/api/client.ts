@@ -53,6 +53,8 @@ export function clearToken(): void {
   if (typeof window === 'undefined') return
   sessionStorage.removeItem('coopserve_token')
   localStorage.removeItem('coopserve_token')
+  sessionStorage.removeItem('coopserve_demo_user')
+  localStorage.removeItem('coopserve_demo_user')
 }
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {

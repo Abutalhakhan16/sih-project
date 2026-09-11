@@ -134,7 +134,7 @@ export default function CoopInsightsView({ stats, forecast }: CoopInsightsViewPr
           <div className="panel-head">
             <div>
               <h3>{t('coopStats.demandByAreaTitle')}</h3>
-              <p className="muted">Live distribution across Bengaluru metro sectors</p>
+              <p className="muted">Live distribution across Bhopal metro zones</p>
             </div>
             <MapPin size={18} className="green-icon" />
           </div>

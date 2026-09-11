@@ -71,9 +71,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRole(null)
       }
     } catch {
-      clearToken()
-      setUser(null)
-      setRole(null)
+      let restoredUser: UserProfile | null = null
+      if (typeof window !== 'undefined') {
+        const stored =
+          sessionStorage.getItem('coopserve_demo_user') ||
+          localStorage.getItem('coopserve_demo_user')
+        if (stored) {
+          try {
+            restoredUser = JSON.parse(stored) as UserProfile
+          } catch {}
+        }
+      }
+
+      if (restoredUser && restoredUser.role) {
+        setUser(restoredUser)
+        setRole(restoredUser.role as Role)
+      } else {
+        clearToken()
+        setUser(null)
+        setRole(null)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -84,6 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for 401 unauthorized events from api client
     const handleUnauthorized = () => {
+      // If in demo mode, ignore 401
+      const isDemo =
+        typeof window !== 'undefined' &&
+        (sessionStorage.getItem('coopserve_demo_user') || localStorage.getItem('coopserve_demo_user'))
+      if (isDemo) return
+
       setUser(null)
       setRole(null)
       setAuthError('Your session has expired. Please log in again.')

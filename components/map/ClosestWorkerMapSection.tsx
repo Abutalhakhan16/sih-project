@@ -367,7 +367,7 @@ export default function ClosestWorkerMapSection({
                   </div>
                   <div className="worker-address-muted">
                     <MapPin size={12} />
-                    <span>{displayedWorker.address || displayedWorker.serviceArea || 'Bengaluru'}</span>
+                    <span>{displayedWorker.address || displayedWorker.serviceArea || 'Bhopal, MP'}</span>
                   </div>
                 </div>
               </div>

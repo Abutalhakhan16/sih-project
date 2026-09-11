@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { ThemeProvider } from '@/lib/theme/ThemeContext'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f1714' },
   ],
 }
 
@@ -24,9 +25,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

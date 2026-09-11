@@ -177,3 +177,114 @@ export function findSmartMatches(
     explanation,
   }
 }
+
+export interface ProblemAllocationAnalysis {
+  matchScore: number
+  matchedSkills: string[]
+  estimatedDuration: string
+  fairPriceEstimate: number
+  urgencyLevel: 'Standard' | 'Urgent' | 'Emergency'
+  explanation: string
+  betterAlternativeWorker?: Worker | null
+  betterAlternativeReason?: string
+}
+
+export function analyzeProblemAllocation(
+  worker: Worker,
+  problemText: string,
+  urgency: 'Standard' | 'Urgent' | 'Emergency' = 'Standard',
+  allWorkers: Worker[] = [],
+  customerLoc = { lat: 12.9716, lng: 77.5946 },
+  lang: 'en' | 'hi' = 'en'
+): ProblemAllocationAnalysis {
+  const text = (problemText || '').toLowerCase().trim()
+  const matchedSkills: string[] = []
+
+  // Check worker skills against problem description
+  const allWorkerSkills = [
+    worker.service,
+    worker.primarySkill,
+    ...(worker.secondarySkills || []),
+    ...(worker.certifications || []),
+  ].filter(Boolean)
+
+  allWorkerSkills.forEach((skill) => {
+    const skillWords = skill.toLowerCase().split(/\s+/)
+    if (skillWords.some((word) => word.length > 3 && text.includes(word))) {
+      if (!matchedSkills.includes(skill)) matchedSkills.push(skill)
+    }
+  })
+
+  // Calculate match score
+  let score = 88 // baseline qualified cooperative member
+  if (matchedSkills.length > 0) score += Math.min(8, matchedSkills.length * 4)
+  if (worker.rating >= 4.8) score += 2
+  if (worker.completedJobs > 100) score += 1
+  if (urgency === 'Emergency' && (worker.availability === 'Available' || worker.currentStatus === 'Available')) score += 1
+  score = Math.min(99, score)
+
+  // Estimate duration and fair price
+  let estimatedDuration = '45–60 mins'
+  let priceMultiplier = 1.0
+
+  if (text.includes('deep') || text.includes('full') || text.includes('install') || text.includes('rewir')) {
+    estimatedDuration = '1.5–2.5 hrs'
+    priceMultiplier = 1.4
+  } else if (text.includes('small') || text.includes('tap') || text.includes('switch') || text.includes('bulb')) {
+    estimatedDuration = '30–45 mins'
+    priceMultiplier = 0.9
+  }
+
+  if (urgency === 'Emergency') {
+    estimatedDuration = `Immediate (~12m arrival) + ${estimatedDuration}`
+  }
+
+  const fairPriceEstimate = Math.round(worker.price * priceMultiplier)
+
+  // Check for specialized alternative worker
+  let betterAlternativeWorker: Worker | null = null
+  let betterAlternativeReason: string | undefined
+
+  if (text.length > 5 && allWorkers.length > 0) {
+    const currentWorkerDist = calculateHaversineDistance(customerLoc.lat, customerLoc.lng, worker.lat, worker.lng)
+
+    const candidates = allWorkers.filter(
+      (w) =>
+        w.id !== worker.id &&
+        (w.availability === 'Available' || w.currentStatus === 'Available') &&
+        w.service.toLowerCase() === worker.service.toLowerCase()
+    )
+
+    for (const alt of candidates) {
+      const altDist = calculateHaversineDistance(customerLoc.lat, customerLoc.lng, alt.lat, alt.lng)
+      const altSpecificMatch = (alt.secondarySkills || []).some((s) => text.includes(s.toLowerCase()))
+
+      if (altSpecificMatch && altDist < currentWorkerDist) {
+        betterAlternativeWorker = alt
+        betterAlternativeReason =
+          lang === 'hi'
+            ? `${alt.name} आपके और निकट (${altDist.toFixed(1)} किमी) हैं और इस विशिष्ट समस्या में विशेषज्ञता रखते हैं।`
+            : `${alt.name} is closer (${altDist.toFixed(1)} km) and specifically specializes in this issue.`
+        break
+      }
+    }
+  }
+
+  const skillSummary = matchedSkills.length > 0 ? matchedSkills.join(', ') : worker.primarySkill
+  const explanation =
+    lang === 'hi'
+      ? `एआई विश्लेषण: ${worker.name} के पास ${skillSummary} में सिद्ध अनुभव है (${score}% मैच)।`
+      : `AI Allocation: ${worker.name} holds verified proficiency in ${skillSummary} (${score}% match for this issue).`
+
+  return {
+    matchScore: score,
+    matchedSkills,
+    estimatedDuration,
+    fairPriceEstimate,
+    urgencyLevel: urgency,
+    explanation,
+    betterAlternativeWorker,
+    betterAlternativeReason,
+  }
+}
+

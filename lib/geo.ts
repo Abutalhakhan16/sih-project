@@ -49,39 +49,70 @@ export function estimateEtaMinutes(distanceKm: number): number {
 }
 
 /**
- * Preset customer locations for quick one-click testing in the prototype.
+ * Preset customer locations across Bhopal, MP for testing in the prototype.
  */
 export const PRESET_LOCATIONS: CustomerLocation[] = [
   {
-    lat: 12.9716,
-    lng: 77.5946,
-    label: 'Indiranagar / MG Road',
+    lat: 23.2333,
+    lng: 77.4334,
+    label: 'MP Nagar Zone 1 & 2 (Bhopal)',
     source: 'preset',
   },
   {
-    lat: 12.9352,
-    lng: 77.6245,
-    label: 'Koramangala 4th Block',
+    lat: 23.2135,
+    lng: 77.4377,
+    label: 'Arera Colony (E-3 / 10 No. Market)',
     source: 'preset',
   },
   {
-    lat: 13.0031,
-    lng: 77.5643,
-    label: 'Malleshwaram 8th Cross',
+    lat: 23.2384,
+    lng: 77.4018,
+    label: 'New Market / TT Nagar',
     source: 'preset',
   },
   {
-    lat: 12.9308,
-    lng: 77.5838,
-    label: 'Jayanagar 4th Block',
+    lat: 23.178,
+    lng: 77.419,
+    label: 'Kolar Road / Sarvadharma',
     source: 'preset',
   },
   {
-    lat: 12.9698,
-    lng: 77.75,
-    label: 'Whitefield Main Road',
+    lat: 23.201,
+    lng: 77.442,
+    label: 'Shahpura / Gulmohar Colony',
+    source: 'preset',
+  },
+  {
+    lat: 23.189,
+    lng: 77.456,
+    label: 'Hoshangabad Road / Misrod',
+    source: 'preset',
+  },
+  {
+    lat: 23.271,
+    lng: 77.468,
+    label: 'Ayodhya Bypass / Anand Nagar',
+    source: 'preset',
+  },
+  {
+    lat: 23.305,
+    lng: 77.395,
+    label: 'Karond / Bhanpur Trade Hub',
+    source: 'preset',
+  },
+  {
+    lat: 23.275,
+    lng: 77.345,
+    label: 'Bairagarh / Lalghati',
+    source: 'preset',
+  },
+  {
+    lat: 23.245,
+    lng: 77.382,
+    label: 'Shyamla Hills / VIP Road',
     source: 'preset',
   },
 ]
 
 export const DEFAULT_CUSTOMER_LOCATION: CustomerLocation = PRESET_LOCATIONS[0]
+
